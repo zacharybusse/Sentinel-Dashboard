@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT SENTINEL - Phase 2 Charter Amendment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+
+        /* Cover Page */
+        .cover-page {
+            text-align: center;
+            border-bottom: 3px solid #1f4e78;
+            padding-bottom: 40px;
+            margin-bottom: 40px;
+            page-break-after: always;
+        }
+
+        .cover-page h1 {
+            font-size: 48px;
+            color: #1f4e78;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .cover-page .subtitle {
+            font-size: 24px;
+            color: #2d5a8c;
+            margin-bottom: 30px;
+        }
+
+        .cover-page .meta {
+            font-size: 14px;
+            color: #666;
+            margin-top: 40px;
+            text-align: left;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            border-top: 1px solid #ddd;
+            padding-top: 30px;
+        }
+
+        .meta-item {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .meta-item strong {
+            color: #1f4e78;
+        }
+
+        /* Headers */
+        h1 {
+            color: #1f4e78;
+            border-bottom: 3px solid #1f4e78;
+            padding-bottom: 15px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        h2 {
+            color: #2d5a8c;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 24px;
+            border-left: 5px solid #1f4e78;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #1f4e78;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        h4 {
+            color: #2d5a8c;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        /* Text Content */
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        strong {
+            color: #1f4e78;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            line-height: 1.8;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        thead {
+            background: #1f4e78;
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+
+        td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background: #f0f0f0;
+        }
+
+        /* Boxes */
+        .box {
+            border-left: 5px solid #1f4e78;
+            background: #f0f5fb;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .box.critical {
+            border-left-color: #c55a11;
+            background: #fff3e0;
+        }
+
+        .box.success {
+            border-left-color: #70ad47;
+            background: #f1f8e9;
+        }
+
+        .box.warning {
+            border-left-color: #ffc000;
+            background: #fffde7;
+        }
+
+        .box-title {
+            font-weight: bold;
+            color: #1f4e78;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        /* Section Numbers */
+        .section-number {
+            display: inline-block;
+            background: #1f4e78;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        /* Signature Section */
+        .signatures {
+            margin-top: 50px;
+            page-break-inside: avoid;
+        }
+
+        .signature-block {
+            margin-bottom: 40px;
+            width: 100%;
+        }
+
+        .signature-line {
+            border-top: 1px solid #333;
+            width: 300px;
+            margin-top: 30px;
+            margin-bottom: 5px;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .signature-title {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Status Badges */
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status.complete {
+            background: #c8e6c9;
+            color: #1b5e20;
+        }
+
+        .status.pending {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .status.open {
+            background: #ffccbc;
+            color: #bf360c;
+        }
+
+        /* Page Break */
+        .page-break {
+            page-break-after: always;
+            margin-bottom: 40px;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+            }
+
+            h1, h2, h3 {
+                page-break-after: avoid;
+            }
+
+            table {
+                page-break-inside: avoid;
+            }
+
+            p {
+                orphans: 3;
+                widows: 3;
+            }
+        }
+
+        /* Table of Contents */
+        .toc {
+            background: #f0f5fb;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .toc ol {
+            margin-left: 20px;
+        }
+
+        .toc li {
+            margin-bottom: 10px;
+        }
+
+        .toc a {
+            color: #1f4e78;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        /* Info Banner */
+        .banner {
+            background: #1f4e78;
+            color: white;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+        }
+
+        .banner h2 {
+            color: white;
+            border-left-color: white;
+            margin-top: 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- COVER PAGE -->
+        <div class="cover-page">
+            <h1>PROJECT SENTINEL</h1>
+            <div class="subtitle">Phase 2 Charter Amendment</div>
+            
+            <div style="margin-top: 60px; font-size: 18px; color: #1f4e78; font-weight: bold;">
+                Governance Authority Update & Execution Authorization
+            </div>
+
+            <div class="meta">
+                <div class="meta-item">
+                    <strong>Document Type:</strong>
+                    <span>Charter Amendment</span>
+                </div>
+                <div class="meta-item">
+                    <strong>Effective Date:</strong>
+                    <span>August 15, 2026</span>
+                </div>
+                <div class="meta-item">
+                    <strong>Status:</strong>
+                    <span class="status pending">Pending Board Approval</span>
+                </div>
+                <div class="meta-item">
+                    <strong>Prepared By:</strong>
+                    <span>Zach Busse, Project Manager</span>
+                </div>
+                <div class="meta-item">
+                    <strong>Version:</strong>
+                    <span>1.0</span>
+                </div>
+                <div class="meta-item">
+                    <strong>Project:</strong>
+                    <span>SENTINEL (U.S. Army GPS Logistics)</span>
+                </div>
+                <div class="meta-item">
+                    <strong>Authorization:</strong>
+                    <span>$12.50M | Duration: Jan 2026 - Dec 2026</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- EXECUTIVE SUMMARY -->
+        <h1>Executive Summary</h1>
+        
+        <div class="banner">
+            <h2 style="margin-top: 0;">Purpose of This Amendment</h2>
+            <p style="color: white; margin: 0;">This Phase 2 Charter Amendment establishes governance structures, decision authorities, risk management framework, and execution criteria for Phase 2 (Aug 15 - Oct 21, 2026) of Project SENTINEL. This amendment does not modify the original project charter but provides Phase 2-specific details required for board governance and phase gate decisions.</p>
+        </div>
+
+        <h2>Phase 2 Governance Overview</h2>
+        <p><strong>Phase 2 Status:</strong> <span class="status pending">Authorization Pending - Board Vote Aug 15, 2026</span></p>
+        <p><strong>Phase 2 Timeline:</strong> August 15 - October 21, 2026 (67 days)</p>
+        <p><strong>Key Milestone:</strong> MVP delivery Sep 30, 2026 | Phase completion Oct 21, 2026</p>
+        <p><strong>Dec 31 Deployment:</strong> ACHIEVABLE with 71-day Phase 3 buffer</p>
+
+        <h3>Phase 2 Governance Conditions</h3>
+        <p>The board has identified 11 conditions for Phase 2 authorization. This amendment documents how each condition will be managed:</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Condition</th>
+                    <th>Status</th>
+                    <th>Due Date</th>
+                    <th>Owner</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Hardware environmental testing completion</td>
+                    <td><span class="status complete">✓ Complete</span></td>
+                    <td>Aug 14, 2026</td>
+                    <td>Falcon Engineering</td>
+                </tr>
+                <tr>
+                    <td>Financial forecast reconciliation</td>
+                    <td><span class="status complete">✓ Complete</span></td>
+                    <td>Aug 13, 2026</td>
+                    <td>Finance Director</td>
+                </tr>
+                <tr>
+                    <td>Product Owner allocation resolution</td>
+                    <td><span class="status pending">⏳ Pending</span></td>
+                    <td>Aug 25, 2026</td>
+                    <td>Executive Sponsor</td>
+                </tr>
+                <tr>
+                    <td>Apex Software Lead assignment</td>
+                    <td><span class="status open">❌ CRITICAL - OPEN</span></td>
+                    <td>Aug 16, 2026</td>
+                    <td>Executive Sponsor</td>
+                </tr>
+                <tr>
+                    <td>Software battery optimization feasibility</td>
+                    <td><span class="status pending">⏳ Pending</span></td>
+                    <td>Sep 28, 2026</td>
+                    <td>Software Lead (TBD)</td>
+                </tr>
+                <tr>
+                    <td>Integration test coverage progress (80%)</td>
+                    <td><span class="status pending">⏳ Pending</span></td>
+                    <td>Sep 15, 2026</td>
+                    <td>Integration Lead</td>
+                </tr>
+                <tr>
+                    <td>Army formal approval authority confirmation</td>
+                    <td><span class="status pending">⏳ Pending</span></td>
+                    <td>Aug 20, 2026</td>
+                    <td>COL Michael Torres</td>
+                </tr>
+                <tr>
+                    <td>Field Ops CSAT remediation plan</td>
+                    <td><span class="status pending">⏳ Pending</span></td>
+                    <td>Sep 30, 2026</td>
+                    <td>Customer Experience</td>
+                </tr>
+                <tr>
+                    <td>Manufacturing Readiness Review criteria</td>
+                    <td><span class="status pending">⏳ Pending</span></td>
+                    <td>Oct 5, 2026</td>
+                    <td>Falcon + Finance</td>
+                </tr>
+                <tr>
+                    <td>Monthly financial reporting to board</td>
+                    <td><span class="status pending">⏳ Setup</span></td>
+                    <td>Aug 31, 2026</td>
+                    <td>Finance Director</td>
+                </tr>
+                <tr>
+                    <td>Integrated hardware/software change control</td>
+                    <td><span class="status pending">⏳ Establish</span></td>
+                    <td>Aug 20, 2026</td>
+                    <td>Software Lead + Falcon PM</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 1: PHASE 2 SUCCESS CRITERIA -->
+        <h1><span class="section-number">1</span>Phase 2 Success Criteria & Metrics</h1>
+
+        <p>Phase 2 success is defined by achievement of specific, measurable criteria across software delivery, hardware validation, customer satisfaction, financial performance, and operational readiness. These criteria represent the board's expectations for Phase 2 completion and serve as the basis for the Phase 2→Phase 3 transition gate decision (Oct 21, 2026).</p>
+
+        <h2>1.1 Software Delivery Criteria</h2>
+        <ul>
+            <li><strong>MVP Completion:</strong> 100% delivery of 27 remaining story points by Sep 30, 2026 (Sprint 5 completion)</li>
+            <li><strong>Integration Test Coverage:</strong> 80%+ test coverage by Sep 30, 2026</li>
+            <li><strong>Quality Gates:</strong> All unit tests passing, regression testing PASS, technical debt documented</li>
+            <li><strong>Acceptance Criteria:</strong> All accepted user stories meet Definition of Done</li>
+            <li><strong>Deployment Readiness:</strong> Software package ready for production deployment by Oct 21, 2026</li>
+        </ul>
+
+        <h2>1.2 Hardware Validation Criteria</h2>
+        <ul>
+            <li><strong>Environmental Testing Status:</strong> ✓ Complete (Prototype #2, Aug 14, 2026)</li>
+            <li><strong>Issue Identified:</strong> Battery endurance below 72-hour target under temperature extremes</li>
+            <li><strong>Mitigation Path:</strong> Software power optimization (70% probability) by Sep 30, 2026</li>
+            <li><strong>Contingency Path:</strong> Hardware battery redesign ($400K, 30% probability) with Oct 5 Go/No-Go decision</li>
+            <li><strong>Production Authorization:</strong> Pending software optimization results (Oct 5 gate)</li>
+        </ul>
+
+        <h2>1.3 Pilot Performance Criteria</h2>
+        <ul>
+            <li><strong>Logistics Segment CSAT:</strong> 90%+ (TARGET ACHIEVED in current pilot)</li>
+            <li><strong>Field Ops Segment CSAT:</strong> 72% current, 85% target for Phase 3 (Phase 3 optimization planned)</li>
+            <li><strong>Aggregate CSAT:</strong> 85%+ (achieved through segmented deployment strategy)</li>
+            <li><strong>Device Reliability:</strong> 99%+ uptime requirement maintained</li>
+            <li><strong>User Adoption:</strong> Sustained engagement in pilot operations</li>
+        </ul>
+
+        <h2>1.4 Financial Performance Criteria</h2>
+        <ul>
+            <li><strong>Cost Baseline:</strong> $11.80M (original) → $12.65M EAC (current, Aug 15)</li>
+            <li><strong>Gap:</strong> $150K (manageable within authorization)</li>
+            <li><strong>Risk-Adjusted:</strong> $270K (if EMV materializes)</li>
+            <li><strong>Contingency:</strong> $700K available; monthly tracking to board</li>
+            <li><strong>Baseline Change Authority:</strong> Board approval required for Oct 21 forecast implementation</li>
+        </ul>
+
+        <h2>1.5 Operational Readiness Criteria</h2>
+        <ul>
+            <li><strong>Manufacturing Readiness:</strong> Production authorization for 5,000 units by Oct 5 gate decision</li>
+            <li><strong>Army Approval:</strong> Customer formal approval for Phase 2→Phase 3 transition by Oct 21</li>
+            <li><strong>Deployment Plan:</strong> Logistics-only Phase 2 strategy approved; Field Ops expansion Phase 3</li>
+            <li><strong>Supply Chain:</strong> Confirmed for 5,000 unit production ramp Sep-Dec 2026</li>
+            <li><strong>Quality Assurance:</strong> Test procedures finalized and ready for production validation</li>
+        </ul>
+
+        <div class="box critical">
+            <div class="box-title">⚠️ CRITICAL - SOFTWARE LEAD ASSIGNMENT REQUIRED</div>
+            <p>Phase 2 success requires a designated Apex Software Lead to own software delivery accountability, integration quality gates, and technical steering committee leadership. This assignment is CRITICAL and DUE AUG 16, 2026.</p>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 2: GOVERNANCE STRUCTURE -->
+        <h1><span class="section-number">2</span>Governance Structure & Decision Authorities</h1>
+
+        <p>Phase 2 governance is structured around a Governance Board with defined authorities, monthly oversight cycle, change control process, and risk escalation framework. This structure ensures clear decision-making, rapid issue resolution, and board visibility into project health.</p>
+
+        <h2>2.1 Governance Board Composition & Authorities</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Role</th>
+                    <th>Name</th>
+                    <th>Organization</th>
+                    <th>Key Authorities</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Chair / Executive Sponsor</strong></td>
+                    <td>Sarah Mitchell</td>
+                    <td>Apex Defense Solutions (VP Strategic Programs)</td>
+                    <td>Phase approval, strategic direction, resource conflicts, final decisions on >$100K issues</td>
+                </tr>
+                <tr>
+                    <td><strong>Finance Authority</strong></td>
+                    <td>Karen Holt</td>
+                    <td>Apex Defense Solutions (Finance Director)</td>
+                    <td>Budget approval, contingency activation, baseline changes, financial escalation</td>
+                </tr>
+                <tr>
+                    <td><strong>Customer Authority</strong></td>
+                    <td>COL Michael Torres</td>
+                    <td>U.S. Army (Military Programs Advisor)</td>
+                    <td>Customer acceptance, operational suitability, deployment approval, Army sign-off</td>
+                </tr>
+                <tr>
+                    <td><strong>PMO Authority</strong></td>
+                    <td>Amanda Reed</td>
+                    <td>Apex Defense Solutions (PMO Director)</td>
+                    <td>Schedule/baseline approval, monthly governance coordination, phase gate facilitation</td>
+                </tr>
+                <tr>
+                    <td><strong>Program Manager</strong></td>
+                    <td>Zach Busse</td>
+                    <td>Apex Defense Solutions</td>
+                    <td>Day-to-day execution, escalation authority, board coordination, governance liaison</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>2.2 Phase Gate Authorities</h2>
+
+        <h3>Phase 2 Gate (Aug 15, 2026) - DECISION TODAY</h3>
+        <ul>
+            <li><strong>Authority:</strong> Executive Sponsor + Governance Board</li>
+            <li><strong>Decision:</strong> Phase 2 Authorization with 11 conditions</li>
+            <li><strong>Conditions:</strong> See Executive Summary table above</li>
+            <li><strong>Status:</strong> Pending board vote today (Aug 15, 2026)</li>
+        </ul>
+
+        <h3>Phase 3 Hardware Decision Gate (Oct 5, 2026)</h3>
+        <ul>
+            <li><strong>Authority:</strong> Executive Sponsor + Finance Director</li>
+            <li><strong>Decision:</strong> Hardware redesign Go/No-Go</li>
+            <li><strong>Trigger:</strong> Software battery optimization testing results (Sep 30, 2026)</li>
+            <li><strong>If SUCCESS (70% prob):</strong> GREEN - Proceed to production manufacturing without redesign</li>
+            <li><strong>If FAILURE (30% prob):</strong> YELLOW - Activate $400K hardware redesign contingency</li>
+        </ul>
+
+        <h3>Phase 2→Phase 3 Authorization Gate (Oct 21, 2026)</h3>
+        <ul>
+            <li><strong>Authority:</strong> Executive Sponsor + Customer Authority + Finance Director</li>
+            <li><strong>Decision:</strong> Authorization for Phase 3 deployment (Logistics-only initial scope)</li>
+            <li><strong>Requirements:</strong> MVP 100% complete, CSAT 85%+, Integration 80%+, Financial stability, Army approval</li>
+            <li><strong>Outcome:</strong> Approval for logistics personnel deployment (Oct 21 - Nov 15)</li>
+        </ul>
+
+        <h2>2.3 Monthly Governance Board Meeting Cycle</h2>
+        
+        <div class="box">
+            <div class="box-title">Monthly Board Meeting Structure</div>
+            <ul>
+                <li><strong>Frequency:</strong> Last business day of each month (Aug 31, Sep 30, Oct 31, Nov 30, Dec 31)</li>
+                <li><strong>Attendees:</strong> Sponsor, Finance Director, PMO Director, Program Manager, Customer rep (optional)</li>
+                <li><strong>Duration:</strong> 90 minutes typical</li>
+                <li><strong>Decision Authority:</strong> Board quorum = 3 of 5 core members</li>
+                <li><strong>Standing Agenda Items:</strong>
+                    <ul>
+                        <li>Financial position (budget vs EAC, variance trend, contingency tracking)</li>
+                        <li>Schedule status (milestones, critical path, forecast updates)</li>
+                        <li>RAID status (new risks, issue escalations, dependency tracking)</li>
+                        <li>Governance condition progress (11 conditions status)</li>
+                        <li>Stakeholder/customer feedback and concerns</li>
+                        <li>Personnel/resource updates (especially Software Lead assignment)</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h2>2.4 Change Control Board Authority</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Change Type</th>
+                    <th>Impact Range</th>
+                    <th>Approval Authority</th>
+                    <th>Timeline</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Scope/Cost/Schedule Change</td>
+                    <td>&lt;$20K or &lt;2 days</td>
+                    <td>Program Manager</td>
+                    <td>1-2 days</td>
+                </tr>
+                <tr>
+                    <td>Scope/Cost/Schedule Change</td>
+                    <td>$20K-$100K or 2-5 days</td>
+                    <td>PM + Finance Director</td>
+                    <td>2-3 days</td>
+                </tr>
+                <tr>
+                    <td>Scope/Cost/Schedule Change</td>
+                    <td>&gt;$100K or &gt;5 days</td>
+                    <td>Governance Board</td>
+                    <td>Board meeting cycle (weekly if urgent)</td>
+                </tr>
+                <tr>
+                    <td>Technical Architecture Decision</td>
+                    <td>Any impact</td>
+                    <td>Software Lead + Falcon PM</td>
+                    <td>Technical steering committee (weekly)</td>
+                </tr>
+                <tr>
+                    <td>Risk/Contingency Activation</td>
+                    <td>&gt;$100K</td>
+                    <td>Governance Board vote</td>
+                    <td>Emergency board meeting if needed</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>2.5 Technical Steering Committee</h2>
+        <ul>
+            <li><strong>Purpose:</strong> Weekly software/hardware integration coordination and conflict resolution</li>
+            <li><strong>Frequency:</strong> Weekly (Tuesday 10:00 AM)</li>
+            <li><strong>Chair:</strong> Apex Software Lead (TBD - CRITICAL ASSIGNMENT)</li>
+            <li><strong>Members:</strong> Software Lead, Falcon Program Manager, Integration Lead, Product Owner</li>
+            <li><strong>Authority:</strong> Technical design decisions, integration issues, architecture conflicts</li>
+            <li><strong>Escalation:</strong> Unresolved hardware/software conflicts → Project Manager → Sponsor</li>
+        </ul>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 3: RISK RESPONSE & CONTINGENCY -->
+        <h1><span class="section-number">3</span>Risk Response Strategy & Contingency Framework</h1>
+
+        <p>Phase 2 risk management focuses on three critical risks: hardware battery performance, product owner availability, and cost/schedule contingencies. This section defines risk ownership, escalation thresholds, contingency budgets, activation processes, and stop/pause criteria.</p>
+
+        <h2>3.1 Risk Ownership & Escalation Framework</h2>
+        
+        <div class="box">
+            <div class="box-title">Risk Escalation Thresholds</div>
+            <p><strong>Escalate to Executive Sponsor immediately when ANY of these occur:</strong></p>
+            <ul>
+                <li>Single risk impact exceeds $100K</li>
+                <li>Schedule slip exceeds 14 days from Oct 21 working forecast</li>
+                <li>CSAT falls below 70% (by segment or aggregate)</li>
+                <li>Hardware or software redesign probability rises above 50%</li>
+                <li>Multiple risks with combined impact >$200K</li>
+                <li>Customer (Army) expresses mission-critical concerns with pilot</li>
+                <li>Critical technical blocker prevents MVP delivery (>5 day resolution time)</li>
+            </ul>
+        </div>
+
+        <h2>3.2 Critical Risk #1: Battery Environmental Testing Gap</h2>
+        
+        <h3>Risk Status</h3>
+        <ul>
+            <li><strong>Status:</strong> ACTIVE - Mitigation in progress</li>
+            <li><strong>Identified:</strong> Aug 14, 2026 (Falcon environmental testing results)</li>
+            <li><strong>Issue:</strong> Battery endurance below 72-hour requirement under temperature extremes</li>
+            <li><strong>Probability:</strong> 30% hardware redesign contingency required</li>
+            <li><strong>Impact:</strong> HIGH ($400K potential hardware redesign cost)</li>
+        </ul>
+
+        <h3>Primary Response Path (70% Confidence)</h3>
+        <ul>
+            <li><strong>Approach:</strong> Software power-management optimization</li>
+            <li><strong>Components:</strong> Synchronization behavior, communications frequency, background processing optimization</li>
+            <li><strong>Timeline:</strong> Parallel with pilot (non-blocking to Phase 2); testing by Sep 30, 2026</li>
+            <li><strong>Owner:</strong> Apex Software team (lead TBD)</li>
+            <li><strong>Success Criteria:</strong> Battery endurance ≥72 hours post-optimization in testing</li>
+        </ul>
+
+        <h3>Contingency Response Path (30% Probability)</h3>
+        <ul>
+            <li><strong>Approach:</strong> Hardware battery module redesign</li>
+            <li><strong>Cost:</strong> $400K (Falcon estimate)</li>
+            <li><strong>Timeline:</strong> If software optimization fails, Oct 5 Go/No-Go decision for activation</li>
+            <li><strong>Owner:</strong> Ethan Brooks (Falcon Program Manager)</li>
+            <li><strong>Trigger:</strong> Software testing Sep 30 shows battery &lt;72 hours post-optimization</li>
+            <li><strong>Board Approval:</strong> YES - contingency activation vote required</li>
+        </ul>
+
+        <h2>3.3 Critical Risk #2: Product Owner Availability Constraint</h2>
+        
+        <ul>
+            <li><strong>Status:</strong> ACTIVE - Requires board decision</li>
+            <li><strong>Current State:</strong> Jennifer Morales split between SENTINEL and Legacy Logistics Suite</li>
+            <li><strong>Probability:</strong> HIGH (will materialize if unresolved)</li>
+            <li><strong>Impact:</strong> MEDIUM (affects MVP velocity and quality gates)</li>
+            <li><strong>Decision Required:</strong> By Aug 25, 2026</li>
+        </ul>
+
+        <h3>Primary Response: Full-Time PO Allocation (PREFERRED)</h3>
+        <ul>
+            <li><strong>Action:</strong> Allocate Jennifer Morales 100% to SENTINEL</li>
+            <li><strong>Impact:</strong> Removes Legacy Logistics Suite conflict; enables optimal backlog prioritization</li>
+            <li><strong>Authority:</strong> Executive Sponsor decision</li>
+            <li><strong>Timeline:</strong> Implementation by Aug 25, 2026</li>
+        </ul>
+
+        <h3>Contingency Response: Assistant PO Assignment</h3>
+        <ul>
+            <li><strong>Action:</strong> Assign Assistant PO to support Jennifer on one project</li>
+            <li><strong>Backfill Requirements:</strong> Identify by Aug 20, 2026</li>
+            <li><strong>Authority:</strong> Executive Sponsor staffing decision</li>
+            <li><strong>Backup Timeline:</strong> If full-time allocation not feasible</li>
+        </ul>
+
+        <h2>3.4 Reserve Management Plan</h2>
+        
+        <div class="box">
+            <div class="box-title">Contingency Reserve Allocation ($700K total)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reserve Category</th>
+                        <th>Allocation</th>
+                        <th>Basis</th>
+                        <th>Release Authority</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Hardware redesign contingency</td>
+                        <td>$400K</td>
+                        <td>30% prob × $400K battery redesign</td>
+                        <td>Board vote (>$100K)</td>
+                    </tr>
+                    <tr>
+                        <td>Software contingency</td>
+                        <td>$150K</td>
+                        <td>Unplanned rework, optimization failures</td>
+                        <td>PM + Finance ($20K-$100K)</td>
+                    </tr>
+                    <tr>
+                        <td>Integration contingency</td>
+                        <td>$100K</td>
+                        <td>Testing issues, architecture changes</td>
+                        <td>PM + Finance ($20K-$100K)</td>
+                    </tr>
+                    <tr>
+                        <td>Management reserve</td>
+                        <td>$50K</td>
+                        <td>Unforeseen circumstances</td>
+                        <td>PM authority for <$20K items</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>3.5 Contingency Activation Process</h2>
+        
+        <ol>
+            <li><strong>Risk Threshold Exceeded:</strong> Risk owner or Project Manager identifies threshold exceedance</li>
+            <li><strong>PM Escalation:</strong> Project Manager escalates to Executive Sponsor within 24 hours</li>
+            <li><strong>Sponsor Notification:</strong> Sponsor notifies Finance Director and PMO</li>
+            <li><strong>Financial Assessment:</strong> Finance analyzes impact
+                <ul>
+                    <li>&lt;$100K: PM + Finance approval (1-2 days)</li>
+                    <li>&gt;$100K: Board vote required (emergency meeting if needed)</li>
+                </ul>
+            </li>
+            <li><strong>Contingency Decision:</strong> Board approves or defers contingency activation</li>
+            <li><strong>Authorization:</strong> If approved, authorized work begins immediately</li>
+            <li><strong>Tracking:</strong> Contingency spend tracked monthly against board oversight</li>
+        </ol>
+
+        <h2>3.6 Risk Monitoring Cadence</h2>
+        <ul>
+            <li><strong>Daily:</strong> Project Manager risk awareness (informal)</li>
+            <li><strong>Weekly:</strong> RAID log review with team; Technical steering committee (hardware/software risks)</li>
+            <li><strong>Monthly:</strong> Board governance meeting (RAID status, escalations); Financial reporting (contingency tracking)</li>
+        </ul>
+
+        <h2>3.7 Stop/Pause Decision Criteria</h2>
+        
+        <div class="box critical">
+            <div class="box-title">Phase 2 PAUSE CONDITIONS (Stop-work pending decision)</div>
+            <ul>
+                <li>Three or more HIGH-priority risks exceed thresholds simultaneously</li>
+                <li>Customer (Army) expresses mission-critical concerns with pilot</li>
+                <li>CSAT falls below 60% in critical segment</li>
+                <li>Budget variance exceeds $200K and contingency insufficient</li>
+                <li>Critical hardware/software technical blocker (>14 days resolution time)</li>
+            </ul>
+        </div>
+
+        <div class="box critical">
+            <div class="box-title">Phase 2 STOP DECISION AUTHORITY</div>
+            <ul>
+                <li><strong>Decision Maker:</strong> Executive Sponsor (in consultation with Board)</li>
+                <li><strong>Required Concurrence:</strong> Customer (Army) for operational issues</li>
+                <li><strong>Finance Sign-off:</strong> Finance Director on financial implications</li>
+                <li><strong>PM Recommendation:</strong> Program Manager feasibility assessment</li>
+            </ul>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 4: TEAM ORGANIZATION -->
+        <h1><span class="section-number">4</span>Team Organization & Key Assignments</h1>
+
+        <p>Phase 2 execution requires clear team structure, defined roles and authorities, and immediate assignment of critical open positions. This section documents the current team, specifies reporting relationships, and identifies three critical open assignments that block Phase 2 governance.</p>
+
+        <h2>4.1 Project Core Team</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Position</th>
+                    <th>Name</th>
+                    <th>Organization</th>
+                    <th>Authority Level</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Project Manager</strong></td>
+                    <td>Zachary Busse</td>
+                    <td>Apex Defense Solutions</td>
+                    <td>Execution authority, board escalation</td>
+                    <td><span class="status complete">✓ Assigned</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Assistant PM</strong></td>
+                    <td>Christian Kallo</td>
+                    <td>Apex Defense Solutions</td>
+                    <td>Support execution, daily coordination</td>
+                    <td><span class="status complete">✓ Assigned</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Assistant PM</strong></td>
+                    <td>Kenson McFarlane</td>
+                    <td>Apex Defense Solutions</td>
+                    <td>Support execution, daily coordination</td>
+                    <td><span class="status complete">✓ Assigned</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Product Owner</strong></td>
+                    <td>Jennifer Morales</td>
+                    <td>Apex Defense Solutions</td>
+                    <td>Backlog, acceptance criteria, prioritization</td>
+                    <td><span class="status pending">⏳ CONSTRAINT</span></td>
+                </tr>
+                <tr>
+                    <td><strong>CRITICAL: Software Lead</strong></td>
+                    <td>TBD</td>
+                    <td>Apex Defense Solutions</td>
+                    <td>Software governance, MVP delivery, quality gates</td>
+                    <td><span class="status open">❌ NOT ASSIGNED - DUE AUG 16</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Finance Director</strong></td>
+                    <td>Karen Holt</td>
+                    <td>Apex Defense Solutions</td>
+                    <td>Budget approval, contingency, baseline</td>
+                    <td><span class="status complete">✓ Assigned</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Senior Financial Analyst</strong></td>
+                    <td>Daniel Cho</td>
+                    <td>Apex Defense Solutions</td>
+                    <td>Cost tracking, EAC analysis, contingency</td>
+                    <td><span class="status complete">✓ Assigned</span></td>
+                </tr>
+                <tr>
+                    <td><strong>PMO Director</strong></td>
+                    <td>Amanda Reed</td>
+                    <td>Apex Defense Solutions</td>
+                    <td>Schedule/baseline approval, governance</td>
+                    <td><span class="status complete">✓ Assigned</span></td>
+                </tr>
+                <tr>
+                    <td><strong>CX Director</strong></td>
+                    <td>Emily Carter</td>
+                    <td>Apex Defense Solutions</td>
+                    <td>Pilot CSAT, user feedback, acceptance</td>
+                    <td><span class="status complete">✓ Assigned</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Falcon Program Manager</strong></td>
+                    <td>Ethan Brooks</td>
+                    <td>Falcon Technologies (Subcontractor)</td>
+                    <td>Hardware delivery, schedule, Falcon resources</td>
+                    <td><span class="status complete">✓ Assigned</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Falcon Engineering Lead</strong></td>
+                    <td>Dr. Rachel Kim</td>
+                    <td>Falcon Technologies (Subcontractor)</td>
+                    <td>Hardware design, battery optimization</td>
+                    <td><span class="status complete">✓ Assigned</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Customer Authority</strong></td>
+                    <td>COL Michael Torres</td>
+                    <td>U.S. Army</td>
+                    <td>Customer acceptance, deployment approval</td>
+                    <td><span class="status complete">✓ Assigned</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>4.2 Critical Open Assignments</h2>
+        
+        <div class="box critical">
+            <div class="box-title">⚠️ CRITICAL OPEN #1: Apex Software Lead</div>
+            <ul>
+                <li><strong>Position:</strong> Software Lead / Integrated Software Governance Authority</li>
+                <li><strong>Authority Level:</strong> Technical accountability for software domain</li>
+                <li><strong>Reports To:</strong> Zach Busse (Project Manager); Board governance on critical decisions</li>
+                <li><strong>Assigned By:</strong> Sarah Mitchell (Executive Sponsor)</li>
+                <li><strong>Due Date:</strong> <span class="status open">❌ AUGUST 16, 2026 - CRITICAL</span></li>
+                <li><strong>Key Responsibilities:</strong>
+                    <ul>
+                        <li>Software architecture decisions and ownership</li>
+                        <li>MVP delivery accountability (27 story points)</li>
+                        <li>Integration quality gates (80%+ coverage target)</li>
+                        <li>Software optimization for battery power management</li>
+                        <li>Chair of Technical Steering Committee (weekly)</li>
+                        <li>Escalation point for software technical issues</li>
+                    </ul>
+                </li>
+                <li><strong>Impact of Delay:</strong> Software governance breaks; MVP delivery at risk; board confidence undermined</li>
+            </ul>
+        </div>
+
+        <div class="box critical">
+            <div class="box-title">⚠️ CRITICAL OPEN #2: PO Allocation Resolution</div>
+            <ul>
+                <li><strong>Current State:</strong> Jennifer Morales split allocation (SENTINEL + Legacy Logistics Suite)</li>
+                <li><strong>Status:</strong> Unsustainable for Phase 2 execution</li>
+                <li><strong>Decision Authority:</strong> Sarah Mitchell (Executive Sponsor)</li>
+                <li><strong>Due Date:</strong> <span class="status pending">August 25, 2026</span></li>
+                <li><strong>Options:</strong>
+                    <ul>
+                        <li><strong>Option A (PREFERRED):</strong> Full-time allocation to SENTINEL (reassign Legacy support)</li>
+                        <li><strong>Option B:</strong> Assign Assistant PO to support Jennifer on one project</li>
+                    </ul>
+                </li>
+                <li><strong>Impact:</strong> MVP delivery timeline and velocity sustainability depend on resolution</li>
+            </ul>
+        </div>
+
+        <div class="box warning">
+            <div class="box-title">⚠️ IMPORTANT OPEN #3: Army Formal Approval Authority</div>
+            <ul>
+                <li><strong>Requirement:</strong> Formal identification of Army approval authority for deployment decisions</li>
+                <li><strong>Confirm By:</strong> <span class="status pending">August 20, 2026</span></li>
+                <li><strong>Owner:</strong> COL Michael Torres (Military Programs Advisor)</li>
+                <li><strong>Use For:</strong> Phase 2→Phase 3 transition gate (Oct 21), deployment authorization (Dec 31)</li>
+                <li><strong>Impact:</strong> Needed for board understanding of approval process for Phase 3</li>
+            </ul>
+        </div>
+
+        <h2>4.3 Organizational Structure (Reporting Relationships)</h2>
+        
+        <div style="background: #f0f5fb; padding: 20px; border-radius: 4px; margin: 20px 0;">
+            <pre style="font-size: 12px; line-height: 1.6;">
+Executive Sponsor (Sarah Mitchell, VP Strategic Programs)
+├── Project Manager (Zach Busse)
+│   ├── APM (Christian Kallo, Kenson McFarlane)
+│   ├── Product Owner (Jennifer Morales) [CONSTRAINT: Split allocation]
+│   ├── Software Lead (TBD) [CRITICAL OPEN - Due Aug 16]
+│   ├── Falcon PM (Ethan Brooks)
+│   │   └── Falcon Engineering (Dr. Rachel Kim)
+│   ├── Integration Team Lead (TBD)
+│   └── CX Director (Emily Carter)
+├── PMO Director (Amanda Reed) [Governance/oversight]
+└── Finance Director (Karen Holt) [Budget authority]
+            </pre>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 5: FINANCIAL BASELINE -->
+        <h1><span class="section-number">5</span>Updated Financial Baseline & Reserve Management</h1>
+
+        <p>Phase 2 financial position has been analyzed and validated as of August 15, 2026. This section documents the updated cost baseline, variance analysis, reserve allocation, and monthly financial monitoring framework.</p>
+
+        <h2>5.1 Cost Baseline Update</h2>
+        
+        <table>
+            <tbody>
+                <tr>
+                    <td><strong>Original Authorization (Jan 2026)</strong></td>
+                    <td style="text-align: right;"><strong>$12.50M</strong></td>
+                </tr>
+                <tr style="background: #f0f5fb;">
+                    <td><strong>Original Baseline</strong></td>
+                    <td style="text-align: right;"><strong>$11.80M</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Actual Cost to Date (Aug 15)</strong></td>
+                    <td style="text-align: right;"><strong>$7.80M</strong></td>
+                </tr>
+                <tr style="background: #fff3e0;">
+                    <td><strong>Current EAC (Bottom-up, Preferred)</strong></td>
+                    <td style="text-align: right;"><strong>$12.65M</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Gap to Authorization</strong></td>
+                    <td style="text-align: right;"><strong>$150K</strong> (Manageable)</td>
+                </tr>
+                <tr style="background: #fff3e0;">
+                    <td><strong>Risk-Adjusted EAC</strong></td>
+                    <td style="text-align: right;"><strong>$12.77M</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Risk-Adjusted Gap</strong></td>
+                    <td style="text-align: right;"><strong>$270K</strong> (if EMV materializes)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>5.2 Cost Performance Indices</h2>
+        <ul>
+            <li><strong>Cost Performance Index (CPI):</strong> 0.923 (92.3% efficiency - tracking slightly over budget)</li>
+            <li><strong>Schedule Performance Index (SPI):</strong> 0.90 (90% schedule progress - schedule is slipping)</li>
+            <li><strong>Earned Value:</strong> $7.2M</li>
+            <li><strong>Planned Value:</strong> $8.0M</li>
+            <li><strong>Remaining Authorization:</strong> $4.70M</li>
+        </ul>
+
+        <h2>5.3 Cost Variance Root Causes</h2>
+        <ul>
+            <li><strong>Prototype #1 Learning Effort:</strong> $120K (classified as learning, not overrun)</li>
+            <li><strong>Battery Performance Investigation:</strong> $50K (unforeseen, now addressed in Phase 2)</li>
+            <li><strong>Extended Environmental Testing:</strong> $30K (schedule impact)</li>
+            <li><strong>Software Architecture Refinement:</strong> $40K (scope clarity work)</li>
+            <li><strong>Integration Rework:</strong> $60K (technical complexity discovered)</li>
+            <li><strong>Other Variances:</strong> $550K (to be detailed in financial reconciliation)</li>
+        </ul>
+
+        <h2>5.4 Reserve Management Plan</h2>
+        
+        <div class="box">
+            <div class="box-title">Contingency Reserve Allocation ($700K total)</div>
+            <ul>
+                <li><strong>Hardware redesign contingency:</strong> $400K (30% prob × $400K battery redesign)</li>
+                <li><strong>Software contingency:</strong> $150K (unplanned rework, optimization failures)</li>
+                <li><strong>Integration contingency:</strong> $100K (testing issues, architecture changes)</li>
+                <li><strong>Management reserve:</strong> $50K (unforeseen circumstances)</li>
+                <li><strong>Total Contingency:</strong> $700K (5.6% of $12.5M authorization)</li>
+            </ul>
+        </div>
+
+        <h2>5.5 Financial Monitoring & Escalation Thresholds</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Variance Range</th>
+                    <th>Action</th>
+                    <th>Authority</th>
+                    <th>Timeline</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>$0 - $20K</td>
+                    <td>Monitor (PM awareness)</td>
+                    <td>Project Manager</td>
+                    <td>Ongoing</td>
+                </tr>
+                <tr>
+                    <td>$20K - $50K</td>
+                    <td>Report to Board (monthly)</td>
+                    <td>Finance Director</td>
+                    <td>Monthly board review</td>
+                </tr>
+                <tr>
+                    <td>$50K - $100K</td>
+                    <td>Written analysis required</td>
+                    <td>Finance Director + PM</td>
+                    <td>Within 48 hours</td>
+                </tr>
+                <tr>
+                    <td>&gt;$100K</td>
+                    <td>Sponsor escalation + Board meeting</td>
+                    <td>Executive Sponsor</td>
+                    <td>Within 48 hours (emergency if needed)</td>
+                </tr>
+                <tr>
+                    <td>Contingency drops &lt;$200K</td>
+                    <td>Board escalation</td>
+                    <td>Governance Board</td>
+                    <td>Immediate</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>5.6 Monthly Financial Reporting to Board</h2>
+        <ul>
+            <li><strong>Frequency:</strong> Monthly (last business day of month)</li>
+            <li><strong>Reporting Owner:</strong> Karen Holt (Finance Director)</li>
+            <li><strong>Attendees:</strong> Governance Board</li>
+            <li><strong>Key Metrics:</strong>
+                <ul>
+                    <li>Actual spending vs planned spending</li>
+                    <li>Cost variance and trend analysis</li>
+                    <li>Contingency remaining balance</li>
+                    <li>EAC updates (if conditions change)</li>
+                    <li>Risk-adjusted financial position</li>
+                </ul>
+            </li>
+            <li><strong>Schedule:</strong> Aug 31, Sep 30, Oct 31, Nov 30, Dec 31, 2026</li>
+        </ul>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 6: STAKEHOLDER ENGAGEMENT -->
+        <h1><span class="section-number">6</span>Stakeholder Engagement & Communication Strategy</h1>
+
+        <p>Phase 2 success requires active stakeholder engagement across 15+ key stakeholders with different communication needs, decision authorities, and constraints. This section defines communication frequency, formats, escalation paths, and awareness of key constraints.</p>
+
+        <h2>6.1 Stakeholder Communication Matrix</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Stakeholder</th>
+                    <th>Frequency</th>
+                    <th>Format</th>
+                    <th>Topics</th>
+                    <th>Authority</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Executive Sponsor (Sarah Mitchell)</strong></td>
+                    <td>Ad-hoc + Monthly</td>
+                    <td>Executive summary, email escalations</td>
+                    <td>Gate decisions, resource conflicts, strategic issues</td>
+                    <td>Phase approval</td>
+                </tr>
+                <tr>
+                    <td><strong>Customer (COL Michael Torres)</strong></td>
+                    <td>Monthly + Weekly technical</td>
+                    <td>Working sessions, demonstrations</td>
+                    <td>Pilot progress, operational readiness, CSAT</td>
+                    <td>Customer acceptance</td>
+                </tr>
+                <tr>
+                    <td><strong>Finance Director (Karen Holt)</strong></td>
+                    <td>Weekly + Monthly board</td>
+                    <td>Status reports, financial analysis</td>
+                    <td>Cost tracking, variance, contingency</td>
+                    <td>Budget authority</td>
+                </tr>
+                <tr>
+                    <td><strong>PMO Director (Amanda Reed)</strong></td>
+                    <td>Weekly + Monthly board</td>
+                    <td>Status coordination, governance facilitation</td>
+                    <td>Schedule, milestones, board coordination</td>
+                    <td>Baseline approval</td>
+                </tr>
+                <tr>
+                    <td><strong>Product Owner (Jennifer Morales)</strong></td>
+                    <td>Daily + Weekly + Monthly</td>
+                    <td>Standup, backlog refinement, sprint reviews</td>
+                    <td>Sprint progress, acceptance criteria, prioritization</td>
+                    <td>Backlog decisions</td>
+                </tr>
+                <tr>
+                    <td><strong>Falcon Technologies</strong></td>
+                    <td>Weekly + Monthly</td>
+                    <td>Technical calls, progress reports</td>
+                    <td>Hardware progress, battery optimization, manufacturing</td>
+                    <td>Hardware delivery</td>
+                </tr>
+                <tr>
+                    <td><strong>Army Pilot Office</strong></td>
+                    <td>Weekly pilot + Monthly formal</td>
+                    <td>Coordination calls, demonstrations</td>
+                    <td>Pilot operations, user feedback, CSAT</td>
+                    <td>Pilot acceptance</td>
+                </tr>
+                <tr>
+                    <td><strong>CX Director (Emily Carter)</strong></td>
+                    <td>Weekly + Monthly board</td>
+                    <td>Pilot metrics analysis, user feedback</td>
+                    <td>CSAT trends, segment analysis, user experience</td>
+                    <td>Pilot acceptance</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>6.2 Escalation Paths by Issue Type</h2>
+        
+        <div class="box">
+            <div class="box-title">Technical Blocker (&gt;5 days to resolve)</div>
+            <ul>
+                <li><strong>Day 1-2:</strong> Technical team escalation</li>
+                <li><strong>Within 24h:</strong> Software Lead + Falcon PM notification</li>
+                <li><strong>Within 48h:</strong> Project Manager to Sponsor</li>
+                <li><strong>Within 72h:</strong> Board notification (if impact &gt;$50K or schedule &gt;5 days)</li>
+            </ul>
+        </div>
+
+        <div class="box">
+            <div class="box-title">Schedule Variance (&gt;3 days)</div>
+            <ul>
+                <li><strong>Daily:</strong> PMO monitoring</li>
+                <li><strong>Within 1 week:</strong> Board notification (monthly report)</li>
+                <li><strong>Immediate:</strong> If &gt;10 days, Sponsor escalation required</li>
+                <li><strong>Within 48h:</strong> Recovery plan submission to board</li>
+            </ul>
+        </div>
+
+        <div class="box">
+            <div class="box-title">Financial Variance (&gt;$50K)</div>
+            <ul>
+                <li><strong>Weekly:</strong> Finance Director monitoring</li>
+                <li><strong>Monthly:</strong> Board financial report</li>
+                <li><strong>Immediate:</strong> If &gt;$100K, Sponsor escalation + board meeting within 48h</li>
+            </ul>
+        </div>
+
+        <div class="box">
+            <div class="box-title">Risk Materialization</div>
+            <ul>
+                <li><strong>Immediate:</strong> Risk owner to Project Manager</li>
+                <li><strong>Within 24h:</strong> PM to Sponsor (if impact &gt;$100K or schedule &gt;14 days)</li>
+                <li><strong>Within 48h:</strong> Board notification</li>
+                <li><strong>Board Vote:</strong> Required for contingency activation &gt;$100K</li>
+            </ul>
+        </div>
+
+        <h2>6.3 Known Constraints & Sensitivities</h2>
+        
+        <div class="box critical">
+            <div class="box-title">CONSTRAINT #1: Product Owner Split Allocation</div>
+            <p>Jennifer Morales is currently split between SENTINEL and Legacy Logistics Suite. This allocation is unsustainable for Phase 2 execution and creates priority conflicts. Decision required by Aug 25, 2026: Full-time allocation to SENTINEL OR Assistant PO assignment.</p>
+        </div>
+
+        <div class="box warning">
+            <div class="box-title">CONSTRAINT #2: Field Ops CSAT Gap</div>
+            <p>Field Operations segment currently at 72% CSAT vs 85% target. Logistics segment at 90% CSAT (above target). Strategy: Deploy to Logistics personnel in Phase 2 (Oct 21 - Nov 15); address Field Ops enhancement in Phase 3 (Nov 15 - Dec 31).</p>
+        </div>
+
+        <div class="box warning">
+            <div class="box-title">CONSTRAINT #3: Battery Endurance Issue</div>
+            <p>Battery performance below target under temperature extremes. Mitigation: Software power optimization (70% primary path). Contingency: Hardware redesign ($400K, 30% probability, Oct 5 decision gate). Parallel resolution path does not block Phase 2 schedule.</p>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 7: PHASE 3 AUTHORIZATION -->
+        <h1><span class="section-number">7</span>Phase 3 Authorization Criteria & Deployment Strategy</h1>
+
+        <p>Phase 3 authorization depends on Phase 2 completion and success of critical decision gates. This section defines Go/No-Go criteria, deployment timeline, and logistics-only Phase 2 strategy with Field Ops expansion in Phase 3.</p>
+
+        <h2>7.1 Critical Decision Gates</h2>
+
+        <h3>Phase 3 Hardware Decision Gate (Oct 5, 2026)</h3>
+        <ul>
+            <li><strong>Authority:</strong> Executive Sponsor + Finance Director</li>
+            <li><strong>Trigger:</strong> Software battery optimization testing results (Sep 30, 2026)</li>
+            <li><strong>Decision:</strong> Hardware redesign Go/No-Go</li>
+            <li><strong>If SUCCESS (70% prob):</strong> GREEN - Proceed to production without redesign</li>
+            <li><strong>If FAILURE (30% prob):</strong> YELLOW - Activate $400K hardware redesign contingency</li>
+            <li><strong>Timeline Impact:</strong> Dec 31 deployment still achievable with 71-day Phase 3 buffer</li>
+        </ul>
+
+        <h3>Phase 2→Phase 3 Transition Gate (Oct 21, 2026)</h3>
+        <ul>
+            <li><strong>Authority:</strong> Executive Sponsor + Customer Authority (Army) + Finance Director</li>
+            <li><strong>Decision:</strong> Approval for Phase 3 execution (Logistics-only deployment authorization)</li>
+            <li><strong>Requirements:</strong>
+                <ul>
+                    <li>MVP 100% delivery + integration</li>
+                    <li>CSAT 85%+ aggregate</li>
+                    <li>Integration test coverage 80%+</li>
+                    <li>Hardware decision resolved (Oct 5)</li>
+                    <li>Oct 21 schedule met</li>
+                    <li>Financial position stable (within variance thresholds)</li>
+                    <li>Manufacturing readiness confirmed</li>
+                    <li>Army approval for deployment obtained</li>
+                </ul>
+            </li>
+            <li><strong>Outcome:</strong> Approval for logistics personnel deployment (Oct 21 - Nov 15, 2026)</li>
+        </ul>
+
+        <h2>7.2 Deployment Strategy: Logistics-Only Phase 2</h2>
+
+        <h3>Phase 2 Logistics Deployment (Oct 21 - Nov 15, 2026)</h3>
+        <ul>
+            <li><strong>Target Segment:</strong> Logistics personnel (Supply chain, inventory management)</li>
+            <li><strong>Scale:</strong> 2,000-3,000 devices to Logistics Command units</li>
+            <li><strong>Rationale:</strong> High CSAT (90%) proven, operational readiness confirmed</li>
+            <li><strong>Success Criteria:</strong> Sustained 90%+ CSAT, 99%+ device reliability</li>
+        </ul>
+
+        <h3>Phase 3 Field Ops Expansion (Nov 15 - Dec 31, 2026)</h3>
+        <ul>
+            <li><strong>Expansion Segment:</strong> Field operations personnel</li>
+            <li><strong>Enhancements:</strong> User interface refinement, streamlined workflows, offline capability</li>
+            <li><strong>Scale:</strong> Full 5,000 devices across all Army logistics operations</li>
+            <li><strong>Timeline:</strong> Enhancement delivery by Nov 15, deployment Nov 15-Dec 31</li>
+            <li><strong>Success Criteria:</strong> Field Ops CSAT 85%+, device reliability 99%+</li>
+        </ul>
+
+        <h2>7.3 Phase 3 Go/No-Go Criteria</h2>
+        
+        <div class="box success">
+            <div class="box-title">✓ GO if ALL of these are met:</div>
+            <ul>
+                <li>Oct 21 schedule met (no slip &gt;5 days)</li>
+                <li>MVP 100% complete and integrated</li>
+                <li>CSAT 85%+ aggregate (Logistics 90%+, Field Ops 72%→85%)</li>
+                <li>Financial position within variance thresholds</li>
+                <li>Army approval for deployment obtained</li>
+                <li>Manufacturing readiness confirmed</li>
+                <li>Field Ops enhancements ready for Nov 15 deployment</li>
+            </ul>
+        </div>
+
+        <div class="box critical">
+            <div class="box-title">❌ NO-GO if ANY of these occur:</div>
+            <ul>
+                <li>Phase 2 schedule slip &gt;5 days (Oct 26 deadline)</li>
+                <li>CSAT &lt;75% aggregate</li>
+                <li>Financial variance &gt;$100K</li>
+                <li>Hardware redesign contingency fails (requires replanning)</li>
+                <li>Army approval withheld</li>
+                <li>Manufacturing capacity insufficient for ramp</li>
+                <li>Critical technical blocker unresolved</li>
+            </ul>
+        </div>
+
+        <h2>7.4 Manufacturing Readiness Criteria (Before Oct 5 Hardware Decision)</h2>
+        <ul>
+            <li>Quality assurance procedures finalized and approved</li>
+            <li>Supply chain confirmed for 5,000 unit production</li>
+            <li>Production capacity validated (ramp to 500 units/week by Oct 21)</li>
+            <li>Test procedures approved and ready</li>
+            <li>Manufacturing facility inspection complete</li>
+            <li>Logistics plan for deployment distribution ready</li>
+        </ul>
+
+        <h2>7.5 Contingency Plan if Phase 3 Delayed</h2>
+        <ul>
+            <li><strong>Buffer:</strong> 71 days Phase 3 buffer allows up to 14-day slip</li>
+            <li><strong>Dec 31 Achievable:</strong> YES even with delays if <14 days</li>
+            <li><strong>Recovery Options:</strong> Accelerated deployment timeline, reduced phases, extended pilot (with Army approval)</li>
+        </ul>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 8: QUALITY & ACCEPTANCE -->
+        <h1><span class="section-number">8</span>Quality & Acceptance Criteria</h1>
+
+        <p>Phase 2 quality and acceptance standards are defined to ensure customer satisfaction, operational reliability, and deployment readiness. These criteria apply to software, hardware, pilot operations, and system integration.</p>
+
+        <h2>8.1 Quality Standards</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Quality Metric</th>
+                    <th>Target</th>
+                    <th>Measurement</th>
+                    <th>Owner</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>CSAT - Aggregate</td>
+                    <td>85%+</td>
+                    <td>Quarterly survey (Logistics + Field Ops)</td>
+                    <td>CX Director</td>
+                </tr>
+                <tr>
+                    <td>CSAT - Logistics Segment</td>
+                    <td>90%+</td>
+                    <td>Monthly pilot feedback</td>
+                    <td>CX Director</td>
+                </tr>
+                <tr>
+                    <td>CSAT - Field Ops Segment</td>
+                    <td>72% (Phase 2) → 85% (Phase 3)</td>
+                    <td>Monthly pilot feedback</td>
+                    <td>CX Director</td>
+                </tr>
+                <tr>
+                    <td>Device Reliability</td>
+                    <td>99%+ uptime</td>
+                    <td>Device telemetry, operational tracking</td>
+                    <td>Falcon + CX</td>
+                </tr>
+                <tr>
+                    <td>Integration Test Coverage</td>
+                    <td>80%+</td>
+                    <td>Test metrics, coverage reports</td>
+                    <td>Integration Lead</td>
+                </tr>
+                <tr>
+                    <td>Unit Test Coverage</td>
+                    <td>75%+</td>
+                    <td>Code analysis tools</td>
+                    <td>Software Lead</td>
+                </tr>
+                <tr>
+                    <td>Critical Defect Count</td>
+                    <td>&lt;1</td>
+                    <td>Defect log, severity assessment</td>
+                    <td>Software Lead</td>
+                </tr>
+                <tr>
+                    <td>Major Defect Count</td>
+                    <td>&lt;3</td>
+                    <td>Defect log, severity assessment</td>
+                    <td>Software Lead</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>8.2 Defect Escalation Process</h2>
+        
+        <div class="box">
+            <div class="box-title">Critical Defect (≥1)</div>
+            <ul>
+                <li>Escalate immediately to Sponsor</li>
+                <li>Blocks MVP delivery</li>
+                <li>Resolution timeline: Within 48 hours</li>
+                <li>Board notification required</li>
+            </ul>
+        </div>
+
+        <div class="box">
+            <div class="box-title">Major Defects (3+)</div>
+            <ul>
+                <li>Notify PM within 24 hours</li>
+                <li>Impacts release quality</li>
+                <li>Resolution timeline: Sprint + 1</li>
+                <li>Board notification if &gt;3</li>
+            </ul>
+        </div>
+
+        <div class="box">
+            <div class="box-title">Minor Defects</div>
+            <ul>
+                <li>Backlog tracking</li>
+                <li>Resolution: Next sprint + 1</li>
+                <li>No escalation required</li>
+            </ul>
+        </div>
+
+        <h2>8.3 Phase 2 Acceptance Criteria</h2>
+        
+        <div class="box success">
+            <div class="box-title">✓ Phase 2 Acceptance Gates</div>
+            <ul>
+                <li><strong>MVP Acceptance:</strong> 100% of committed user stories delivered and integrated</li>
+                <li><strong>Software Acceptance:</strong> Unit testing PASS, regression testing PASS, integration 80%+ coverage</li>
+                <li><strong>Hardware Acceptance:</strong> Environmental testing complete, battery optimization validated (or contingency approved)</li>
+                <li><strong>Pilot Acceptance:</strong> Army approval of pilot operations, CSAT 85%+ aggregate</li>
+                <li><strong>Integration Acceptance:</strong> End-to-end system scenarios tested, deployment-ready</li>
+                <li><strong>Financial Acceptance:</strong> Cost baseline maintained, contingency tracked</li>
+                <li><strong>Operational Acceptance:</strong> Army approval for Phase 2→Phase 3 transition</li>
+            </ul>
+        </div>
+
+        <h2>8.4 Phase 3 Acceptance Criteria</h2>
+        <ul>
+            <li>5,000 devices deployed by Dec 31, 2026</li>
+            <li>CSAT 85%+ across both segments (Logistics 90%+, Field Ops 85%+)</li>
+            <li>Device reliability 99%+ uptime maintained</li>
+            <li>Army satisfaction with operations and capability confirmed</li>
+            <li>Successful handoff to sustainment operations</li>
+        </ul>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 9: ASSUMPTIONS & CONSTRAINTS -->
+        <h1><span class="section-number">9</span>Key Assumptions & Constraints</h1>
+
+        <p>Phase 2 execution is based on four key assumptions about hardware performance, software architecture, team velocity, and customer acceptance. Understanding these assumptions and constraints is critical for risk management and decision-making.</p>
+
+        <h2>9.1 Active Assumptions</h2>
+
+        <h3>A-01: Hardware Design Validation (70% confidence)</h3>
+        <ul>
+            <li><strong>Assumption:</strong> Hardware design will satisfy operational requirements after environmental testing and software power optimization</li>
+            <li><strong>Basis:</strong> Prototype #2 testing complete Aug 14; battery issue isolated to power management</li>
+            <li><strong>Validation:</strong> Software optimization testing by Sep 30, 2026</li>
+            <li><strong>Risk if Wrong:</strong> Hardware redesign required ($400K contingency)</li>
+        </ul>
+
+        <h3>A-02: Software Architecture Supports MVP (MEDIUM-HIGH confidence)</h3>
+        <ul>
+            <li><strong>Assumption:</strong> Current software architecture supports MVP delivery without significant redesign</li>
+            <li><strong>Basis:</strong> Sprint 4 velocity +27% above baseline; no architecture red flags yet</li>
+            <li><strong>Validation:</strong> Integration test completion (80%+ by Sep 30, 2026)</li>
+            <li><strong>Risk if Wrong:</strong> Architecture redesign delays MVP delivery beyond Sep 30</li>
+        </ul>
+
+        <h3>A-03: Agile Velocity Sustainability (MEDIUM confidence)</h3>
+        <ul>
+            <li><strong>Assumption:</strong> Team will maintain +27% velocity through Phase 2 completion</li>
+            <li><strong>Basis:</strong> Recent Sprint 4 performance; team morale stable</li>
+            <li><strong>Validation:</strong> Sprint velocity tracking through Oct 21</li>
+            <li><strong>Risk if Wrong:</strong> PO allocation constraint materializes, velocity drops to baseline or below</li>
+            <li><strong>Dependency:</strong> PO allocation decision by Aug 25 is CRITICAL to this assumption</li>
+        </ul>
+
+        <h3>A-04: Army Pilot Users Accept MVP (HIGH confidence - VALIDATED)</h3>
+        <ul>
+            <li><strong>Assumption:</strong> Army pilot users will accept MVP functionality as sufficient for operational evaluation</li>
+            <li><strong>Basis:</strong> Pilot CSAT Logistics segment 90% (ACHIEVED); Army Pilot Program Office positive feedback</li>
+            <li><strong>Validation:</strong> Current pilot performance data confirms acceptance for Logistics; Field Ops requires Phase 3 optimization</li>
+            <li><strong>Risk if Wrong:</strong> LOW - This assumption is validated by current pilot data</li>
+        </ul>
+
+        <h2>9.2 Phase 2 Constraints</h2>
+
+        <h3>Schedule Constraint: Dec 31, 2026 Hard Deadline</h3>
+        <ul>
+            <li><strong>Constraint:</strong> Full deployment of 5,000 devices must be complete by Dec 31, 2026 (customer requirement)</li>
+            <li><strong>Mitigation:</strong> 71-day Phase 3 buffer allows flexibility; Oct 21 Phase 2 completion remains achievable</li>
+            <li><strong>Impact:</strong> Any schedule slip &gt;14 days in Phase 2/3 must be recovered or deployment compressed</li>
+        </ul>
+
+        <h3>Budget Constraint: $12.50M Authorization Not to Be Exceeded</h3>
+        <ul>
+            <li><strong>Constraint:</strong> Total project authorization is $12.50M (cannot be exceeded without board approval)</li>
+            <li><strong>Current Position:</strong> $12.65M EAC ($150K gap, manageable)</li>
+            <li><strong>Risk-Adjusted:</strong> $12.77M if EMV materializes ($270K gap - contingency covers)</li>
+            <li><strong>No Additional Funding Requested:</strong> Gap is manageable within contingency reserve</li>
+        </ul>
+
+        <h3>Resource Constraint: PO Split Allocation (UNSUSTAINABLE)</h3>
+        <ul>
+            <li><strong>Constraint:</strong> Jennifer Morales cannot effectively manage both SENTINEL and Legacy Logistics Suite in Phase 2</li>
+            <li><strong>Decision Required:</strong> By Aug 25, 2026</li>
+            <li><strong>Impact:</strong> MVP delivery velocity depends on PO allocation resolution</li>
+            <li><strong>Authority:</strong> Executive Sponsor must decide</li>
+        </ul>
+
+        <h3>Technical Constraint: Battery Endurance Under Temperature Extremes</h3>
+        <ul>
+            <li><strong>Constraint:</strong> Prototype #2 battery performance below 72-hour target in extreme temperature profile</li>
+            <li><strong>Mitigation:</strong> Software power optimization (70% primary path) and hardware redesign contingency (30%)</li>
+            <li><strong>Timeline:</strong> Resolution by Oct 5 Go/No-Go gate; does not block Phase 2 schedule</li>
+            <li><strong>Impact:</strong> Manufacturing authorization depends on hardware decision</li>
+        </ul>
+
+        <h3>Regulatory Constraint: Army Approval Required for Deployment</h3>
+        <ul>
+            <li><strong>Constraint:</strong> All deployment phases require formal Army approval (customer)</li>
+            <li><strong>Authority:</strong> COL Michael Torres (to confirm formal approval authority by Aug 20)</li>
+            <li><strong>Timeline:</strong> Approval needed for Phase 2→3 transition (Oct 21) and Phase 3 expansion (Nov 15)</li>
+            <li><strong>Impact:</strong> Delays in Army approval could delay deployment (71-day buffer available)</li>
+        </ul>
+
+        <div class="page-break"></div>
+
+        <!-- SIGNATURES -->
+        <h1>Authorization & Approval</h1>
+
+        <p><strong>This Phase 2 Charter Amendment authorizes the execution of Project SENTINEL Phase 2 (August 15 - October 21, 2026) subject to the conditions and governance structures documented herein.</strong></p>
+
+        <h2>Phase 2 Governance Approvals (August 15, 2026)</h2>
+
+        <div class="signatures">
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-name">Sarah Mitchell</div>
+                <div class="signature-title">Executive Sponsor, VP Strategic Programs</div>
+                <div style="margin-top: 20px; font-size: 12px; color: #666;">
+                    <strong>Authority:</strong> Phase 2 Authorization with Conditions<br>
+                    <strong>Date:</strong> ________________
+                </div>
+            </div>
+
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-name">COL Michael Torres (Ret.)</div>
+                <div class="signature-title">Military Programs Advisor (Customer)</div>
+                <div style="margin-top: 20px; font-size: 12px; color: #666;">
+                    <strong>Authority:</strong> Customer Acceptance & Operational Suitability<br>
+                    <strong>Status:</strong> SUPPORTIVE (Changed from CONCERNED Aug 12→14)<br>
+                    <strong>Date:</strong> ________________
+                </div>
+            </div>
+
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-name">Karen Holt</div>
+                <div class="signature-title">Finance Director</div>
+                <div style="margin-top: 20px; font-size: 12px; color: #666;">
+                    <strong>Authority:</strong> Financial Baseline Approval & Contingency Authorization<br>
+                    <strong>EAC Approved:</strong> $12.65M | Gap: $150K (Manageable)<br>
+                    <strong>Date:</strong> ________________
+                </div>
+            </div>
+
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-name">Amanda Reed</div>
+                <div class="signature-title">PMO Director / Project Controls Manager</div>
+                <div style="margin-top: 20px; font-size: 12px; color: #666;">
+                    <strong>Authority:</strong> Schedule/Baseline Approval & Monthly Governance Oversight<br>
+                    <strong>Oct 21 Forecast:</strong> Credible (validated by PMO)<br>
+                    <strong>Date:</strong> ________________
+                </div>
+            </div>
+
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-name">Zachary Busse</div>
+                <div class="signature-title">Project Manager, Project SENTINEL</div>
+                <div style="margin-top: 20px; font-size: 12px; color: #666;">
+                    <strong>Authority:</strong> Day-to-Day Execution & Board Coordination<br>
+                    <strong>Phase 2 Readiness:</strong> Confirmed<br>
+                    <strong>Date:</strong> ________________
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 60px; page-break-inside: avoid;">
+            <h2>Phase 2 Governance Conditions Status</h2>
+            <p>This charter amendment authorizes Phase 2 execution contingent on the following 11 governance conditions being tracked and managed throughout Phase 2. See Executive Summary for current status of each condition.</p>
+            
+            <div class="box success" style="margin-top: 20px;">
+                <div class="box-title">✓ CONDITIONS MET (2)</div>
+                <ol style="margin-left: 20px;">
+                    <li>Hardware environmental testing completion (Complete Aug 14)</li>
+                    <li>Financial forecast reconciliation (Complete Aug 13)</li>
+                </ol>
+            </div>
+
+            <div class="box warning" style="margin-top: 15px;">
+                <div class="box-title">⏳ CONDITIONS PENDING (9)</div>
+                <ol style="margin-left: 20px;">
+                    <li>PO allocation resolution (Due Aug 25)</li>
+                    <li>Software Lead assignment (Due Aug 16)</li>
+                    <li>Software battery optimization feasibility (Due Sep 28)</li>
+                    <li>Integration test coverage progress (Due Sep 15)</li>
+                    <li>Army formal approval authority confirmation (Due Aug 20)</li>
+                    <li>Field Ops CSAT remediation plan (Due Sep 30)</li>
+                    <li>Manufacturing Readiness Review criteria (Due Oct 5)</li>
+                    <li>Monthly financial reporting to board (Due Aug 31)</li>
+                    <li>Integrated hardware/software change control (Due Aug 20)</li>
+                </ol>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 12px; color: #666;">
+                <strong>Next Board Review:</strong> September 15, 2026<br>
+                <strong>Next Major Gate:</strong> October 5, 2026 (Hardware Redesign Go/No-Go Decision)
+            </p>
+        </div>
+
+        <div class="footer">
+            <p><strong>PROJECT SENTINEL - Phase 2 Charter Amendment</strong></p>
+            <p>Document Version 1.0 | Prepared: August 15, 2026 | Status: Pending Board Approval</p>
+            <p>This document contains confidential project information and governance details. Distribution restricted to Apex Defense Solutions, U.S. Army, and Falcon Technologies authorized personnel.</p>
+        </div>
+    </div>
+</body>
+</html>
