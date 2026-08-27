@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT SENTINEL - Stakeholder & RAID Visual Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1f4e78 0%, #2d5a8c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-top: 4px solid #1f4e78;
+        }
+
+        .card.risk { border-top-color: #c55a11; }
+        .card.assumption { border-top-color: #70ad47; }
+        .card.issue { border-top-color: #ffc000; }
+        .card.dependency { border-top-color: #2d5a8c; }
+
+        .card h2 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #1f4e78;
+        }
+
+        .card h3 {
+            font-size: 14px;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            color: #2d5a8c;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .chart-container-small {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .matrix {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            background: linear-gradient(to bottom, 
+                rgba(70,130,180,0.05) 0%, 
+                rgba(70,130,180,0.05) 50%,
+                rgba(255,105,0,0.05) 50%,
+                rgba(255,105,0,0.05) 100%);
+        }
+
+        .matrix-label {
+            position: absolute;
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .matrix-line {
+            position: absolute;
+            background: #ddd;
+        }
+
+        .quadrant-label {
+            position: absolute;
+            font-size: 11px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .stakeholder-dot {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .stakeholder-dot:hover {
+            transform: scale(1.2);
+        }
+
+        .dot-supportive { background: #70ad47; }
+        .dot-concerned { background: #ffc000; }
+        .dot-neutral { background: #a5a5a5; }
+
+        .tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
+        .risk-matrix {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            background: linear-gradient(to right,
+                rgba(144,238,144,0.1) 0%,
+                rgba(255,255,0,0.1) 50%,
+                rgba(255,105,0,0.1) 100%);
+        }
+
+        .risk-bubble {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .risk-bubble:hover {
+            transform: scale(1.15);
+        }
+
+        .bubble-high { background: #c55a11; }
+        .bubble-medium { background: #ffc000; }
+        .bubble-low { background: #70ad47; }
+
+        .timeline {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .timeline-marker {
+            width: 20px;
+            height: 20px;
+            background: #1f4e78;
+            border-radius: 50%;
+            margin-top: 5px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .timeline-marker::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            width: 2px;
+            height: 20px;
+            background: #ddd;
+            transform: translateX(-50%);
+        }
+
+        .timeline-item:last-child .timeline-marker::after {
+            display: none;
+        }
+
+        .timeline-content {
+            margin-left: 20px;
+            padding-left: 15px;
+            border-left: 2px solid #ddd;
+        }
+
+        .timeline-content h4 {
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: #1f4e78;
+        }
+
+        .timeline-content p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #1f4e78 0%, #2d5a8c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-box.risk { background: linear-gradient(135deg, #c55a11 0%, #d97a2d 100%); }
+        .stat-box.green { background: linear-gradient(135deg, #70ad47 0%, #8cc64f 100%); }
+        .stat-box.yellow { background: linear-gradient(135deg, #ffc000 0%, #ffdb33 100%); }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .grid-3 { grid-template-columns: 1fr 1fr; }
+            .grid-4 { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f4e78;
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1f4e78;
+        }
+
+        .gauge-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .gauge {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+
+        .gauge-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 0 0 100% 100%;
+            background: linear-gradient(to right, #70ad47 0%, #ffc000 50%, #c55a11 100%);
+            opacity: 0.3;
+        }
+
+        .gauge-needle {
+            position: absolute;
+            width: 2px;
+            height: 60%;
+            background: #333;
+            left: 50%;
+            bottom: 0;
+            transform-origin: bottom;
+            transition: transform 0.5s;
+        }
+
+        .gauge-label {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            bottom: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .dashboard-footer {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 4px solid #1f4e78;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>PROJECT SENTINEL - Stakeholder & RAID Dashboard</h1>
+            <p>Phase 2 Governance Review | August 15, 2026 | Visual Status Overview</p>
+        </div>
+
+        <!-- RAID SUMMARY SCORECARD -->
+        <div class="section-title">📊 RAID SUMMARY SCORECARD</div>
+        <div class="grid-4">
+            <div class="stat-box">
+                <div class="stat-number">5</div>
+                <div class="stat-label">RISKS OPEN</div>
+            </div>
+            <div class="stat-box green">
+                <div class="stat-number">4</div>
+                <div class="stat-label">ASSUMPTIONS ACTIVE</div>
+            </div>
+            <div class="stat-box yellow">
+                <div class="stat-number">5</div>
+                <div class="stat-label">ISSUES OPEN</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">4</div>
+                <div class="stat-label">DEPENDENCIES ACTIVE</div>
+            </div>
+        </div>
+
+        <!-- STAKEHOLDER ANALYSIS -->
+        <div class="section-title">👥 STAKEHOLDER ANALYSIS</div>
+        <div class="grid-2">
+            <!-- Power/Interest Matrix -->
+            <div class="card">
+                <h2>Power/Interest Matrix</h2>
+                <div class="matrix">
+                    <div style="position: absolute; width: 50%; height: 50%; left: 0; top: 0; background: rgba(70,130,180,0.05); border: 1px dashed #ddd;"></div>
+                    <div style="position: absolute; width: 50%; height: 50%; right: 0; top: 0; background: rgba(70,130,180,0.15); border: 1px dashed #ddd;"></div>
+                    <div style="position: absolute; width: 50%; height: 50%; left: 0; bottom: 0; background: rgba(70,130,180,0.05); border: 1px dashed #ddd;"></div>
+                    <div style="position: absolute; width: 50%; height: 50%; right: 0; bottom: 0; background: rgba(70,130,180,0.1); border: 1px dashed #ddd;"></div>
+                    
+                    <div class="matrix-line" style="width: 2px; height: 100%; left: 50%; top: 0;"></div>
+                    <div class="matrix-line" style="width: 100%; height: 2px; top: 50%; left: 0;"></div>
+
+                    <div class="quadrant-label" style="left: 5px; top: 5px;">Monitor</div>
+                    <div class="quadrant-label" style="right: 5px; top: 5px;">Manage Closely</div>
+                    <div class="quadrant-label" style="left: 5px; bottom: 5px;">Keep Satisfied</div>
+                    <div class="quadrant-label" style="right: 5px; bottom: 5px;">Keep Informed</div>
+
+                    <div class="matrix-label" style="left: 10px; bottom: -25px; font-size: 11px;">Low Power</div>
+                    <div class="matrix-label" style="right: 10px; bottom: -25px; font-size: 11px;">High Power</div>
+                    <div class="matrix-label" style="left: -40px; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; transform: translateY(-50%) rotate(180deg); font-size: 11px;">Low Interest ←→ High Interest</div>
+
+                    <!-- Stakeholder Dots -->
+                    <div class="stakeholder-dot dot-supportive" style="width: 45px; height: 45px; right: 80%; top: 80%;" title="Sarah Mitchell - Sponsor">SM</div>
+                    <div class="stakeholder-dot dot-supportive" style="width: 40px; height: 40px; right: 75%; top: 70%;" title="Amanda Reed - PMO">AR</div>
+                    <div class="stakeholder-dot dot-supportive" style="width: 40px; height: 40px; right: 70%; top: 85%;" title="Karen Holt - Finance">KH</div>
+                    <div class="stakeholder-dot dot-supportive" style="width: 40px; height: 40px; right: 65%; top: 75%;" title="COL Torres - Military">CT</div>
+                    <div class="stakeholder-dot dot-supportive" style="width: 35px; height: 35px; right: 85%; top: 60%;" title="Emily Carter - CX">EC</div>
+                    <div class="stakeholder-dot dot-concerned" style="width: 35px; height: 35px; right: 72%; top: 40%;" title="Jennifer Morales - PO">JM</div>
+                    <div class="stakeholder-dot dot-concerned" style="width: 30px; height: 30px; right: 65%; top: 35%;" title="Dr. Rachel Kim">RK</div>
+                    <div class="stakeholder-dot dot-neutral" style="width: 25px; height: 25px; right: 80%; top: 20%;" title="Army Ops Test">AT</div>
+                    <div class="stakeholder-dot dot-supportive" style="width: 30px; height: 30px; right: 90%; top: 50%;" title="Army Pilot Office">AP</div>
+                </div>
+                <div class="legend" style="margin-top: 30px;">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #70ad47;"></div>
+                        <span>Supportive</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffc000;"></div>
+                        <span>Concerned</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #a5a5a5;"></div>
+                        <span>Neutral</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stakeholder Sentiment Distribution -->
+            <div class="card">
+                <h2>Stakeholder Sentiment Distribution</h2>
+                <div class="chart-container">
+                    <canvas id="sentimentChart"></canvas>
+                </div>
+                <div style="margin-top: 15px; font-size: 12px;">
+                    <p><strong>Total Stakeholders:</strong> 15 active</p>
+                    <p><strong>Key Shift:</strong> COL Torres moved CONCERNED (Aug 12) → SUPPORTIVE (Aug 14)</p>
+                    <p><strong>Critical Gap:</strong> Apex Software Lead not yet assigned (due Aug 16)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ENGAGEMENT STRATEGY BREAKDOWN -->
+        <div class="grid-2">
+            <div class="card">
+                <h2>Engagement Strategy Distribution</h2>
+                <div class="chart-container">
+                    <canvas id="engagementChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Sentiment Timeline - Critical Change</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #ffc000;"></div>
+                        <div class="timeline-content">
+                            <h4>August 12, 2026</h4>
+                            <p><strong>COL Michael Torres:</strong> CONCERNED</p>
+                            <p>Expressed concerns about operational suitability</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #70ad47;"></div>
+                        <div class="timeline-content">
+                            <h4>August 12-14, 2026</h4>
+                            <p><strong>Stakeholder Alignment Session</strong></p>
+                            <p>Reviewed mitigation plans and deployment strategy</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #70ad47;"></div>
+                        <div class="timeline-content">
+                            <h4>August 14, 2026</h4>
+                            <p><strong>COL Michael Torres:</strong> SUPPORTIVE</p>
+                            <p>Explicitly supports Phase 2 continuation with conditions</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RISK ANALYSIS -->
+        <div class="section-title">⚠️ RISK ANALYSIS & MITIGATION</div>
+        <div class="grid-2">
+            <!-- Risk Probability vs Impact Matrix -->
+            <div class="card risk">
+                <h2>Risk Probability vs Impact Matrix</h2>
+                <div class="risk-matrix">
+                    <div style="position: absolute; width: 2px; height: 100%; left: 33%; top: 0; background: #ddd;"></div>
+                    <div style="position: absolute; width: 2px; height: 100%; left: 66%; top: 0; background: #ddd;"></div>
+                    <div style="position: absolute; width: 100%; height: 2px; top: 33%; left: 0; background: #ddd;"></div>
+                    <div style="position: absolute; width: 100%; height: 2px; top: 66%; left: 0; background: #ddd;"></div>
+
+                    <div style="position: absolute; font-size: 10px; color: #999; left: 5px; top: 5px;">HIGH IMPACT</div>
+                    <div style="position: absolute; font-size: 10px; color: #999; left: 5px; bottom: 5px;">LOW IMPACT</div>
+                    <div style="position: absolute; font-size: 10px; color: #999; right: 5px; top: 5px;">HIGH PROBABILITY</div>
+                    <div style="position: absolute; font-size: 10px; color: #999; left: 5px; top: 45%; writing-mode: vertical-rl; transform: rotate(180deg);">PROBABILITY →</div>
+
+                    <!-- Risk Bubbles -->
+                    <div class="risk-bubble bubble-high" style="width: 50px; height: 50px; right: 70%; top: 20%; font-size: 11px;" title="R-01: Environmental Testing (Battery)">R-01</div>
+                    <div class="risk-bubble bubble-high" style="width: 45px; height: 45px; right: 65%; top: 30%; font-size: 11px;" title="R-05: Hardware Redesign">R-05</div>
+                    <div class="risk-bubble bubble-medium" style="width: 40px; height: 40px; right: 75%; top: 55%; font-size: 11px;" title="R-02: PO Availability">R-02</div>
+                    <div class="risk-bubble bubble-medium" style="width: 38px; height: 38px; right: 70%; top: 60%; font-size: 11px;" title="R-03: Integration Coverage">R-03</div>
+                    <div class="risk-bubble bubble-low" style="width: 35px; height: 35px; right: 80%; top: 75%; font-size: 11px;" title="R-04: Funding">R-04</div>
+                    <div class="risk-bubble bubble-medium" style="width: 36px; height: 36px; right: 60%; top: 70%; font-size: 11px;" title="R-07: Scope Pressure">R-07</div>
+                </div>
+                <div class="legend" style="margin-top: 30px;">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #c55a11;"></div>
+                        <span>HIGH Priority</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffc000;"></div>
+                        <span>MEDIUM Priority</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #70ad47;"></div>
+                        <span>LOW Priority</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Distribution -->
+            <div class="card risk">
+                <h2>Risk Distribution by Category</h2>
+                <div class="chart-container">
+                    <canvas id="riskCategoryChart"></canvas>
+                </div>
+                <div style="margin-top: 15px; font-size: 12px;">
+                    <p><strong>Highest Priority Risks:</strong></p>
+                    <ul style="margin-left: 15px;">
+                        <li>R-01: Environmental Testing (Battery)</li>
+                        <li>R-02: PO Availability (Board Condition)</li>
+                        <li>R-05: Hardware Redesign ($400K contingency)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ASSUMPTIONS, ISSUES, DEPENDENCIES -->
+        <div class="section-title">📋 ASSUMPTIONS, ISSUES & DEPENDENCIES</div>
+        <div class="grid-3">
+            <div class="card assumption">
+                <h2>Assumptions Status (4 Active)</h2>
+                <div class="chart-container-small">
+                    <canvas id="assumptionChart"></canvas>
+                </div>
+                <div style="margin-top: 15px; font-size: 12px;">
+                    <p><strong>A-01:</strong> Hardware validation (70% software path)</p>
+                    <p><strong>A-02:</strong> Software arch supports MVP</p>
+                    <p><strong>A-03:</strong> Velocity sustainability</p>
+                    <p><strong>A-04:</strong> Army acceptance ✓ VALIDATED</p>
+                </div>
+            </div>
+
+            <div class="card issue">
+                <h2>Issues Status (5 Open / 1 Closed)</h2>
+                <div class="chart-container-small">
+                    <canvas id="issueChart"></canvas>
+                </div>
+                <div style="margin-top: 15px; font-size: 12px;">
+                    <p><strong>Critical Issues:</strong></p>
+                    <p><strong>I-03:</strong> Integration coverage below 80%</p>
+                    <p><strong>I-05:</strong> Financial monitoring setup</p>
+                    <p><strong>I-01:</strong> Prototype learning ✓ CLOSED</p>
+                </div>
+            </div>
+
+            <div class="card dependency">
+                <h2>Dependencies - Critical Path</h2>
+                <div style="margin-top: 15px;">
+                    <div style="background: #e8f4f8; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 12px;">
+                        <p><strong>D-01:</strong> Testing ✓ Complete (Aug 14)</p>
+                        <p><strong>D-02:</strong> MVP Due Sep 30</p>
+                        <p><strong>D-03:</strong> Board Decision 🔴 TODAY (Aug 15)</p>
+                        <p><strong>D-04:</strong> Army Approval Pending</p>
+                    </div>
+                    <div style="background: #fff3cd; padding: 10px; border-radius: 4px; font-size: 11px;">
+                        <strong>🔴 Blocking Item:</strong> Board governance decision required Aug 15 to proceed with Phase 2
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FINANCIAL HEALTH -->
+        <div class="section-title">💰 FINANCIAL POSITION</div>
+        <div class="grid-2">
+            <div class="card">
+                <h2>Project Financial Health</h2>
+                <div style="padding: 20px;">
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px;">
+                            <span><strong>Authorization:</strong></span>
+                            <span>$12.50M</span>
+                        </div>
+                        <div style="background: #e0e0e0; height: 20px; border-radius: 4px; position: relative; overflow: hidden;">
+                            <div style="background: #70ad47; height: 100%; width: 101%;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px;">
+                            <span><strong>EAC (Bottom-Up):</strong></span>
+                            <span>$12.65M</span>
+                        </div>
+                        <div style="background: #e0e0e0; height: 20px; border-radius: 4px; position: relative; overflow: hidden;">
+                            <div style="background: #ffc000; height: 100%; width: 101.2%;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px;">
+                            <span><strong>Gap:</strong></span>
+                            <span style="color: #ffc000;">$150K (Manageable)</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px;">
+                            <span><strong>Risk-Adjusted:</strong></span>
+                            <span style="color: #c55a11;">$270K (If EMV materializes)</span>
+                        </div>
+                    </div>
+
+                    <div style="background: #f0f0f0; padding: 12px; border-radius: 4px; margin-top: 15px; font-size: 11px; border-left: 4px solid #70ad47;">
+                        <p><strong>Status:</strong> ✓ Within authorization</p>
+                        <p><strong>Contingency:</strong> Available for activation</p>
+                        <p><strong>Monitoring:</strong> Monthly board oversight required</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Financial Status Gauge</h2>
+                <div class="gauge-container">
+                    <div class="gauge">
+                        <div class="gauge-background"></div>
+                        <div class="gauge-needle" style="transform: rotate(45deg);"></div>
+                        <div class="gauge-label">MANAGEABLE (75%)</div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px; font-size: 12px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Actual Cost to Date:</span>
+                        <strong>$7.80M</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Cost Performance Index (CPI):</span>
+                        <strong>0.923</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Schedule Performance Index (SPI):</span>
+                        <strong>0.90</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Remaining Authorization:</span>
+                        <strong style="color: #70ad47;">$4.70M</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCHEDULE HEALTH -->
+        <div class="section-title">📅 SCHEDULE & CRITICAL PATH</div>
+        <div class="grid-2">
+            <div class="card">
+                <h2>Critical Path Timeline</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #70ad47;"></div>
+                        <div class="timeline-content">
+                            <h4>August 14, 2026</h4>
+                            <p><strong>✓ Battery Environmental Testing Complete</strong></p>
+                            <p>Falcon completed Prototype #2 testing. Battery issue identified.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #ffc000;"></div>
+                        <div class="timeline-content">
+                            <h4>August 15, 2026 (TODAY)</h4>
+                            <p><strong>🔴 BOARD GOVERNANCE DECISION</strong></p>
+                            <p>Phase 2 approval with 11 conditions required</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #ffc000;"></div>
+                        <div class="timeline-content">
+                            <h4>August 16-25, 2026</h4>
+                            <p><strong>Critical Approvals & Assignments</strong></p>
+                            <p>PO allocation, Software Lead, Army authority confirmation</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #1f4e78;"></div>
+                        <div class="timeline-content">
+                            <h4>September 30, 2026</h4>
+                            <p><strong>MVP Completion & Software Testing</strong></p>
+                            <p>27 pts remaining. Battery optimization results due.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #1f4e78;"></div>
+                        <div class="timeline-content">
+                            <h4>October 21, 2026</h4>
+                            <p><strong>Phase 2 Completion (Working Forecast)</strong></p>
+                            <p>+21 days from Sep 30 baseline. 71-day Phase 3 buffer available.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #70ad47;"></div>
+                        <div class="timeline-content">
+                            <h4>December 31, 2026</h4>
+                            <p><strong>✓ Deployment Achievable</strong></p>
+                            <p>Full 5,000 device deployment complete</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Schedule Status</h2>
+                <div style="padding: 20px;">
+                    <div style="background: #e8f4f8; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span><strong>Approved Baseline:</strong></span>
+                            <span style="color: #c55a11;">Sep 30 (NOT CREDIBLE)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span><strong>Working Forecast:</strong></span>
+                            <span style="color: #ffc000;">Oct 21 (+21 days)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span><strong>Dec 31 Deployment:</strong></span>
+                            <span style="color: #70ad47;">✓ ACHIEVABLE</span>
+                        </div>
+                    </div>
+
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 15px; font-size: 12px;">
+                        <p><strong>Critical Path Items:</strong></p>
+                        <ul style="margin: 8px 0 0 15px;">
+                            <li>Battery validation (Aug 14) ✓</li>
+                            <li>Software optimization (Sep 30)</li>
+                            <li>MVP completion (Sep 30)</li>
+                            <li>Integration testing (Oct 1-21)</li>
+                            <li>MRR prep (Oct/Nov)</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #e8f5e9; padding: 12px; border-radius: 4px; font-size: 11px; border-left: 4px solid #70ad47;">
+                        <p><strong>Phase 3 Buffer:</strong> 71 days (Oct 21 → Dec 31)</p>
+                        <p><strong>Justification:</strong> Battery testing completion enables schedule confidence</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROJECT HEALTH SUMMARY -->
+        <div class="section-title">🎯 OVERALL PROJECT HEALTH SUMMARY</div>
+        <div class="card">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 4px;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">🟡</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">TECHNICAL STATUS</div>
+                    <div style="font-size: 14px; color: #666;">AMBER</div>
+                    <div style="font-size: 11px; margin-top: 8px; color: #666;">
+                        <p>Hardware viable. Battery optimization in progress.</p>
+                        <p>Software on track. Integration improving.</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 4px;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">🟡</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">FINANCIAL STATUS</div>
+                    <div style="font-size: 14px; color: #666;">MANAGEABLE</div>
+                    <div style="font-size: 11px; margin-top: 8px; color: #666;">
+                        <p>$150K gap within authorization. </p>
+                        <p>Contingency available.</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 4px;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">🟡</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">SCHEDULE STATUS</div>
+                    <div style="font-size: 14px; color: #666;">AMBER</div>
+                    <div style="font-size: 11px; margin-top: 8px; color: #666;">
+                        <p>Oct 21 forecast credible. Dec 31 achievable.</p>
+                        <p>71-day Phase 3 buffer.</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 4px;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">🟢</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">STAKEHOLDER STATUS</div>
+                    <div style="font-size: 14px; color: #666;">SUPPORTIVE</div>
+                    <div style="font-size: 11px; margin-top: 8px; color: #666;">
+                        <p>10 supportive. COL Torres shift key win.</p>
+                        <p>Customer aligned on strategy.</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 4px;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">🟡</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">GOVERNANCE STATUS</div>
+                    <div style="font-size: 14px; color: #666;">PENDING</div>
+                    <div style="font-size: 11px; margin-top: 8px; color: #666;">
+                        <p>11 conditions identified. Board decision today.</p>
+                        <p>Conditions manageable & specific.</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 4px;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">🟡</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">RISK STATUS</div>
+                    <div style="font-size: 14px; color: #666;">MANAGED</div>
+                    <div style="font-size: 11px; margin-top: 8px; color: #666;">
+                        <p>5 risks documented. Mitigations in place.</p>
+                        <p>Tiered contingencies identified.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOARD GOVERNANCE CONDITIONS -->
+        <div class="section-title">📋 BOARD GOVERNANCE CONDITIONS (11 Required)</div>
+        <div class="card">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <p style="margin-bottom: 10px; font-weight: bold; color: #1f4e78;">IMMEDIATE DECISIONS (Aug 15-20)</p>
+                    <ol style="font-size: 12px; margin-left: 15px; line-height: 1.8;">
+                        <li>Authorize Phase 2 continuation with conditions</li>
+                        <li>Defer production prototype authorization (battery dependent)</li>
+                        <li>Approve software power-management optimization approach</li>
+                        <li>Resolve PO capacity allocation (full-time required)</li>
+                        <li>Validate $12.65M EAC and Oct 21 forecast</li>
+                        <li>Authorize formal cost/schedule baseline change</li>
+                        <li>Establish monthly board governance oversight</li>
+                        <li>Approve logistics-only Phase 2 deployment strategy</li>
+                    </ol>
+                </div>
+                <div>
+                    <p style="margin-bottom: 10px; font-weight: bold; color: #1f4e78;">FOLLOW-UP ACTIONS (Aug 20+)</p>
+                    <ol style="font-size: 12px; margin-left: 15px; line-height: 1.8; color: #666;">
+                        <li>Confirm Army formal approval authority (COL Torres, Aug 20)</li>
+                        <li>Assign Apex Software Lead (by Aug 16)</li>
+                        <li>Establish integrated hardware/software change control</li>
+                        <li><strong style="color: #333;">ONGOING: Monthly financial reporting to board (Aug 31, Sep 30, etc.)</strong></li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="dashboard-footer">
+            <p><strong>Dashboard Generated:</strong> August 15, 2026 | <strong>Next Review:</strong> September 15, 2026</p>
+            <p>Data sourced from Phase 2 Governance Review materials | All metrics current as of August 14, 2026</p>
+        </div>
+    </div>
+
+    <script>
+        // Sentiment Distribution Chart
+        const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+        new Chart(sentimentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Supportive', 'Supportive (Constrained)', 'Concerned', 'Neutral', 'Not Yet Assigned'],
+                datasets: [{
+                    data: [10, 2, 1, 1, 1],
+                    backgroundColor: ['#70ad47', '#a8d08d', '#ffc000', '#a5a5a5', '#e0e0e0'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } },
+                    tooltip: { callbacks: { label: function(context) { return context.label + ': ' + context.parsed; } } }
+                }
+            }
+        });
+
+        // Engagement Strategy Chart
+        const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+        new Chart(engagementCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Manage Closely', 'Keep Informed', 'Keep Satisfied', 'Support Closely'],
+                datasets: [{
+                    label: 'Stakeholders',
+                    data: [9, 2, 1, 3],
+                    backgroundColor: ['#1f4e78', '#70ad47', '#ffc000', '#2d5a8c'],
+                    borderColor: ['#1f4e78', '#70ad47', '#ffc000', '#2d5a8c'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true, max: 10 } }
+            }
+        });
+
+        // Risk Category Chart
+        const riskCtx = document.getElementById('riskCategoryChart').getContext('2d');
+        new Chart(riskCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Technical', 'Resource', 'Governance', 'Scope'],
+                datasets: [{
+                    label: 'Number of Risks',
+                    data: [3, 1, 1, 1],
+                    backgroundColor: ['#c55a11', '#ffc000', '#1f4e78', '#70ad47'],
+                    borderColor: ['#c55a11', '#ffc000', '#1f4e78', '#70ad47'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: 4 } }
+            }
+        });
+
+        // Assumption Chart
+        const assumptionCtx = document.getElementById('assumptionChart').getContext('2d');
+        new Chart(assumptionCtx, {
+            type: 'radar',
+            data: {
+                labels: ['A-01: Hardware', 'A-02: Architecture', 'A-03: Velocity', 'A-04: Acceptance'],
+                datasets: [{
+                    label: 'Confidence Level',
+                    data: [85, 70, 65, 90],
+                    borderColor: '#70ad47',
+                    backgroundColor: 'rgba(112, 173, 71, 0.2)',
+                    fill: true,
+                    pointBackgroundColor: '#70ad47'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 25 } } },
+                plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } }
+            }
+        });
+
+        // Issue Chart
+        const issueCtx = document.getElementById('issueChart').getContext('2d');
+        new Chart(issueCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Testing', 'Schedule', 'Integration', 'Backlog', 'Financial'],
+                datasets: [{
+                    label: 'Issues Open',
+                    data: [1, 1, 1, 1, 1],
+                    backgroundColor: ['#ffc000', '#ffc000', '#ffc000', '#ffc000', '#ffc000'],
+                    borderColor: '#ffc000',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true, max: 2 } }
+            }
+        });
+    </script>
+</body>
+</html>
