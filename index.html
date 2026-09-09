@@ -1,1006 +1,1788 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT SENTINEL - Stakeholder & RAID Visual Dashboard</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-            color: #333;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #1f4e78 0%, #2d5a8c 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-top: 4px solid #1f4e78;
-        }
-
-        .card.risk { border-top-color: #c55a11; }
-        .card.assumption { border-top-color: #70ad47; }
-        .card.issue { border-top-color: #ffc000; }
-        .card.dependency { border-top-color: #2d5a8c; }
-
-        .card h2 {
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #1f4e78;
-        }
-
-        .card h3 {
-            font-size: 14px;
-            margin-top: 15px;
-            margin-bottom: 8px;
-            color: #2d5a8c;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 350px;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .chart-container-small {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-
-        .matrix {
-            position: relative;
-            height: 400px;
-            width: 100%;
-            border: 2px solid #ddd;
-            border-radius: 4px;
-            background: linear-gradient(to bottom, 
-                rgba(70,130,180,0.05) 0%, 
-                rgba(70,130,180,0.05) 50%,
-                rgba(255,105,0,0.05) 50%,
-                rgba(255,105,0,0.05) 100%);
-        }
-
-        .matrix-label {
-            position: absolute;
-            font-size: 12px;
-            font-weight: bold;
-            color: #666;
-        }
-
-        .matrix-line {
-            position: absolute;
-            background: #ddd;
-        }
-
-        .quadrant-label {
-            position: absolute;
-            font-size: 11px;
-            color: #999;
-            font-style: italic;
-        }
-
-        .stakeholder-dot {
-            position: absolute;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
-        }
-
-        .stakeholder-dot:hover {
-            transform: scale(1.2);
-        }
-
-        .dot-supportive { background: #70ad47; }
-        .dot-concerned { background: #ffc000; }
-        .dot-neutral { background: #a5a5a5; }
-
-        .tooltip {
-            position: absolute;
-            background: #333;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 11px;
-            white-space: nowrap;
-            pointer-events: none;
-            z-index: 1000;
-            display: none;
-        }
-
-        .risk-matrix {
-            position: relative;
-            height: 400px;
-            width: 100%;
-            border: 2px solid #ddd;
-            border-radius: 4px;
-            background: linear-gradient(to right,
-                rgba(144,238,144,0.1) 0%,
-                rgba(255,255,0,0.1) 50%,
-                rgba(255,105,0,0.1) 100%);
-        }
-
-        .risk-bubble {
-            position: absolute;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .risk-bubble:hover {
-            transform: scale(1.15);
-        }
-
-        .bubble-high { background: #c55a11; }
-        .bubble-medium { background: #ffc000; }
-        .bubble-low { background: #70ad47; }
-
-        .timeline {
-            position: relative;
-            margin: 20px 0;
-        }
-
-        .timeline-item {
-            display: flex;
-            margin-bottom: 20px;
-        }
-
-        .timeline-marker {
-            width: 20px;
-            height: 20px;
-            background: #1f4e78;
-            border-radius: 50%;
-            margin-top: 5px;
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .timeline-marker::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 100%;
-            width: 2px;
-            height: 20px;
-            background: #ddd;
-            transform: translateX(-50%);
-        }
-
-        .timeline-item:last-child .timeline-marker::after {
-            display: none;
-        }
-
-        .timeline-content {
-            margin-left: 20px;
-            padding-left: 15px;
-            border-left: 2px solid #ddd;
-        }
-
-        .timeline-content h4 {
-            font-size: 13px;
-            margin-bottom: 4px;
-            color: #1f4e78;
-        }
-
-        .timeline-content p {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 4px;
-        }
-
-        .stat-box {
-            background: linear-gradient(135deg, #1f4e78 0%, #2d5a8c 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .stat-box.risk { background: linear-gradient(135deg, #c55a11 0%, #d97a2d 100%); }
-        .stat-box.green { background: linear-gradient(135deg, #70ad47 0%, #8cc64f 100%); }
-        .stat-box.yellow { background: linear-gradient(135deg, #ffc000 0%, #ffdb33 100%); }
-
-        .stat-number {
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 15px;
-            font-size: 12px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .legend-color {
-            width: 14px;
-            height: 14px;
-            border-radius: 3px;
-        }
-
-        .grid-4 {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        @media (max-width: 1200px) {
-            .grid-3 { grid-template-columns: 1fr 1fr; }
-            .grid-4 { grid-template-columns: 1fr 1fr; }
-        }
-
-        @media (max-width: 768px) {
-            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #1f4e78;
-            margin: 30px 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #1f4e78;
-        }
-
-        .gauge-container {
-            position: relative;
-            height: 200px;
-            width: 100%;
-            margin: 10px 0;
-        }
-
-        .gauge {
-            position: relative;
-            height: 100%;
-            width: 100%;
-        }
-
-        .gauge-background {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 0 0 100% 100%;
-            background: linear-gradient(to right, #70ad47 0%, #ffc000 50%, #c55a11 100%);
-            opacity: 0.3;
-        }
-
-        .gauge-needle {
-            position: absolute;
-            width: 2px;
-            height: 60%;
-            background: #333;
-            left: 50%;
-            bottom: 0;
-            transform-origin: bottom;
-            transition: transform 0.5s;
-        }
-
-        .gauge-label {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            bottom: 10px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .dashboard-footer {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 30px;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            border-top: 4px solid #1f4e78;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- HEADER -->
-        <div class="header">
-            <h1>PROJECT SENTINEL - Stakeholder & RAID Dashboard</h1>
-            <p>Phase 2 Governance Review | August 15, 2026 | Visual Status Overview</p>
-        </div>
-
-        <!-- RAID SUMMARY SCORECARD -->
-        <div class="section-title">📊 RAID SUMMARY SCORECARD</div>
-        <div class="grid-4">
-            <div class="stat-box">
-                <div class="stat-number">5</div>
-                <div class="stat-label">RISKS OPEN</div>
-            </div>
-            <div class="stat-box green">
-                <div class="stat-number">4</div>
-                <div class="stat-label">ASSUMPTIONS ACTIVE</div>
-            </div>
-            <div class="stat-box yellow">
-                <div class="stat-number">5</div>
-                <div class="stat-label">ISSUES OPEN</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number">4</div>
-                <div class="stat-label">DEPENDENCIES ACTIVE</div>
-            </div>
-        </div>
-
-        <!-- STAKEHOLDER ANALYSIS -->
-        <div class="section-title">👥 STAKEHOLDER ANALYSIS</div>
-        <div class="grid-2">
-            <!-- Power/Interest Matrix -->
-            <div class="card">
-                <h2>Power/Interest Matrix</h2>
-                <div class="matrix">
-                    <div style="position: absolute; width: 50%; height: 50%; left: 0; top: 0; background: rgba(70,130,180,0.05); border: 1px dashed #ddd;"></div>
-                    <div style="position: absolute; width: 50%; height: 50%; right: 0; top: 0; background: rgba(70,130,180,0.15); border: 1px dashed #ddd;"></div>
-                    <div style="position: absolute; width: 50%; height: 50%; left: 0; bottom: 0; background: rgba(70,130,180,0.05); border: 1px dashed #ddd;"></div>
-                    <div style="position: absolute; width: 50%; height: 50%; right: 0; bottom: 0; background: rgba(70,130,180,0.1); border: 1px dashed #ddd;"></div>
-                    
-                    <div class="matrix-line" style="width: 2px; height: 100%; left: 50%; top: 0;"></div>
-                    <div class="matrix-line" style="width: 100%; height: 2px; top: 50%; left: 0;"></div>
-
-                    <div class="quadrant-label" style="left: 5px; top: 5px;">Monitor</div>
-                    <div class="quadrant-label" style="right: 5px; top: 5px;">Manage Closely</div>
-                    <div class="quadrant-label" style="left: 5px; bottom: 5px;">Keep Satisfied</div>
-                    <div class="quadrant-label" style="right: 5px; bottom: 5px;">Keep Informed</div>
-
-                    <div class="matrix-label" style="left: 10px; bottom: -25px; font-size: 11px;">Low Power</div>
-                    <div class="matrix-label" style="right: 10px; bottom: -25px; font-size: 11px;">High Power</div>
-                    <div class="matrix-label" style="left: -40px; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; transform: translateY(-50%) rotate(180deg); font-size: 11px;">Low Interest ←→ High Interest</div>
-
-                    <!-- Stakeholder Dots -->
-                    <div class="stakeholder-dot dot-supportive" style="width: 45px; height: 45px; right: 80%; top: 80%;" title="Sarah Mitchell - Sponsor">SM</div>
-                    <div class="stakeholder-dot dot-supportive" style="width: 40px; height: 40px; right: 75%; top: 70%;" title="Amanda Reed - PMO">AR</div>
-                    <div class="stakeholder-dot dot-supportive" style="width: 40px; height: 40px; right: 70%; top: 85%;" title="Karen Holt - Finance">KH</div>
-                    <div class="stakeholder-dot dot-supportive" style="width: 40px; height: 40px; right: 65%; top: 75%;" title="COL Torres - Military">CT</div>
-                    <div class="stakeholder-dot dot-supportive" style="width: 35px; height: 35px; right: 85%; top: 60%;" title="Emily Carter - CX">EC</div>
-                    <div class="stakeholder-dot dot-concerned" style="width: 35px; height: 35px; right: 72%; top: 40%;" title="Jennifer Morales - PO">JM</div>
-                    <div class="stakeholder-dot dot-concerned" style="width: 30px; height: 30px; right: 65%; top: 35%;" title="Dr. Rachel Kim">RK</div>
-                    <div class="stakeholder-dot dot-neutral" style="width: 25px; height: 25px; right: 80%; top: 20%;" title="Army Ops Test">AT</div>
-                    <div class="stakeholder-dot dot-supportive" style="width: 30px; height: 30px; right: 90%; top: 50%;" title="Army Pilot Office">AP</div>
-                </div>
-                <div class="legend" style="margin-top: 30px;">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #70ad47;"></div>
-                        <span>Supportive</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #ffc000;"></div>
-                        <span>Concerned</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #a5a5a5;"></div>
-                        <span>Neutral</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stakeholder Sentiment Distribution -->
-            <div class="card">
-                <h2>Stakeholder Sentiment Distribution</h2>
-                <div class="chart-container">
-                    <canvas id="sentimentChart"></canvas>
-                </div>
-                <div style="margin-top: 15px; font-size: 12px;">
-                    <p><strong>Total Stakeholders:</strong> 15 active</p>
-                    <p><strong>Key Shift:</strong> COL Torres moved CONCERNED (Aug 12) → SUPPORTIVE (Aug 14)</p>
-                    <p><strong>Critical Gap:</strong> Apex Software Lead not yet assigned (due Aug 16)</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ENGAGEMENT STRATEGY BREAKDOWN -->
-        <div class="grid-2">
-            <div class="card">
-                <h2>Engagement Strategy Distribution</h2>
-                <div class="chart-container">
-                    <canvas id="engagementChart"></canvas>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>Sentiment Timeline - Critical Change</h2>
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-marker" style="background: #ffc000;"></div>
-                        <div class="timeline-content">
-                            <h4>August 12, 2026</h4>
-                            <p><strong>COL Michael Torres:</strong> CONCERNED</p>
-                            <p>Expressed concerns about operational suitability</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-marker" style="background: #70ad47;"></div>
-                        <div class="timeline-content">
-                            <h4>August 12-14, 2026</h4>
-                            <p><strong>Stakeholder Alignment Session</strong></p>
-                            <p>Reviewed mitigation plans and deployment strategy</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-marker" style="background: #70ad47;"></div>
-                        <div class="timeline-content">
-                            <h4>August 14, 2026</h4>
-                            <p><strong>COL Michael Torres:</strong> SUPPORTIVE</p>
-                            <p>Explicitly supports Phase 2 continuation with conditions</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- RISK ANALYSIS -->
-        <div class="section-title">⚠️ RISK ANALYSIS & MITIGATION</div>
-        <div class="grid-2">
-            <!-- Risk Probability vs Impact Matrix -->
-            <div class="card risk">
-                <h2>Risk Probability vs Impact Matrix</h2>
-                <div class="risk-matrix">
-                    <div style="position: absolute; width: 2px; height: 100%; left: 33%; top: 0; background: #ddd;"></div>
-                    <div style="position: absolute; width: 2px; height: 100%; left: 66%; top: 0; background: #ddd;"></div>
-                    <div style="position: absolute; width: 100%; height: 2px; top: 33%; left: 0; background: #ddd;"></div>
-                    <div style="position: absolute; width: 100%; height: 2px; top: 66%; left: 0; background: #ddd;"></div>
-
-                    <div style="position: absolute; font-size: 10px; color: #999; left: 5px; top: 5px;">HIGH IMPACT</div>
-                    <div style="position: absolute; font-size: 10px; color: #999; left: 5px; bottom: 5px;">LOW IMPACT</div>
-                    <div style="position: absolute; font-size: 10px; color: #999; right: 5px; top: 5px;">HIGH PROBABILITY</div>
-                    <div style="position: absolute; font-size: 10px; color: #999; left: 5px; top: 45%; writing-mode: vertical-rl; transform: rotate(180deg);">PROBABILITY →</div>
-
-                    <!-- Risk Bubbles -->
-                    <div class="risk-bubble bubble-high" style="width: 50px; height: 50px; right: 70%; top: 20%; font-size: 11px;" title="R-01: Environmental Testing (Battery)">R-01</div>
-                    <div class="risk-bubble bubble-high" style="width: 45px; height: 45px; right: 65%; top: 30%; font-size: 11px;" title="R-05: Hardware Redesign">R-05</div>
-                    <div class="risk-bubble bubble-medium" style="width: 40px; height: 40px; right: 75%; top: 55%; font-size: 11px;" title="R-02: PO Availability">R-02</div>
-                    <div class="risk-bubble bubble-medium" style="width: 38px; height: 38px; right: 70%; top: 60%; font-size: 11px;" title="R-03: Integration Coverage">R-03</div>
-                    <div class="risk-bubble bubble-low" style="width: 35px; height: 35px; right: 80%; top: 75%; font-size: 11px;" title="R-04: Funding">R-04</div>
-                    <div class="risk-bubble bubble-medium" style="width: 36px; height: 36px; right: 60%; top: 70%; font-size: 11px;" title="R-07: Scope Pressure">R-07</div>
-                </div>
-                <div class="legend" style="margin-top: 30px;">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #c55a11;"></div>
-                        <span>HIGH Priority</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #ffc000;"></div>
-                        <span>MEDIUM Priority</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #70ad47;"></div>
-                        <span>LOW Priority</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Risk Distribution -->
-            <div class="card risk">
-                <h2>Risk Distribution by Category</h2>
-                <div class="chart-container">
-                    <canvas id="riskCategoryChart"></canvas>
-                </div>
-                <div style="margin-top: 15px; font-size: 12px;">
-                    <p><strong>Highest Priority Risks:</strong></p>
-                    <ul style="margin-left: 15px;">
-                        <li>R-01: Environmental Testing (Battery)</li>
-                        <li>R-02: PO Availability (Board Condition)</li>
-                        <li>R-05: Hardware Redesign ($400K contingency)</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- ASSUMPTIONS, ISSUES, DEPENDENCIES -->
-        <div class="section-title">📋 ASSUMPTIONS, ISSUES & DEPENDENCIES</div>
-        <div class="grid-3">
-            <div class="card assumption">
-                <h2>Assumptions Status (4 Active)</h2>
-                <div class="chart-container-small">
-                    <canvas id="assumptionChart"></canvas>
-                </div>
-                <div style="margin-top: 15px; font-size: 12px;">
-                    <p><strong>A-01:</strong> Hardware validation (70% software path)</p>
-                    <p><strong>A-02:</strong> Software arch supports MVP</p>
-                    <p><strong>A-03:</strong> Velocity sustainability</p>
-                    <p><strong>A-04:</strong> Army acceptance ✓ VALIDATED</p>
-                </div>
-            </div>
-
-            <div class="card issue">
-                <h2>Issues Status (5 Open / 1 Closed)</h2>
-                <div class="chart-container-small">
-                    <canvas id="issueChart"></canvas>
-                </div>
-                <div style="margin-top: 15px; font-size: 12px;">
-                    <p><strong>Critical Issues:</strong></p>
-                    <p><strong>I-03:</strong> Integration coverage below 80%</p>
-                    <p><strong>I-05:</strong> Financial monitoring setup</p>
-                    <p><strong>I-01:</strong> Prototype learning ✓ CLOSED</p>
-                </div>
-            </div>
-
-            <div class="card dependency">
-                <h2>Dependencies - Critical Path</h2>
-                <div style="margin-top: 15px;">
-                    <div style="background: #e8f4f8; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 12px;">
-                        <p><strong>D-01:</strong> Testing ✓ Complete (Aug 14)</p>
-                        <p><strong>D-02:</strong> MVP Due Sep 30</p>
-                        <p><strong>D-03:</strong> Board Decision 🔴 TODAY (Aug 15)</p>
-                        <p><strong>D-04:</strong> Army Approval Pending</p>
-                    </div>
-                    <div style="background: #fff3cd; padding: 10px; border-radius: 4px; font-size: 11px;">
-                        <strong>🔴 Blocking Item:</strong> Board governance decision required Aug 15 to proceed with Phase 2
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- FINANCIAL HEALTH -->
-        <div class="section-title">💰 FINANCIAL POSITION</div>
-        <div class="grid-2">
-            <div class="card">
-                <h2>Project Financial Health</h2>
-                <div style="padding: 20px;">
-                    <div style="margin-bottom: 20px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px;">
-                            <span><strong>Authorization:</strong></span>
-                            <span>$12.50M</span>
-                        </div>
-                        <div style="background: #e0e0e0; height: 20px; border-radius: 4px; position: relative; overflow: hidden;">
-                            <div style="background: #70ad47; height: 100%; width: 101%;"></div>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px;">
-                            <span><strong>EAC (Bottom-Up):</strong></span>
-                            <span>$12.65M</span>
-                        </div>
-                        <div style="background: #e0e0e0; height: 20px; border-radius: 4px; position: relative; overflow: hidden;">
-                            <div style="background: #ffc000; height: 100%; width: 101.2%;"></div>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px;">
-                            <span><strong>Gap:</strong></span>
-                            <span style="color: #ffc000;">$150K (Manageable)</span>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px;">
-                            <span><strong>Risk-Adjusted:</strong></span>
-                            <span style="color: #c55a11;">$270K (If EMV materializes)</span>
-                        </div>
-                    </div>
-
-                    <div style="background: #f0f0f0; padding: 12px; border-radius: 4px; margin-top: 15px; font-size: 11px; border-left: 4px solid #70ad47;">
-                        <p><strong>Status:</strong> ✓ Within authorization</p>
-                        <p><strong>Contingency:</strong> Available for activation</p>
-                        <p><strong>Monitoring:</strong> Monthly board oversight required</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>Financial Status Gauge</h2>
-                <div class="gauge-container">
-                    <div class="gauge">
-                        <div class="gauge-background"></div>
-                        <div class="gauge-needle" style="transform: rotate(45deg);"></div>
-                        <div class="gauge-label">MANAGEABLE (75%)</div>
-                    </div>
-                </div>
-                <div style="margin-top: 30px; font-size: 12px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span>Actual Cost to Date:</span>
-                        <strong>$7.80M</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span>Cost Performance Index (CPI):</span>
-                        <strong>0.923</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span>Schedule Performance Index (SPI):</span>
-                        <strong>0.90</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span>Remaining Authorization:</span>
-                        <strong style="color: #70ad47;">$4.70M</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SCHEDULE HEALTH -->
-        <div class="section-title">📅 SCHEDULE & CRITICAL PATH</div>
-        <div class="grid-2">
-            <div class="card">
-                <h2>Critical Path Timeline</h2>
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-marker" style="background: #70ad47;"></div>
-                        <div class="timeline-content">
-                            <h4>August 14, 2026</h4>
-                            <p><strong>✓ Battery Environmental Testing Complete</strong></p>
-                            <p>Falcon completed Prototype #2 testing. Battery issue identified.</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-marker" style="background: #ffc000;"></div>
-                        <div class="timeline-content">
-                            <h4>August 15, 2026 (TODAY)</h4>
-                            <p><strong>🔴 BOARD GOVERNANCE DECISION</strong></p>
-                            <p>Phase 2 approval with 11 conditions required</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-marker" style="background: #ffc000;"></div>
-                        <div class="timeline-content">
-                            <h4>August 16-25, 2026</h4>
-                            <p><strong>Critical Approvals & Assignments</strong></p>
-                            <p>PO allocation, Software Lead, Army authority confirmation</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-marker" style="background: #1f4e78;"></div>
-                        <div class="timeline-content">
-                            <h4>September 30, 2026</h4>
-                            <p><strong>MVP Completion & Software Testing</strong></p>
-                            <p>27 pts remaining. Battery optimization results due.</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-marker" style="background: #1f4e78;"></div>
-                        <div class="timeline-content">
-                            <h4>October 21, 2026</h4>
-                            <p><strong>Phase 2 Completion (Working Forecast)</strong></p>
-                            <p>+21 days from Sep 30 baseline. 71-day Phase 3 buffer available.</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-marker" style="background: #70ad47;"></div>
-                        <div class="timeline-content">
-                            <h4>December 31, 2026</h4>
-                            <p><strong>✓ Deployment Achievable</strong></p>
-                            <p>Full 5,000 device deployment complete</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>Schedule Status</h2>
-                <div style="padding: 20px;">
-                    <div style="background: #e8f4f8; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                            <span><strong>Approved Baseline:</strong></span>
-                            <span style="color: #c55a11;">Sep 30 (NOT CREDIBLE)</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                            <span><strong>Working Forecast:</strong></span>
-                            <span style="color: #ffc000;">Oct 21 (+21 days)</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span><strong>Dec 31 Deployment:</strong></span>
-                            <span style="color: #70ad47;">✓ ACHIEVABLE</span>
-                        </div>
-                    </div>
-
-                    <div style="background: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 15px; font-size: 12px;">
-                        <p><strong>Critical Path Items:</strong></p>
-                        <ul style="margin: 8px 0 0 15px;">
-                            <li>Battery validation (Aug 14) ✓</li>
-                            <li>Software optimization (Sep 30)</li>
-                            <li>MVP completion (Sep 30)</li>
-                            <li>Integration testing (Oct 1-21)</li>
-                            <li>MRR prep (Oct/Nov)</li>
-                        </ul>
-                    </div>
-
-                    <div style="background: #e8f5e9; padding: 12px; border-radius: 4px; font-size: 11px; border-left: 4px solid #70ad47;">
-                        <p><strong>Phase 3 Buffer:</strong> 71 days (Oct 21 → Dec 31)</p>
-                        <p><strong>Justification:</strong> Battery testing completion enables schedule confidence</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PROJECT HEALTH SUMMARY -->
-        <div class="section-title">🎯 OVERALL PROJECT HEALTH SUMMARY</div>
-        <div class="card">
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 4px;">
-                    <div style="font-size: 24px; margin-bottom: 10px;">🟡</div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">TECHNICAL STATUS</div>
-                    <div style="font-size: 14px; color: #666;">AMBER</div>
-                    <div style="font-size: 11px; margin-top: 8px; color: #666;">
-                        <p>Hardware viable. Battery optimization in progress.</p>
-                        <p>Software on track. Integration improving.</p>
-                    </div>
-                </div>
-
-                <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 4px;">
-                    <div style="font-size: 24px; margin-bottom: 10px;">🟡</div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">FINANCIAL STATUS</div>
-                    <div style="font-size: 14px; color: #666;">MANAGEABLE</div>
-                    <div style="font-size: 11px; margin-top: 8px; color: #666;">
-                        <p>$150K gap within authorization. </p>
-                        <p>Contingency available.</p>
-                    </div>
-                </div>
-
-                <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 4px;">
-                    <div style="font-size: 24px; margin-bottom: 10px;">🟡</div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">SCHEDULE STATUS</div>
-                    <div style="font-size: 14px; color: #666;">AMBER</div>
-                    <div style="font-size: 11px; margin-top: 8px; color: #666;">
-                        <p>Oct 21 forecast credible. Dec 31 achievable.</p>
-                        <p>71-day Phase 3 buffer.</p>
-                    </div>
-                </div>
-
-                <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 4px;">
-                    <div style="font-size: 24px; margin-bottom: 10px;">🟢</div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">STAKEHOLDER STATUS</div>
-                    <div style="font-size: 14px; color: #666;">SUPPORTIVE</div>
-                    <div style="font-size: 11px; margin-top: 8px; color: #666;">
-                        <p>10 supportive. COL Torres shift key win.</p>
-                        <p>Customer aligned on strategy.</p>
-                    </div>
-                </div>
-
-                <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 4px;">
-                    <div style="font-size: 24px; margin-bottom: 10px;">🟡</div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">GOVERNANCE STATUS</div>
-                    <div style="font-size: 14px; color: #666;">PENDING</div>
-                    <div style="font-size: 11px; margin-top: 8px; color: #666;">
-                        <p>11 conditions identified. Board decision today.</p>
-                        <p>Conditions manageable & specific.</p>
-                    </div>
-                </div>
-
-                <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 4px;">
-                    <div style="font-size: 24px; margin-bottom: 10px;">🟡</div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">RISK STATUS</div>
-                    <div style="font-size: 14px; color: #666;">MANAGED</div>
-                    <div style="font-size: 11px; margin-top: 8px; color: #666;">
-                        <p>5 risks documented. Mitigations in place.</p>
-                        <p>Tiered contingencies identified.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- BOARD GOVERNANCE CONDITIONS -->
-        <div class="section-title">📋 BOARD GOVERNANCE CONDITIONS (11 Required)</div>
-        <div class="card">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div>
-                    <p style="margin-bottom: 10px; font-weight: bold; color: #1f4e78;">IMMEDIATE DECISIONS (Aug 15-20)</p>
-                    <ol style="font-size: 12px; margin-left: 15px; line-height: 1.8;">
-                        <li>Authorize Phase 2 continuation with conditions</li>
-                        <li>Defer production prototype authorization (battery dependent)</li>
-                        <li>Approve software power-management optimization approach</li>
-                        <li>Resolve PO capacity allocation (full-time required)</li>
-                        <li>Validate $12.65M EAC and Oct 21 forecast</li>
-                        <li>Authorize formal cost/schedule baseline change</li>
-                        <li>Establish monthly board governance oversight</li>
-                        <li>Approve logistics-only Phase 2 deployment strategy</li>
-                    </ol>
-                </div>
-                <div>
-                    <p style="margin-bottom: 10px; font-weight: bold; color: #1f4e78;">FOLLOW-UP ACTIONS (Aug 20+)</p>
-                    <ol style="font-size: 12px; margin-left: 15px; line-height: 1.8; color: #666;">
-                        <li>Confirm Army formal approval authority (COL Torres, Aug 20)</li>
-                        <li>Assign Apex Software Lead (by Aug 16)</li>
-                        <li>Establish integrated hardware/software change control</li>
-                        <li><strong style="color: #333;">ONGOING: Monthly financial reporting to board (Aug 31, Sep 30, etc.)</strong></li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="dashboard-footer">
-            <p><strong>Dashboard Generated:</strong> August 15, 2026 | <strong>Next Review:</strong> September 15, 2026</p>
-            <p>Data sourced from Phase 2 Governance Review materials | All metrics current as of August 14, 2026</p>
-        </div>
+<!doctype html>
+<title>SENTINEL Briefing Dashboard</title>
+<meta name="color-scheme" content="light">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@500;600;700;800&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    color-scheme:light;
+    --ground:#f5f7f9;
+    --surface:#ffffff;
+    --surface-2:#eef2f6;
+    --ink:#182430;
+    --ink-soft:#3a4a5c;
+    --muted:#5b6b7e;
+    --hair:#dfe5ec;
+    --hair-strong:#c8d2de;
+    --navy:#1b3a5c;
+    --navy-deep:#122a44;
+    --accent:#a9660a;
+    --accent-tint:#fbf1de;
+    --green:#1f7a44;
+    --green-tint:#e8f3ec;
+    --amber:#a9660a;
+    --amber-tint:#fbf1de;
+    --red:#b32234;
+    --red-tint:#fbe9ec;
+    --blue:#2b5c9e;
+    --blue-tint:#e9f1f9;
+    --shadow:0 1px 2px rgba(20,32,46,.06), 0 10px 26px -14px rgba(20,32,46,.22);
+    --radius:12px;
+    --sidebar-w:252px;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:14.5px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:"Libre Franklin",system-ui,sans-serif;text-wrap:balance;margin:0;color:var(--ink)}
+  p{margin:0}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace}
+  .tnum{font-variant-numeric:tabular-nums}
+  img{max-width:100%}
+  a{color:inherit}
+  button{font:inherit;color:inherit}
+  ::selection{background:var(--navy);color:#fff}
+
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--muted);
+  }
+
+  /* ---------- Shell / Sidebar ---------- */
+  .shell{display:flex;min-height:100vh}
+  .sidebar{
+    width:var(--sidebar-w);flex-shrink:0;
+    background:var(--navy);color:#fff;
+    position:fixed;top:0;bottom:0;left:0;
+    display:flex;flex-direction:column;
+    transform:translateX(-100%);
+    transition:transform .2s ease;
+    z-index:40;
+    overflow-y:auto;
+  }
+  .sidebar.is-open{transform:translateX(0)}
+  @media (min-width:1024px){
+    .sidebar{position:static;transform:none}
+    body.has-sidebar-layout .shell{padding-left:0}
+  }
+  .sidebar-brand{padding:22px 20px 16px;border-bottom:1px solid rgba(255,255,255,.14)}
+  .sidebar-brand .eyebrow{color:#d9c9a3;font-size:10px}
+  .sidebar-brand h1{font-size:19px;font-weight:800;margin-top:4px;letter-spacing:.01em}
+  .sidebar-brand .sub{font-size:11.5px;color:#b9c9db;margin-top:5px;line-height:1.5}
+  .sidebar-nav{padding:12px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
+  .sidebar-nav .grp-label{
+    font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:#7d92ab;padding:14px 10px 6px;
+  }
+  .sidebar-nav button{
+    display:flex;align-items:center;gap:9px;text-align:left;width:100%;
+    background:none;border:none;color:#c9d6e4;padding:9px 10px;border-radius:8px;
+    font-size:12.8px;font-weight:500;cursor:pointer;
+  }
+  .sidebar-nav button .dot{width:5px;height:5px;border-radius:99px;background:currentColor;opacity:.5;flex-shrink:0}
+  .sidebar-nav button:hover{background:rgba(255,255,255,.07);color:#fff}
+  .sidebar-nav button.active{background:rgba(255,255,255,.13);color:#fff;font-weight:700}
+  .sidebar-nav button.active .dot{background:var(--accent);opacity:1}
+  .sidebar-foot{padding:14px 20px 18px;border-top:1px solid rgba(255,255,255,.14);font-size:10.5px;color:#8ba0b8}
+
+  .scrim{position:fixed;inset:0;background:rgba(10,16,24,.45);z-index:35;display:none}
+  .scrim.is-open{display:block}
+
+  .content{flex:1;min-width:0}
+  @media (min-width:1024px){.content{margin-left:var(--sidebar-w)}}
+  #app-top{
+    position:sticky;top:0;z-index:20;
+    background:var(--ground)/* solid */;background:linear-gradient(var(--ground),var(--ground));
+    border-bottom:1px solid var(--hair-strong);
+    display:flex;align-items:center;gap:14px;padding:12px 22px;
+  }
+  .menu-btn{
+    display:flex;align-items:center;justify-content:center;
+    width:34px;height:34px;border-radius:8px;border:1px solid var(--hair-strong);background:var(--surface);cursor:pointer;
+  }
+  @media (min-width:1024px){.menu-btn{display:none}}
+  #app-top .page-name{font-weight:700;font-size:15px}
+  #app-top .countdown{margin-left:auto;text-align:right;font-family:"IBM Plex Mono",monospace}
+  #app-top .countdown .n{font-size:15px;font-weight:700;color:var(--navy)}
+  #app-top .countdown .lbl{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+  main.page{max-width:1040px;margin:0 auto;padding:26px 24px 70px}
+  main.page[hidden]{display:none}
+
+  .page-head{margin-bottom:22px}
+  .page-head h2{font-size:24px;font-weight:800}
+  .page-head .desc{margin-top:6px;color:var(--muted);font-size:13.5px;max-width:64ch}
+
+  section.block{margin-bottom:28px}
+  .block-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .block-head h3{font-size:16.5px;font-weight:700}
+
+  /* ---------- RAG ---------- */
+  .rag{
+    display:inline-flex;align-items:center;gap:5px;
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:600;
+    padding:4px 9px;border-radius:99px;border:1px solid;white-space:nowrap;
+  }
+  .rag::before{content:"";width:6px;height:6px;border-radius:99px;background:currentColor}
+  .rag--green{color:var(--green);background:var(--green-tint);border-color:var(--green)}
+  .rag--amber{color:var(--amber);background:var(--amber-tint);border-color:var(--amber)}
+  .rag--red{color:var(--red);background:var(--red-tint);border-color:var(--red)}
+  .rag--blue{color:var(--blue);background:var(--blue-tint);border-color:var(--blue)}
+  .rag--neutral{color:var(--muted);background:var(--surface-2);border-color:var(--hair)}
+
+  /* ---------- callouts ---------- */
+  .callout{border:1px solid var(--hair);border-radius:var(--radius);background:var(--surface-2);padding:14px 16px;font-size:13.5px;color:var(--ink-soft)}
+  .callout b{color:var(--ink)}
+  .callout--green{background:var(--green-tint);border-color:var(--green)}
+  .callout--amber{background:var(--amber-tint);border-color:var(--amber)}
+  .callout--red{background:var(--red-tint);border-color:var(--red)}
+  .callout--blue{background:var(--blue-tint);border-color:var(--blue)}
+
+  /* ---------- cards / grids ---------- */
+  .grid{display:grid;gap:12px}
+  .cols-2{grid-template-columns:repeat(2,1fr)}
+  .cols-3{grid-template-columns:repeat(3,1fr)}
+  .cols-4{grid-template-columns:repeat(4,1fr)}
+  @media (max-width:820px){.cols-2,.cols-3,.cols-4{grid-template-columns:1fr}}
+
+  .card{background:var(--surface);border:1px solid var(--hair);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+  .domain-chip{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--hair);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);font-weight:600;font-size:13px}
+
+  .stat{background:var(--surface);border:1px solid var(--hair);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px}
+  .stat.flag{border-color:var(--amber)}
+  .stat .label{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .stat .figure{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:21px;color:var(--ink)}
+  .stat.flag .figure{color:var(--amber)}
+  .stat .note{font-size:11.5px;color:var(--muted)}
+
+  ul.clean{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+  ul.clean li{position:relative;padding-left:16px;color:var(--ink-soft);font-size:13.5px}
+  ul.clean li::before{content:"▪";position:absolute;left:0;color:var(--navy);font-weight:700;font-size:11px;top:2px}
+  ul.clean li b{color:var(--ink)}
+
+  ol.steps{margin:0;padding:0 0 0 20px;display:flex;flex-direction:column;gap:9px}
+  ol.steps li{color:var(--ink-soft);font-size:13.5px;padding-left:2px}
+  ol.steps li b{color:var(--ink)}
+
+  .panel{background:var(--surface);border:1px solid var(--hair);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
+  .panel h4{font-size:14px;font-weight:700}
+  .panel .meta{font-size:12px;color:var(--ink-soft)}
+  .panel .desc{font-size:12.5px;color:var(--muted)}
+
+  /* condition tracker */
+  .condition{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--hair);border-left-width:4px;border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+  .condition .idx{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:16px;color:var(--hair-strong)}
+  .condition h4{font-size:14px;margin-bottom:4px}
+  .condition .owner{font-size:12px;color:var(--muted);margin-bottom:6px}
+  .condition .crit{font-size:12.5px;color:var(--ink-soft)}
+  .condition .crit b{color:var(--ink)}
+  .condition .status-col{display:flex;flex-direction:column;align-items:flex-end;gap:5px;text-align:right;min-width:96px}
+  .condition .due{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted)}
+  .condition details{margin-top:8px}
+  .condition summary{cursor:pointer;font-size:11.5px;color:var(--navy);font-weight:600}
+  .condition .evidence{margin-top:8px;font-size:12px;color:var(--ink-soft);background:var(--surface-2);border-radius:8px;padding:8px 10px}
+  .condition .success-list{margin:8px 0 0;padding-left:16px;font-size:12px;color:var(--ink-soft)}
+  .condition .impact{margin-top:8px;font-size:12px;background:var(--red-tint);color:var(--red);border-radius:8px;padding:6px 10px}
+
+  /* timeline */
+  .timeline{display:flex;flex-direction:column;border-radius:var(--radius);overflow:hidden;border:1px solid var(--hair)}
+  .tl-row{display:grid;grid-template-columns:96px 1fr auto;gap:12px;align-items:center;padding:11px 16px;background:var(--surface);border-bottom:1px solid var(--hair);font-size:13px}
+  .tl-row:last-child{border-bottom:none}
+  .tl-row .d{font-family:"IBM Plex Mono",monospace;font-weight:700;color:var(--ink)}
+  .tl-row .l{color:var(--ink-soft)}
+  .tl-row.is-today-window{background:var(--amber-tint)}
+
+  /* asks */
+  .asks{display:flex;flex-direction:column;gap:8px}
+  .ask{display:grid;grid-template-columns:1fr 110px;gap:12px;align-items:center;padding:11px 14px;border:1px solid var(--hair);border-radius:var(--radius);background:var(--surface)}
+  .ask .q{font-size:13px;color:var(--ink-soft)}
+  .ask .a{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-align:center;padding:6px 10px;border-radius:6px;background:var(--green-tint);color:var(--green)}
+
+  .contacts{display:flex;flex-wrap:wrap;gap:10px}
+  .contact{display:flex;flex-direction:column;gap:2px;padding:10px 14px;border:1px solid var(--hair);border-radius:var(--radius);background:var(--surface);min-width:168px;flex:1 1 168px}
+  .contact .name{font-weight:700;font-size:13px}
+  .contact .role{font-size:11.5px;color:var(--muted)}
+
+  /* tables */
+  .table-wrap{overflow-x:auto;border:1px solid var(--hair);border-radius:var(--radius);background:var(--surface)}
+  table.data{border-collapse:collapse;width:100%;font-size:12.5px;min-width:560px}
+  table.data th{text-align:left;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);padding:9px 12px;border-bottom:1px solid var(--hair)}
+  table.data td{padding:9px 12px;border-bottom:1px solid var(--hair);color:var(--ink-soft);vertical-align:top}
+  table.data tr:last-child td{border-bottom:none}
+  table.data td.strong{color:var(--ink);font-weight:600}
+  table.raci th, table.raci td{text-align:center}
+  table.raci td:first-child, table.raci th:first-child{text-align:left}
+  .raci-badge{display:inline-flex;width:20px;height:20px;border-radius:99px;align-items:center;justify-content:center;font-weight:700;font-size:10.5px;font-family:"IBM Plex Mono",monospace}
+  .raci-R{background:var(--blue-tint);color:var(--blue)}
+  .raci-A{background:var(--navy);color:#fff}
+  .raci-C{background:var(--amber-tint);color:var(--amber)}
+  .raci-I{background:var(--surface-2);color:var(--muted)}
+
+  /* RAID cards */
+  .raid-card{background:var(--surface);border:1px solid var(--hair);border-left-width:4px;border-radius:var(--radius);padding:13px 15px;box-shadow:var(--shadow)}
+  .raid-card .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:6px}
+  .raid-card .id{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:12px;color:var(--muted)}
+  .raid-card h4{font-size:13.5px}
+  .raid-card .meta{font-size:11px;color:var(--muted);margin-top:2px}
+  .raid-card p{font-size:12.5px;color:var(--ink-soft);margin-top:6px}
+  .raid-card .mit{font-size:12px;color:var(--ink-soft);margin-top:6px;padding-top:6px;border-top:1px dashed var(--hair)}
+
+  /* personas */
+  .persona{background:var(--surface);border:1px solid var(--hair);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+  .persona.flag{border-color:var(--amber)}
+  .persona .top{display:flex;justify-content:space-between;align-items:baseline}
+  .persona h4{font-size:14px}
+  .persona .grade{font-size:11px;color:var(--muted)}
+  .persona .role{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .persona .quote{font-size:12.5px;font-style:italic;color:var(--ink-soft);margin-top:8px;border-left:2px solid var(--hair-strong);padding-left:10px}
+  .persona .csat{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:18px}
+
+  /* sprint board */
+  .sprint-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  @media (max-width:820px){.sprint-cols{grid-template-columns:1fr 1fr}}
+  .sprint-col{background:var(--surface-2);border-radius:var(--radius);padding:10px}
+  .sprint-col h5{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px}
+  .sprint-col .n{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:20px}
+  .sprint-col .pts{font-size:11px;color:var(--muted)}
+
+  /* accordion (Q&A / glossary deep dive) */
+  .acc{background:var(--surface);border:1px solid var(--hair);border-radius:var(--radius);overflow:hidden}
+  .acc + .acc{margin-top:8px}
+  .acc summary{cursor:pointer;padding:12px 14px;font-size:13px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:10px}
+  .acc summary::-webkit-details-marker{display:none}
+  .acc summary .tag{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--muted);font-weight:500}
+  .acc .body{padding:0 14px 14px;font-size:12.8px;color:var(--ink-soft)}
+
+  dl.glossary{margin:0}
+  dl.glossary > div{padding:10px 0;border-bottom:1px solid var(--hair)}
+  dl.glossary > div:last-child{border-bottom:none}
+  dl.glossary dt{font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px}
+  dl.glossary dt .cat{font-family:"IBM Plex Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.06em;background:var(--surface-2);color:var(--muted);padding:2px 6px;border-radius:5px;font-weight:600}
+  dl.glossary dd{margin:3px 0 0;font-size:12.8px;color:var(--ink-soft)}
+
+  input.search{
+    width:100%;padding:10px 12px;border:1px solid var(--hair-strong);border-radius:9px;background:var(--surface);
+    font:inherit;font-size:13px;color:var(--ink);
+  }
+  input.search:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+
+  footer.notice{margin-top:34px;padding-top:16px;border-top:1px dashed var(--hair-strong);font-size:11.5px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+  /* ---------- Slide Deck ---------- */
+  .deck-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .deck-toolbar .pager{display:flex;align-items:center;gap:10px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-soft)}
+  .deck-toolbar button.nav-btn{background:var(--surface);border:1px solid var(--hair-strong);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:600;font-size:12.5px}
+  .deck-toolbar button.nav-btn:hover{border-color:var(--navy);color:var(--navy)}
+  .deck-toolbar button.print-btn{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:12.5px}
+  .deck-toolbar button.print-btn:hover{background:var(--navy-deep)}
+  .deck-dots{display:flex;gap:5px;flex-wrap:wrap}
+  .deck-dots button{width:8px;height:8px;border-radius:99px;border:none;background:var(--hair-strong);cursor:pointer;padding:0}
+  .deck-dots button[aria-current="true"]{background:var(--accent);width:20px;border-radius:5px}
+
+  .stage{background:var(--surface-2);border-radius:var(--radius);padding:20px;display:flex;justify-content:center}
+  .slide{width:100%;max-width:920px;min-height:min(560px,70vh);background:#fff;border-radius:6px;box-shadow:var(--shadow);padding:clamp(22px,4vw,42px) clamp(26px,5vw,56px);display:flex;flex-direction:column;justify-content:flex-start;gap:14px;overflow:visible}
+  .slide[hidden]{display:none}
+  .slide--dark{background:var(--navy);color:#fff}
+  .slide--dark .eyebrow{color:#e6c98d}
+  .slide--dark h2{color:#fff}
+  .slide-title{font-size:clamp(20px,3vw,28px);font-weight:800;line-height:1.15}
+  .slide .divider{height:1px;background:var(--hair);margin:2px 0}
+  .slide-grid{display:grid;gap:10px}
+  .slide-grid.c2{grid-template-columns:1fr 1fr}
+  .slide-grid.c3{grid-template-columns:1fr 1fr 1fr}
+  .slide-grid.c4{grid-template-columns:1fr 1fr 1fr 1fr}
+  @media (max-width:700px){.slide-grid.c2,.slide-grid.c3,.slide-grid.c4{grid-template-columns:1fr}}
+  .title-hero{align-items:center;text-align:center;justify-content:center}
+  .title-hero h2{font-size:clamp(32px,6vw,46px)}
+  .title-hero .subtitle{font-size:clamp(16px,2.6vw,21px);color:#e6c98d;font-weight:500}
+  .title-hero .meta{font-size:13px;color:#c3d2e2;line-height:1.7}
+
+  @media print{
+    .sidebar,.scrim,#app-top,.deck-toolbar{display:none !important}
+    .content{margin-left:0}
+    main.page:not(#page-deck){display:none !important}
+    .stage{background:#fff;padding:0;display:block !important}
+    .slide{width:11in;min-height:8.5in;max-width:none;page-break-after:always;break-after:page;box-shadow:none;border-radius:0;overflow:visible;justify-content:center}
+    .slide[hidden]{display:flex !important}
+    .slide:last-child{page-break-after:auto;break-after:auto}
+    @page{size:landscape;margin:0}
+  }
+</style>
+
+<div class="shell">
+  <div class="scrim" id="scrim"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <p class="eyebrow">Governance Board Review · Sep 10, 2026</p>
+      <h1>PROJECT SENTINEL</h1>
+      <p class="sub">Smart Logistics Tracking System — U.S. Army<br>Apex Defense Solutions</p>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <p class="grp-label">Briefing</p>
+      <button data-page="summary"><span class="dot"></span>Executive Summary</button>
+      <button data-page="financial"><span class="dot"></span>Financial Position</button>
+      <button data-page="schedule"><span class="dot"></span>Schedule &amp; Critical Path</button>
+      <button data-page="raid"><span class="dot"></span>Risks &amp; RAID</button>
+      <button data-page="governance"><span class="dot"></span>Governance Conditions &amp; Structure</button>
+      <button data-page="product"><span class="dot"></span>Product — Hardware &amp; Software</button>
+      <button data-page="pilot"><span class="dot"></span>Pilot Results &amp; Customer</button>
+      <button data-page="stakeholders"><span class="dot"></span>Stakeholders &amp; Team</button>
+      <button data-page="decision"><span class="dot"></span>Decision &amp; Path Forward</button>
+      <p class="grp-label">Reference</p>
+      <button data-page="qa"><span class="dot"></span>Q&amp;A Preparation</button>
+      <button data-page="glossary"><span class="dot"></span>Concepts &amp; Glossary</button>
+      <button data-page="deck"><span class="dot"></span>Governance Deck</button>
+    </nav>
+    <div class="sidebar-foot">Governance simulation — not an operational record.</div>
+  </aside>
+
+  <div class="content">
+    <div id="app-top">
+      <button class="menu-btn" id="menu-btn" aria-label="Open menu">☰</button>
+      <span class="page-name" id="page-name">Executive Summary</span>
+      <div class="countdown">
+        <div class="n tnum" id="countdown-n">—</div>
+        <div class="lbl" id="countdown-lbl">to board review</div>
+      </div>
     </div>
 
-    <script>
-        // Sentiment Distribution Chart
-        const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
-        new Chart(sentimentCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Supportive', 'Supportive (Constrained)', 'Concerned', 'Neutral', 'Not Yet Assigned'],
-                datasets: [{
-                    data: [10, 2, 1, 1, 1],
-                    backgroundColor: ['#70ad47', '#a8d08d', '#ffc000', '#a5a5a5', '#e0e0e0'],
-                    borderColor: '#fff',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } },
-                    tooltip: { callbacks: { label: function(context) { return context.label + ': ' + context.parsed; } } }
-                }
-            }
-        });
+    <!-- ============ EXECUTIVE SUMMARY ============ -->
+    <main class="page" id="page-summary">
+      <div class="page-head">
+        <h2>Executive Summary</h2>
+        <p class="desc">SENTINEL builds and delivers 5,000 ruggedized GPS trackers plus the cloud software to run them, for the U.S. Army, by Dec 31. This is the checkpoint where the board decides whether to fund the final phase.</p>
+      </div>
 
-        // Engagement Strategy Chart
-        const engagementCtx = document.getElementById('engagementChart').getContext('2d');
-        new Chart(engagementCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Manage Closely', 'Keep Informed', 'Keep Satisfied', 'Support Closely'],
-                datasets: [{
-                    label: 'Stakeholders',
-                    data: [9, 2, 1, 3],
-                    backgroundColor: ['#1f4e78', '#70ad47', '#ffc000', '#2d5a8c'],
-                    borderColor: ['#1f4e78', '#70ad47', '#ffc000', '#2d5a8c'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { x: { beginAtZero: true, max: 10 } }
-            }
-        });
+      <section class="block">
+        <div class="callout callout--green">
+          <b>GO — with conditions.</b> Authorize Phase 3 (Oct–Dec 2026) now, subject to six evidence-based governance
+          conditions. The product works, the schedule is protected by a 71-day buffer, and the money is tight but
+          covered. Starting now — rather than waiting for the Sep 28 battery result — preserves the buffer while the
+          open items resolve in parallel.
+        </div>
+        <ul class="clean" style="margin-top:14px">
+          <li><b>Reach</b> 80% integration test coverage by Sep 15 (Jennifer Morales, Software Lead)</li>
+          <li><b>Deliver</b> battery feasibility analysis by Sep 25 (Jennifer Morales, Software Lead)</li>
+          <li><b>Resolved</b> — Product Owner allocation: Jennifer Morales confirmed full-time to SENTINEL <span class="rag rag--green" style="margin-left:2px">Condition #3 closed</span></li>
+          <li><b>Document</b> the Field Ops CSAT improvement plan by Sep 5 (Emily Carter)</li>
+          <li><b>Charter</b> the integrated HW/SW Change Control Board by Sep 15 (Zachary Busse)</li>
+          <li><b>Stand up</b> monthly financial reporting by Sep 5 (Karen Holt)</li>
+        </ul>
+      </section>
 
-        // Risk Category Chart
-        const riskCtx = document.getElementById('riskCategoryChart').getContext('2d');
-        new Chart(riskCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Technical', 'Resource', 'Governance', 'Scope'],
-                datasets: [{
-                    label: 'Number of Risks',
-                    data: [3, 1, 1, 1],
-                    backgroundColor: ['#c55a11', '#ffc000', '#1f4e78', '#70ad47'],
-                    borderColor: ['#c55a11', '#ffc000', '#1f4e78', '#70ad47'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, max: 4 } }
-            }
-        });
+      <section class="block">
+        <div class="block-head"><h3>Overall Project Health</h3></div>
+        <div class="grid cols-4">
+          <div class="domain-chip"><span>Strategic Value</span><span class="rag rag--green">Green</span></div>
+          <div class="domain-chip"><span>Business Need</span><span class="rag rag--green">Green</span></div>
+          <div class="domain-chip"><span>Customer</span><span class="rag rag--amber">Amber</span></div>
+          <div class="domain-chip"><span>Hardware</span><span class="rag rag--amber">Amber</span></div>
+          <div class="domain-chip"><span>Software</span><span class="rag rag--amber">Amber</span></div>
+          <div class="domain-chip"><span>Financial</span><span class="rag rag--amber">Amber</span></div>
+          <div class="domain-chip"><span>Schedule</span><span class="rag rag--amber">Amber</span></div>
+          <div class="domain-chip"><span>Overall Rating</span><span class="rag rag--amber">Amber</span></div>
+        </div>
+        <div class="callout" style="margin-top:12px">
+          <b>Overall: AMBER — proceed with conditions.</b> Green strategic foundation, amber execution across cost,
+          schedule, and the two engineering tracks. No red domain: the Phase 2 slip is bounded and the 71-day Phase 3
+          buffer protects Dec 31 deployment.
+        </div>
+      </section>
 
-        // Assumption Chart
-        const assumptionCtx = document.getElementById('assumptionChart').getContext('2d');
-        new Chart(assumptionCtx, {
-            type: 'radar',
-            data: {
-                labels: ['A-01: Hardware', 'A-02: Architecture', 'A-03: Velocity', 'A-04: Acceptance'],
-                datasets: [{
-                    label: 'Confidence Level',
-                    data: [85, 70, 65, 90],
-                    borderColor: '#70ad47',
-                    backgroundColor: 'rgba(112, 173, 71, 0.2)',
-                    fill: true,
-                    pointBackgroundColor: '#70ad47'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 25 } } },
-                plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } }
-            }
-        });
+      <section class="block">
+        <div class="block-head"><h3>Where the Project Stands</h3></div>
+        <div class="grid cols-4">
+          <div class="stat"><span class="label">Phase 1</span><span class="figure">Complete</span><span class="note">Closed Aug 14</span></div>
+          <div class="stat flag"><span class="label">Phase 2</span><span class="figure tnum">88%</span><span class="note">Baseline Sep 30 · forecast Oct 21</span></div>
+          <div class="stat"><span class="label">MVP Delivery</span><span class="figure tnum">27 / 27</span><span class="note">Story points, in pilot</span></div>
+          <div class="stat"><span class="label">Authorization</span><span class="figure">$12.5M</span><span class="note">Full project budget</span></div>
+        </div>
+        <ul class="clean" style="margin-top:14px">
+          <li><b>Velocity:</b> stable 27 points/sprint over four sprints; forecasts reliable</li>
+          <li><b>Quality:</b> defect escape rate 1.8% (target &lt;2%); test coverage 82% toward 85% target</li>
+          <li><b>Integration coverage:</b> 72% against 80% exit criterion (RAID I-03, owned by Jennifer Morales); full system scenarios remain constrained</li>
+        </ul>
+      </section>
 
-        // Issue Chart
-        const issueCtx = document.getElementById('issueChart').getContext('2d');
-        new Chart(issueCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Testing', 'Schedule', 'Integration', 'Backlog', 'Financial'],
-                datasets: [{
-                    label: 'Issues Open',
-                    data: [1, 1, 1, 1, 1],
-                    backgroundColor: ['#ffc000', '#ffc000', '#ffc000', '#ffc000', '#ffc000'],
-                    borderColor: '#ffc000',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { x: { beginAtZero: true, max: 2 } }
-            }
-        });
-    </script>
-</body>
-</html>
+      <section class="block">
+        <div class="block-head"><h3>Strategic &amp; Business Case</h3><span class="rag rag--green">Green</span></div>
+        <div class="card">
+          <ul class="clean">
+            <li><b>Business need:</b> Army logistics units cannot see where their assets are, and requisitions stall because of it</li>
+            <li><b>Strategic value:</b> the reference build for a possible commercial variant; proof point for integrated HW/SW delivery at scale</li>
+            <li><b>Customer alignment:</b> U.S. Army — COL Torres remains concerned but engaged on operational suitability; Army Pilot Program Office is supportive</li>
+            <li><b>Benefits (pilot-validated):</b> inventory search 87% faster · requisition cycle 75% faster · error rate down 92% · 88% device adoption</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Key Contacts</h3></div>
+        <div class="contacts">
+          <div class="contact"><span class="name">Sarah Mitchell</span><span class="role">Sponsor</span></div>
+          <div class="contact"><span class="name">Jennifer Morales</span><span class="role">Software Lead / Product Owner</span></div>
+          <div class="contact"><span class="name">Emily Carter</span><span class="role">Director, Customer Experience</span></div>
+          <div class="contact"><span class="name">Zachary Busse</span><span class="role">Project Manager</span></div>
+          <div class="contact"><span class="name">Karen Holt</span><span class="role">Finance Director</span></div>
+          <div class="contact"><span class="name">Ethan Brooks</span><span class="role">Falcon Technologies, PM</span></div>
+          <div class="contact"><span class="name">COL Torres</span><span class="role">Army Customer</span></div>
+          <div class="contact"><span class="name">David Whitmore</span><span class="role">CEO, Executive Escalation</span></div>
+        </div>
+      </section>
+
+      <footer class="notice">
+        <span>Governance simulation — not an operational record. Synthesized from the Phase 2 → 3 Board Briefing (17 slides).</span>
+        <span id="asof"></span>
+      </footer>
+    </main>
+
+    <!-- ============ FINANCIAL POSITION ============ -->
+    <main class="page" id="page-financial" hidden>
+      <div class="page-head">
+        <h2>Financial Position</h2>
+        <p class="desc">Finance's bottom-up reconciliation: the project has spent $7.8M and needs about $4.85M more, for a completion cost of $12.65M — $150K over the $12.5M authorization and $850K over the approved baseline.</p>
+      </div>
+
+      <section class="block">
+        <div class="grid cols-4">
+          <div class="stat"><span class="label">Total Authorization</span><span class="figure">$12.50M</span></div>
+          <div class="stat"><span class="label">Approved Baseline</span><span class="figure">$11.80M</span></div>
+          <div class="stat"><span class="label">Actual Cost</span><span class="figure">$7.80M</span></div>
+          <div class="stat flag"><span class="label">Bottom-Up EAC</span><span class="figure">$12.65M</span><span class="note">$150K gap</span></div>
+        </div>
+        <div class="grid cols-4" style="margin-top:10px">
+          <div class="stat"><span class="label">CPI</span><span class="figure tnum">0.923</span><span class="note">Slightly behind</span></div>
+          <div class="stat"><span class="label">SPI</span><span class="figure tnum">0.90</span><span class="note">Schedule slip</span></div>
+          <div class="stat"><span class="label">Contingency Burn</span><span class="figure tnum">66%</span><span class="note">$365K of $550K</span></div>
+          <div class="stat"><span class="label">Remaining Reserve</span><span class="figure">$335K</span><span class="note">48% available</span></div>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>How the $12.65M forecast is built</h3></div>
+        <div class="callout">
+          Actual cost ($7.8M) + estimate to complete ($4.85M) = <b>$12.65M bottom-up EAC</b>. The CPI-based
+          cross-check gives ~$12.78M; Finance recommends the bottom-up figure as the base planning forecast.
+        </div>
+        <div class="callout callout--amber" style="margin-top:10px">
+          <b>What the $12.65M does not include:</b> a dollar figure for unresolved risk (EMV), and any assumption of
+          a battery hardware redesign. Layering the ~$240K of validated risk EMV brings the risk-adjusted forecast to
+          roughly $12.89M — near the edge of the $335K of remaining reserves.
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Baseline by Discipline &amp; Phase ($M)</h3></div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Phase</th><th>Hardware</th><th>Software</th><th>Integration</th><th>Total</th><th>Actual</th><th>Variance</th></tr></thead>
+            <tbody id="tbl-baseline"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Contingency Allocation by Charter Risk ($K)</h3></div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>ID</th><th>Charter Risk</th><th>Allocated</th><th>Consumed</th><th>Status</th></tr></thead>
+            <tbody id="tbl-contingency"></tbody>
+          </table>
+        </div>
+        <p class="callout" style="margin-top:10px;font-size:12.5px">
+          Battery (R-01) ran $75K over its $150K allocation, offset by under-spend in regulatory, supply chain and
+          cybersecurity — the reserve rebalanced across categories. $550K across 6 risks; $365K consumed (66%),
+          $185K remaining.
+        </p>
+      </section>
+
+      <section class="block">
+        <div class="grid cols-2">
+          <div class="card">
+            <h3 style="font-size:13.5px;margin-bottom:8px">Anticipated Contingency Draws — Phase 3</h3>
+            <div id="phase3-draws"></div>
+          </div>
+          <div class="card">
+            <h3 style="font-size:13.5px;margin-bottom:8px">Drawdown Authority</h3>
+            <div class="table-wrap" style="border:none;box-shadow:none">
+              <table class="data" style="min-width:0">
+                <thead><tr><th>Trigger</th><th>Authority</th></tr></thead>
+                <tbody id="tbl-drawdown"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="callout callout--amber">
+        <b>Finance position:</b> maintain the distinction between the base forecast ($12.65M), EMV for risks
+        (~$170K), and risk-triggered costs (a hardware redesign). The $150K gap is covered by remaining contingency
+        and management reserve. Condition #6 establishes monthly variance tracking.
+      </div>
+    </main>
+
+    <!-- ============ SCHEDULE & CRITICAL PATH ============ -->
+    <main class="page" id="page-schedule" hidden>
+      <div class="page-head">
+        <h2>Schedule &amp; Critical Path</h2>
+        <p class="desc">Phase 2 is running about three weeks late, but Phase 3 was planned with 71 spare days. The one date that can't move is Sep 28 — the battery fix decision. Everything after it depends on that answer.</p>
+      </div>
+
+      <section class="block">
+        <div class="callout">
+          <b>Phase 2 baseline:</b> Sep 30 &nbsp;·&nbsp; <b>Phase 2 forecast:</b> Oct 21 (+21 days) — all Phase 2 work
+          complete by Oct 21; Phase 3 start unfolds in parallel.
+        </div>
+        <div class="timeline" style="margin-top:12px" id="timeline"></div>
+        <div class="callout" style="margin-top:12px">
+          <b>71-day buffer:</b> from the Oct 21 Phase 2 close to the Dec 31 deployment — absorbs even the worst-case
+          battery path (hardware redesign, +4–6 weeks) and still lands by Dec 31.
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>What Drives the Schedule</h3></div>
+        <ol class="steps" id="critical-path"></ol>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Decision Gates</h3></div>
+        <div class="grid cols-3" id="decision-gates"></div>
+      </section>
+    </main>
+
+    <!-- ============ RISKS & RAID ============ -->
+    <main class="page" id="page-raid" hidden>
+      <div class="page-head">
+        <h2>Risks &amp; RAID</h2>
+        <p class="desc">The running list of Risks, Assumptions, Issues and Dependencies. Each entry has an owner and a review date; nothing proceeds into Phase 3 unaddressed.</p>
+      </div>
+
+      <section class="block">
+        <div class="block-head"><h3>Risks</h3></div>
+        <div class="grid cols-2" id="raid-risks" style="align-items:start"></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Issues — active, owned</h3></div>
+        <div class="grid cols-2" id="raid-issues" style="align-items:start"></div>
+        <p class="callout" style="margin-top:10px;font-size:12px">I-01 (environmental-testing schedule slip) closed out at the Phase 1 closeout on Aug 14.</p>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Assumptions</h3></div>
+        <ul class="clean" id="raid-assumptions"></ul>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Dependencies</h3></div>
+        <div class="grid cols-2" id="raid-deps" style="align-items:start"></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Battery Challenge — Sep 28 Decision, 3 Paths Modeled</h3></div>
+        <div class="grid cols-3" id="battery-paths"></div>
+        <div class="callout callout--amber" style="margin-top:12px">
+          <b>Board decision:</b> recommend Path A (70% feasibility, $50K; Sep 25 analysis drives the Sep 28 gate).
+          Pre-authorize Path C as fallback if Path A fails. All three paths still hit Dec 31.
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ GOVERNANCE ============ -->
+    <main class="page" id="page-governance" hidden>
+      <div class="page-head">
+        <h2>Governance Conditions &amp; Structure</h2>
+        <p class="desc">The board isn't writing a blank cheque. Approval is tied to six evidence-based conditions — each traced to a RAID item, with a named owner, a date, and a test for "done."</p>
+      </div>
+
+      <section class="block">
+        <div class="block-head"><h3>The Six Governance Conditions</h3></div>
+        <div style="display:flex;flex-direction:column;gap:10px" id="conditions"></div>
+        <div class="callout" style="margin-top:12px">All six conditions are management and execution actions — none require additional funding or scope cuts. The window runs Sep 5 – Sep 28, 2026, closing before Phase 3 sprint planning.</div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Four Decision Levels</h3></div>
+        <div style="display:flex;flex-direction:column;gap:10px" id="gov-levels"></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>RACI — Strategic &amp; Governance Decisions</h3></div>
+        <div class="table-wrap">
+          <table class="data raci">
+            <thead><tr id="raci-head"></tr></thead>
+            <tbody id="raci-body"></tbody>
+          </table>
+        </div>
+        <p class="callout" style="margin-top:10px;font-size:12px">
+          <span class="raci-badge raci-R" style="margin-right:4px">R</span>Responsible &nbsp;
+          <span class="raci-badge raci-A" style="margin-right:4px">A</span>Accountable &nbsp;
+          <span class="raci-badge raci-C" style="margin-right:4px">C</span>Consulted &nbsp;
+          <span class="raci-badge raci-I" style="margin-right:4px">I</span>Informed
+        </p>
+      </section>
+    </main>
+
+    <!-- ============ PRODUCT ============ -->
+    <main class="page" id="page-product" hidden>
+      <div class="page-head">
+        <h2>Product — Hardware &amp; Software</h2>
+        <p class="desc">Two things ship together: a tough handheld GPS tracker and the cloud software that manages a fleet of them. The tracker prototype works; the one unsettled spec is battery endurance in the field.</p>
+      </div>
+
+      <section class="block">
+        <div class="block-head"><h3>Device Specifications</h3></div>
+        <div class="table-wrap"><table class="data" id="tbl-device"><tbody></tbody></table></div>
+      </section>
+
+      <section class="block">
+        <div class="grid cols-2">
+          <div class="card">
+            <h3 style="font-size:13.5px;margin-bottom:8px">Software Capabilities</h3>
+            <ul class="clean" id="sw-capabilities"></ul>
+          </div>
+          <div class="card">
+            <h3 style="font-size:13.5px;margin-bottom:8px">Quality &amp; Security Targets</h3>
+            <div class="table-wrap" style="border:none;box-shadow:none"><table class="data" id="tbl-quality" style="min-width:0"><tbody></tbody></table></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Manufacturing Status</h3></div>
+        <div class="table-wrap"><table class="data" id="tbl-mfg"><tbody></tbody></table></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Epics</h3><span class="rag rag--blue">7 total · 5 shipped Phase 2</span></div>
+        <div class="grid cols-2" id="epics" style="align-items:start"></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Sprint Board — MVP (Done)</h3></div>
+        <div class="sprint-cols" id="sprint-board"></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Phase 3 Backlog</h3></div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Story</th><th>Points</th><th>Priority</th><th>Notes</th></tr></thead>
+            <tbody id="tbl-backlog"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ PILOT ============ -->
+    <main class="page" id="page-pilot" hidden>
+      <div class="page-head">
+        <h2>Pilot Results &amp; Customer</h2>
+        <p class="desc">Before building 5,000 units, the team put a working version in front of 250 real Army users across 12 sites for six weeks. Warehouse and command users love it; field operators are the gap Phase 3 has to close.</p>
+      </div>
+
+      <section class="block">
+        <div class="grid cols-3" id="pilot-stats"></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>CSAT by Segment</h3></div>
+        <div class="table-wrap"><table class="data" id="tbl-csat"><tbody></tbody></table></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Validated Personas</h3></div>
+        <div class="grid cols-2" id="personas" style="align-items:start"></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Field Ops CSAT Improvement Plan</h3></div>
+        <div class="callout callout--amber">
+          <b>Owner:</b> Emily Carter, Director of Customer Experience &nbsp;·&nbsp; <b>Timeline:</b> plan documented by Sep 5 (Condition #4) &nbsp;·&nbsp; <b>Budget:</b> $30K (within overall contingency)
+        </div>
+        <ul class="clean" style="margin-top:10px" id="fieldops-actions"></ul>
+        <div class="grid cols-2" style="margin-top:10px" id="fieldops-milestones"></div>
+      </section>
+    </main>
+
+    <!-- ============ STAKEHOLDERS ============ -->
+    <main class="page" id="page-stakeholders" hidden>
+      <div class="page-head">
+        <h2>Stakeholders &amp; Team</h2>
+        <p class="desc">The register tracks 17 formal stakeholders. Most are on board; the concerned few are still engaged, not opposed.</p>
+      </div>
+
+      <section class="block">
+        <div class="grid cols-3">
+          <div class="stat"><span class="label">Supportive</span><span class="figure tnum" style="color:var(--green)">11</span></div>
+          <div class="stat"><span class="label">Concerned but engaged</span><span class="figure tnum" style="color:var(--amber)">4</span></div>
+          <div class="stat"><span class="label">Neutral</span><span class="figure tnum">1</span></div>
+        </div>
+        <div class="callout" style="margin-top:10px">
+          The three senior PMs — Busse (project), Kallo (hardware), McFarlane (software) — are unified in support and
+          control all three delivery tracks; the register recommends them as the board's key reference for
+          confidence.
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Stakeholder Register</h3></div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Name</th><th>Role</th><th>Org</th><th>Sentiment</th><th>Power / Interest</th><th>Priority action</th></tr></thead>
+            <tbody id="tbl-stakeholders"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Communication Plan</h3></div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Stakeholder</th><th>Frequency</th><th>Channel</th><th>Owner</th></tr></thead>
+            <tbody id="tbl-comms"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ DECISION & PATH FORWARD ============ -->
+    <main class="page" id="page-decision" hidden>
+      <div class="page-head">
+        <h2>Decision &amp; Path Forward</h2>
+        <p class="desc">The question in front of the board is not whether SENTINEL is viable — Phase 2 answered that. It is whether to commit the final phase of funding now, and on what terms.</p>
+      </div>
+
+      <section class="block">
+        <div class="block-head"><h3>Decision Options</h3></div>
+        <div class="grid cols-3">
+          <div class="panel" style="border-color:var(--red);background:var(--red-tint)">
+            <h4 style="color:var(--red)">NO-GO / Redirect</h4>
+            <p class="desc" style="color:var(--ink-soft)">Hold Phase 3 pending further technical clarity; extend Phase 2 into Oct/Nov. Risk: consumes the buffer and puts Dec 31 deployment in question.</p>
+          </div>
+          <div class="panel" style="border-color:var(--amber);background:var(--amber-tint)">
+            <h4 style="color:var(--amber)">Conditional GO — Recommended</h4>
+            <p class="desc" style="color:var(--ink-soft)">Authorize Phase 3 now. Six conditions resolve in parallel, all by Sep 15/25. The Sep 28 battery decision is a hard gate; the board may escalate if Path A fails.</p>
+          </div>
+          <div class="panel" style="border-color:var(--green);background:var(--green-tint)">
+            <h4 style="color:var(--green)">GO / Unconditional</h4>
+            <p class="desc" style="color:var(--ink-soft)">Authorize Phase 3 with no conditions. Not recommended: risks Phase 3 entry with known testing gaps and an unresolved battery path.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Why GO with Conditions</h3></div>
+        <div class="card">
+          <ul class="clean">
+            <li><b>Technology is proven:</b> the MVP works. Pilot feedback is 90% positive (Logistics) and actionable (Field Ops). No unknown unknowns remain.</li>
+            <li><b>Schedule is protected:</b> a 71-day buffer runs from the Oct 21 Phase 2 close to the Dec 31 deployment, at risk only if the battery decision slips beyond Sep 28.</li>
+            <li><b>Money is tight, but covered:</b> $12.65M EAC vs. $12.5M authorization is a $150K gap, within the remaining $185K contingency. Condition #6 keeps it visible.</li>
+            <li><b>Conditions are management, not engineering:</b> all six are management and governance actions — none require new technology or architectural change.</li>
+            <li><b>Timing is right:</b> starting Phase 3 now, rather than waiting on Sep 28, allows parallel resolution while procurement and build prep proceed. Waiting costs three weeks of buffer.</li>
+            <li><b>Sep 28 is a hard gate:</b> the battery decision is binary. If Path A fails, the board escalates to Path C with pre-authorization, retaining full authority to redirect.</li>
+          </ul>
+        </div>
+        <div class="callout callout--green" style="margin-top:12px">
+          <b>Assessment:</b> risk is elevated but not unmanageable. Proceeding with conditions, paired with the Sep 28
+          battery gate and monthly governance reporting, gives the board visibility and decision authority throughout
+          Phase 3.
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>What the Board Approves</h3></div>
+        <div class="card">
+          <ol class="steps">
+            <li>Authorize a Phase 3 baseline of $3.7M — $1.5M hardware, $1.8M software, $0.4M integration.</li>
+            <li>Accept the $185K remaining contingency as sufficient, and pre-authorize the ~$130K of anticipated draws with monthly tracking (Condition #6).</li>
+            <li>Preserve the $150K management reserve intact; confirm the drawdown rule — Sponsor under $50K, Board at or above $50K.</li>
+            <li>Ratify the six governance conditions, escalating Condition #1 for immediate action (Jennifer Morales) — Condition #3 (PO allocation) is already resolved.</li>
+            <li>Confirm Sep 28 as a firm decision gate, and Oct 5 and Dec 15 as the remaining Phase 3 gates.</li>
+            <li>Delegate integrated HW/SW change-control authority to the weekly Leadership Team for changes under $25K; board review at or above.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Board Decision Points</h3></div>
+        <div class="asks">
+          <div class="ask"><span class="q">Authorize Phase 3 (GO with Conditions)?</span><span class="a">Yes</span></div>
+          <div class="ask"><span class="q">Approve the Oct 21 working forecast and a formal rebaseline?</span><span class="a">Approve</span></div>
+          <div class="ask"><span class="q">Approve the Phase 3 baseline ($3.7M) and contingency plan?</span><span class="a">Approve</span></div>
+          <div class="ask"><span class="q">Ratify the six governance conditions?</span><span class="a">Yes</span></div>
+          <div class="ask"><span class="q">Authorize Jennifer Morales' dual role (Product Owner + Software Lead) to close Conditions #1 &amp; #2?</span><span class="a">Authorized</span></div>
+          <div class="ask"><span class="q">Confirm David Whitmore as CEO executive escalation authority?</span><span class="a">Confirmed</span></div>
+          <div class="ask"><span class="q">Confirm Sep 28 / Oct 5 / Dec 15 as the Phase 3 gates?</span><span class="a">Yes</span></div>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h3>Conclusion</h3></div>
+        <div class="grid cols-3">
+          <div class="panel" style="background:var(--navy);border-color:var(--navy);color:#fff">
+            <h4 style="color:#fff">Project viable &amp; strategic</h4>
+            <p class="desc" style="color:#c3d2e2">Business need proven. Technology viable. Logistics and command at 88–90% CSAT. MVP complete and in pilot. Strategic value intact.</p>
+          </div>
+          <div class="panel" style="background:var(--navy);border-color:var(--navy);color:#fff">
+            <h4 style="color:#fff">Challenges understood &amp; managed</h4>
+            <p class="desc" style="color:#c3d2e2">Battery isolated with three costed paths (software-first, 70% feasibility). Oct 21 schedule credible with a 71-day buffer. $150K base gap covered by reserves. Field Ops plan owned by Emily Carter, dated. Jennifer Morales confirmed as Software Lead.</p>
+          </div>
+          <div class="panel" style="background:var(--navy);border-color:var(--navy);color:#fff">
+            <h4 style="color:#fff">Proceed with conditions</h4>
+            <p class="desc" style="color:#c3d2e2">Six evidence-based conditions, all due by Sep 15/25 (battery Sep 28). Board governance, formal rebaseline, monthly financial and risk reporting. David Whitmore providing executive escalation authority. Recommendation: GO with Conditions.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ Q&A ============ -->
+    <main class="page" id="page-qa" hidden>
+      <div class="page-head">
+        <h2>Q&amp;A Preparation</h2>
+        <p class="desc">The questions the board is most likely to ask, with the short answer and the number behind it.</p>
+      </div>
+      <section class="block" id="qa-list"></section>
+    </main>
+
+    <!-- ============ GLOSSARY ============ -->
+    <main class="page" id="page-glossary" hidden>
+      <div class="page-head">
+        <h2>Concepts &amp; Glossary</h2>
+        <p class="desc">This briefing uses project-management shorthand. Deep-dive explainers for the recurring concepts, plus an A–Z glossary. Search filters both.</p>
+      </div>
+      <section class="block">
+        <input class="search" type="search" id="glossary-search" placeholder="Search concepts and terms — e.g. reserve, CPI, buffer">
+      </section>
+      <section class="block">
+        <div class="block-head"><h3>Deep Dives</h3></div>
+        <div id="deepdives"></div>
+      </section>
+      <section class="block">
+        <div class="block-head"><h3>Glossary A–Z</h3></div>
+        <dl class="glossary" id="glossary-list"></dl>
+      </section>
+    </main>
+
+    <!-- ============ SLIDE DECK ============ -->
+    <main class="page" id="page-deck" hidden>
+      <div class="deck-toolbar">
+        <div class="pager">
+          <button class="nav-btn" id="deck-prev">← Prev</button>
+          <span class="tnum">Slide <span id="deck-n">1</span> / 17</span>
+          <button class="nav-btn" id="deck-next">Next →</button>
+        </div>
+        <div class="deck-dots" id="deck-dots"></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <button class="print-btn" id="deck-print">Present / Print</button>
+          <a href="https://claude.ai/code/artifact/dc2c8961-eb6e-47f9-9376-1ed70d952c04" target="_blank" rel="noopener" style="font-size:10.5px;color:var(--navy);text-decoration:underline">Open in a new tab to print</a>
+        </div>
+      </div>
+
+      <div class="stage">
+        <section class="slide slide--dark title-hero" data-i="1">
+          <p class="eyebrow">Governance Board Review · September 10, 2026</p>
+          <h2>PROJECT SENTINEL</h2>
+          <div class="subtitle">Phase 2 to Phase 3 Authority Gate</div>
+          <div class="meta">Smart Logistics Tracking System — U.S. Army<br>Apex Defense Solutions</div>
+        </section>
+
+        <section class="slide" hidden data-i="2">
+          <p class="eyebrow">Board Decision Point · Slide 02</p>
+          <h2 class="slide-title">Executive Recommendation</h2>
+          <div class="callout callout--green"><b>GO — with conditions.</b> Authorize Phase 3 (Oct–Dec 2026) now, subject to six evidence-based governance conditions. The product works, the schedule is protected by a 71-day buffer, and the money is tight but covered. Starting now — rather than waiting for the Sep 28 battery result — preserves the buffer while the open items resolve in parallel.</div>
+          <ul class="clean">
+            <li><b>Reach</b> 80% integration test coverage by Sep 15 (Jennifer Morales, Software Lead)</li>
+            <li><b>Deliver</b> battery feasibility analysis by Sep 25 (Jennifer Morales, Software Lead)</li>
+            <li><b>Resolved</b> — Product Owner allocation: Jennifer Morales confirmed full-time to SENTINEL</li>
+            <li><b>Document</b> the Field Ops CSAT improvement plan by Sep 5 (Emily Carter)</li>
+            <li><b>Charter</b> the integrated HW/SW Change Control Board by Sep 15 (Zachary Busse)</li>
+            <li><b>Stand up</b> monthly financial reporting by Sep 5 (Karen Holt)</li>
+          </ul>
+        </section>
+
+        <section class="slide" hidden data-i="3">
+          <p class="eyebrow">Domain-by-Domain Assessment · Slide 03</p>
+          <h2 class="slide-title">Overall Project Health</h2>
+          <div class="slide-grid c4">
+            <div class="domain-chip"><span>Strategic Value</span><span class="rag rag--green">Green</span></div>
+            <div class="domain-chip"><span>Business Need</span><span class="rag rag--green">Green</span></div>
+            <div class="domain-chip"><span>Customer</span><span class="rag rag--amber">Amber</span></div>
+            <div class="domain-chip"><span>Hardware</span><span class="rag rag--amber">Amber</span></div>
+            <div class="domain-chip"><span>Software</span><span class="rag rag--amber">Amber</span></div>
+            <div class="domain-chip"><span>Financial</span><span class="rag rag--amber">Amber</span></div>
+            <div class="domain-chip"><span>Schedule</span><span class="rag rag--amber">Amber</span></div>
+            <div class="domain-chip"><span>Overall Rating</span><span class="rag rag--amber">Amber</span></div>
+          </div>
+          <div class="callout"><b>Overall: AMBER — proceed with conditions.</b> Green strategic foundation, amber execution across cost, schedule and the two engineering tracks. No red domain: the Phase 2 slip is bounded and the 71-day Phase 3 buffer protects Dec 31 deployment.</div>
+        </section>
+
+        <section class="slide" hidden data-i="4">
+          <p class="eyebrow">Foundation Remains Strong · Slide 04</p>
+          <h2 class="slide-title">Strategic &amp; Business Case</h2>
+          <p><span class="rag rag--green">Green</span></p>
+          <ul class="clean">
+            <li><b>Business need:</b> Army logistics units cannot see where their assets are, and requisitions stall because of it</li>
+            <li><b>Strategic value:</b> the reference build for a possible commercial variant; proof point for integrated HW/SW delivery at scale</li>
+            <li><b>Customer alignment:</b> U.S. Army — COL Torres remains concerned but engaged on operational-suitability; Army Pilot Program Office is supportive</li>
+            <li><b>Benefits (pilot-validated):</b> inventory search 87% faster · requisition cycle 75% faster · error rate down 92% · 88% device adoption</li>
+          </ul>
+          <div class="callout callout--green"><b>Assessment:</b> strategic value and business need unaffected by execution challenges.</div>
+        </section>
+
+        <section class="slide" hidden data-i="5">
+          <p class="eyebrow">Phase 1 Closed · Phase 2 Nearly Done · Slide 05</p>
+          <h2 class="slide-title">Where the Project Stands</h2>
+          <div class="slide-grid c4">
+            <div class="stat"><span class="label">Phase 1</span><span class="figure">Complete</span><span class="note">Closed Aug 14</span></div>
+            <div class="stat flag"><span class="label">Phase 2</span><span class="figure tnum">88%</span><span class="note">Baseline Sep 30 · forecast Oct 21</span></div>
+            <div class="stat"><span class="label">MVP delivery</span><span class="figure tnum">27 / 27</span><span class="note">Story points complete</span></div>
+            <div class="stat"><span class="label">Authorization</span><span class="figure">$12.5M</span><span class="note">Full project budget</span></div>
+          </div>
+          <ul class="clean" style="margin-top:6px">
+            <li><b>MVP:</b> 27 story points complete and in pilot deployment</li>
+            <li><b>Velocity:</b> stable 27 points/sprint over four sprints; forecasts reliable</li>
+            <li><b>Quality:</b> defect escape rate 1.8% (target &lt;2%); test coverage 82% toward 85% target</li>
+            <li><b>Integration coverage:</b> 72% against 80% exit criterion (RAID I-03, owned by Jennifer Morales); full system scenarios remain constrained</li>
+          </ul>
+        </section>
+
+        <section class="slide" hidden data-i="6">
+          <p class="eyebrow">Critical Sep 28 Decision Gate · Slide 06</p>
+          <h2 class="slide-title">Battery Challenge — 3 Paths</h2>
+          <div class="callout callout--amber"><b>Issue:</b> Prototype #2 battery performance meets spec at 70°C lab, but field validation data shows degradation under sustained 45°C ambient. Sep 28 decision required to lock Phase 3 approach.</div>
+          <div class="slide-grid c3">
+            <div class="panel"><h4>Path A: Software Optimization</h4><p class="meta"><b>Cost:</b> $50K | <b>Feasibility:</b> 70%</p><p class="desc">Aggressive power-down and battery monitoring SW. Jennifer Morales (Software Lead) leading; delivers by Sep 25.</p></div>
+            <div class="panel"><h4>Path B: Hybrid (Optimize + Component)</h4><p class="meta"><b>Cost:</b> $150K | <b>Feasibility:</b> 10%</p><p class="desc">SW optimization + alternative battery component. High risk; limited vendor availability.</p></div>
+            <div class="panel"><h4>Path C: Hardware Redesign</h4><p class="meta"><b>Cost:</b> $400K | <b>Feasibility:</b> 20%</p><p class="desc">Full battery/power subsystem redesign. Schedule impact: 60–90 days, consumes contingency.</p></div>
+          </div>
+          <div class="callout callout--amber"><b>Board Decision:</b> Recommend Path A (70% feasibility, $50K, Sep 25 result drives Sep 28 gate). Board should pre-authorize Path C as fallback if Path A fails.</div>
+        </section>
+
+        <section class="slide" hidden data-i="7">
+          <p class="eyebrow">Critical Technical Readiness · Slide 07</p>
+          <h2 class="slide-title">Software &amp; Integration</h2>
+          <p><span class="rag rag--amber">Amber</span></p>
+          <div class="slide-grid c2">
+            <div>
+              <h3 style="font-size:13px;margin-bottom:8px">Software Readiness (Jennifer Morales, Software Lead)</h3>
+              <ul class="clean">
+                <li><b>MVP:</b> 27 / 27 story points delivered and piloted</li>
+                <li><b>Backlog clarity:</b> Definition of Done requires strengthening (RAID I-04)</li>
+                <li><b>Product Owner allocation:</b> Resolved — Jennifer confirmed full-time to SENTINEL (Condition #3 closed)</li>
+              </ul>
+            </div>
+            <div>
+              <h3 style="font-size:13px;margin-bottom:8px">Integration (Jennifer Morales, owns RAID I-03, D-02)</h3>
+              <ul class="clean">
+                <li><b>Coverage:</b> 72% of integration test scenarios (target: 80% by Sep 15)</li>
+                <li><b>Full system scenarios:</b> constrained by resource availability and SW delivery timing</li>
+                <li><b>Risk:</b> Entering Phase 3 with known testing gaps increases defect risk</li>
+                <li><b>Condition #1:</b> Reach 80% coverage by Sep 15; Jennifer leads</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" hidden data-i="8">
+          <p class="eyebrow">Budget &amp; Cost Analysis · Slide 08</p>
+          <h2 class="slide-title">Financial Position</h2>
+          <div class="slide-grid c4">
+            <div class="stat"><span class="label">Total Authorization</span><span class="figure">$12.50M</span></div>
+            <div class="stat"><span class="label">Approved Baseline</span><span class="figure">$11.80M</span></div>
+            <div class="stat"><span class="label">Actual Cost</span><span class="figure">$7.80M</span></div>
+            <div class="stat flag"><span class="label">Bottom-Up EAC</span><span class="figure">$12.65M</span><span class="note">$150K gap</span></div>
+          </div>
+          <div class="slide-grid c4">
+            <div class="stat"><span class="label">CPI</span><span class="figure tnum">0.923</span><span class="note">Slightly behind</span></div>
+            <div class="stat"><span class="label">SPI</span><span class="figure tnum">0.90</span><span class="note">Schedule slip</span></div>
+            <div class="stat"><span class="label">Contingency Burn</span><span class="figure tnum">66%</span><span class="note">$365K of $550K</span></div>
+            <div class="stat"><span class="label">Remaining Reserve</span><span class="figure">$335K</span><span class="note">48% available</span></div>
+          </div>
+          <div class="callout callout--amber"><b>Finance Position:</b> Maintain distinction between base forecast ($12.65M), EMV for risks (~$170K), and risk-triggered costs (hardware redesign). The $150K gap is covered by remaining contingency and management reserve. Condition #6: establish monthly variance tracking.</div>
+        </section>
+
+        <section class="slide" hidden data-i="9">
+          <p class="eyebrow">Timeline &amp; Critical Milestones · Slide 09</p>
+          <h2 class="slide-title">Schedule Position</h2>
+          <div class="callout"><b>Phase 2 baseline:</b> Sep 30 · <b>Phase 2 forecast:</b> Oct 21 (+21 days) — all Phase 2 work complete by Oct 21; Phase 3 start unfolds in parallel.</div>
+          <ul class="clean" style="font-size:12.5px">
+            <li><b>Sep 5:</b> Conditions #4, #6 due (CSAT plan, financial reporting)</li>
+            <li><b>Sep 10:</b> Board authorization gate (this meeting) — GO with Conditions</li>
+            <li><b>Sep 15:</b> Conditions #1, #5 due (Integration testing 80%, Change Control Board chartered)</li>
+            <li><b>Sep 25:</b> Condition #2 due (Battery feasibility analysis completed by Jennifer Morales)</li>
+            <li><b>Sep 28:</b> Battery decision gate — board authorizes Path A, B, or C fallback</li>
+            <li><b>Oct 5:</b> Manufacturing Readiness Review — Phase 3 production validation</li>
+            <li><b>Oct 21:</b> Phase 2 close; Phase 3 production procurement in full swing</li>
+            <li><b>Dec 31:</b> Full deployment — 5,000 units operational and customer-accepted</li>
+          </ul>
+          <div class="callout"><b>71-day buffer:</b> from Oct 21 Phase 2 close to Dec 31 deployment. This buffer is protected as long as battery decision closes Sep 28.</div>
+        </section>
+
+        <section class="slide" hidden data-i="10">
+          <p class="eyebrow">RAID Log Summary · Slide 10</p>
+          <h2 class="slide-title">Top Governance Risks</h2>
+          <div class="slide-grid c2">
+            <div>
+              <h3 style="font-size:12px;margin-bottom:8px">RISKS (High/Medium Impact)</h3>
+              <ul class="clean" style="font-size:12px">
+                <li><b>R-01 (Hardware):</b> Environmental testing may reveal gaps before production (Owner: Ethan Brooks, Falcon)</li>
+                <li><b>R-03 (Integration):</b> Software integration requires additional effort across workstreams (Owner: Jennifer Morales, Software Lead)</li>
+                <li><b>R-04 (Governance):</b> Future funding depends on Phase 2 outcome (Owner: Sarah Mitchell, Sponsor)</li>
+                <li><b>R-05 (Hardware):</b> Redesign may affect schedule and reserve (Owner: Ethan Brooks, Falcon)</li>
+              </ul>
+            </div>
+            <div>
+              <h3 style="font-size:12px;margin-bottom:8px">ISSUES (Active, Owned)</h3>
+              <ul class="clean" style="font-size:12px">
+                <li><b>I-02 (Schedule):</b> Environmental testing incomplete, schedule movement (Owner: Falcon)</li>
+                <li><b>I-03 (Quality):</b> Integration testing 72% vs 80% target (Owner: Jennifer Morales, Software Lead)</li>
+                <li><b>I-04 (Backlog):</b> Acceptance criteria incomplete (Owner: Jennifer Morales, Product Owner)</li>
+                <li><b>I-05 (Financial):</b> Phase 2 spend requires monitoring (Owner: Karen Holt, Finance)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="callout"><b>Governance approach:</b> Each risk/issue translated into a named governance condition with owner and due date. No risks proceed to Phase 3 unaddressed.</div>
+        </section>
+
+        <section class="slide" hidden data-i="11">
+          <p class="eyebrow">Stakeholder Feedback · Slide 11</p>
+          <h2 class="slide-title">Pilot Performance Segmentation</h2>
+          <div class="callout callout--green"><b>Pilot Logistics Unit (HQ logistics, Fort Bragg):</b> <span class="rag rag--green">90% CSAT</span> — training depth, administrative support, clear workflows</div>
+          <div class="callout callout--amber"><b>Field Operations Unit (forward-deployed, brigade level):</b> <span class="rag rag--amber">72% CSAT</span> — battery concerns, intermittent connectivity, user error patterns under operational stress</div>
+          <div>
+            <h3 style="font-size:13px;margin-bottom:8px">Assessment by Domain:</h3>
+            <ul class="clean">
+              <li><b>Usability:</b> Field Ops note device interfaces optimized for garrison; operational environments need mobile-first refinement</li>
+              <li><b>Battery:</b> Field Ops operators report 6-8 hour duty cycles vs. lab 72-hour specs under 45°C ambient (the battery challenge, Condition #2)</li>
+              <li><b>Connectivity:</b> Forward areas have intermittent cellular; offline-first capability incomplete</li>
+              <li><b>Training:</b> Logistics HQ received 3 days intensive; field units received 4 hours. Confidence gap is training-related and addressable.</li>
+            </ul>
+          </div>
+          <div class="callout callout--amber"><b>Condition #4 (Emily Carter, Director of Customer Experience):</b> Document Field Ops CSAT improvement plan by Sep 5. Target: 85% CSAT by pilot close. Focus: battery mitigation (Path A leads here), offline-first MVP, and field-focused training.</div>
+        </section>
+
+        <section class="slide" hidden data-i="12">
+          <p class="eyebrow">Conditional Authority Paths · Slide 12</p>
+          <h2 class="slide-title">Decision Options</h2>
+          <div class="slide-grid c3">
+            <div class="panel" style="border-color:var(--red);background:var(--red-tint)"><h4 style="color:var(--red)">NO-GO / Redirect</h4><p class="desc" style="color:var(--ink-soft)">Hold Phase 3 pending further technical clarity. Extend Phase 2 into Oct/Nov. Risk: consumes buffer and pushes Dec 31 deployment into question.</p></div>
+            <div class="panel" style="border-color:var(--amber);background:var(--amber-tint)"><h4 style="color:var(--amber)">CONDITIONAL GO (Recommended)</h4><p class="desc" style="color:var(--ink-soft)">Authorize Phase 3 now. Six conditions resolve in parallel (all by Sep 15/25). Sep 28 battery decision is a hard gate; board may escalate if Path A fails.</p></div>
+            <div class="panel" style="border-color:var(--green);background:var(--green-tint)"><h4 style="color:var(--green)">GO / Unconditional</h4><p class="desc" style="color:var(--ink-soft)">Authorize Phase 3 with no conditions. Not recommended: risks Phase 3 entry with known testing gaps and unresolved battery path.</p></div>
+          </div>
+          <div class="callout"><b>Recommendation:</b> Conditional GO. Conditions are management actions, not engineering unknowns. All six conditions due by Sep 15/25; battery Sep 28 decision is a firm gate for Phase 3 resource commitment.</div>
+        </section>
+
+        <section class="slide" hidden data-i="13">
+          <p class="eyebrow">Phase 3 Authorization Conditions · Slide 13</p>
+          <h2 class="slide-title">The Six Conditions</h2>
+          <ol class="steps" style="font-size:12px">
+            <li><b>Integration Testing (72% → 80%):</b> Owned by Jennifer Morales (Software Lead). Due Sep 15. Success: full system test coverage reaches 80% of defined scenarios. Impact if not met: Phase 3 enters with known gaps; defect risk increases.</li>
+            <li><b>Battery Feasibility (Sep 28 decision):</b> Owned by Jennifer Morales (Software Lead). Due Sep 25 (analysis), Sep 28 (board decision). Success: Path A delivers by Sep 25, board selects path. Impact if not met: Phase 3 resource plan ambiguous; schedule risk.</li>
+            <li><b>Product Owner Allocation (Jennifer Morales):</b> Owned by Sarah Mitchell (Sponsor). <b>Resolved</b> — Jennifer confirmed full-time to SENTINEL.</li>
+            <li><b>Field Ops CSAT Improvement Plan:</b> Owned by Emily Carter (Director of Customer Experience). Due Sep 5. Success: plan documents battery mitigation, offline-first MVP, and field training approach. Impact if not met: Field Ops CSAT remains at 72%; customer acceptance risk at Dec 31.</li>
+            <li><b>Change Control Board (Integrated HW/SW):</b> Owned by Zachary Busse (Project Manager). Due Sep 15. Success: CCB chartered, authority delegated to Leadership Team for changes under $25K. Impact if not met: uncontrolled scope creep; budget risk.</li>
+            <li><b>Monthly Financial Reporting:</b> Owned by Karen Holt (Finance Director). Due Sep 5. Success: monthly variance, EAC, reserve tracking, and trend analysis. Impact if not met: late discovery of budget overruns; limited governance visibility.</li>
+          </ol>
+        </section>
+
+        <section class="slide" hidden data-i="14">
+          <p class="eyebrow">Risk-Balanced Recommendation · Slide 14</p>
+          <h2 class="slide-title">Why GO with Conditions</h2>
+          <ul class="clean" style="font-size:12px">
+            <li><b>Technology is proven:</b> MVP works. Pilot feedback is 90% positive (Logistics) and actionable (Field Ops). No unknown unknowns remain.</li>
+            <li><b>Schedule is protected:</b> 71-day buffer from Oct 21 Phase 2 close to Dec 31 deployment. This buffer is only at risk if battery decision slips beyond Sep 28.</li>
+            <li><b>Money is tight, but covered:</b> $12.65M EAC vs $12.5M authorization = $150K gap. Gap is within remaining contingency ($185K). Contingency pre-authorization (Condition #6) ensures governance visibility.</li>
+            <li><b>Conditions are management, not engineering:</b> All six conditions are management and governance actions. None require new technology or architectural changes.</li>
+            <li><b>Timing is right:</b> Starting Phase 3 now — rather than waiting for Sep 28 battery result — allows parallel resolution of conditions while Phase 3 procurement and build prep proceeds. Waiting costs 3 weeks of buffer.</li>
+            <li><b>Sep 28 is a hard gate:</b> Battery decision is binary. If Path A fails, board escalates to Path C with pre-authorization. Board retains full authority to redirect if conditions close below standard.</li>
+          </ul>
+          <div class="callout callout--green"><b>Assessment:</b> Risk is elevated but not unmanageable. Proceeding with conditions, paired with Sep 28 battery gate and monthly governance reporting, provides board visibility and decision authority throughout Phase 3.</div>
+        </section>
+
+        <section class="slide" hidden data-i="15">
+          <p class="eyebrow">Specific Board Authorizations · Slide 15</p>
+          <h2 class="slide-title">What the Board Approves</h2>
+          <ol class="steps">
+            <li>Authorize Phase 3 baseline of $3.7M — $1.5M hardware, $1.8M software, $0.4M integration.</li>
+            <li>Accept the $185K remaining contingency as sufficient, and pre-authorize the ~$130K of anticipated draws with monthly tracking (Condition #6).</li>
+            <li>Preserve the $150K management reserve intact; confirm the drawdown rule — Sponsor under $50K, Board at or above $50K.</li>
+            <li>Ratify the six governance conditions, with Condition #1 escalated for immediate action (Jennifer Morales) — Condition #3 (PO allocation) is already resolved.</li>
+            <li>Confirm Sep 28 as a firm decision gate, and Oct 5 and Dec 15 as the Phase 3 gates.</li>
+            <li>Delegate integrated HW/SW change-control authority to the weekly Leadership Team for changes under $25K; board review at or above.</li>
+          </ol>
+        </section>
+
+        <section class="slide" hidden data-i="16">
+          <p class="eyebrow">Executive Summary of Asks · Slide 16</p>
+          <h2 class="slide-title">Board Decision Points</h2>
+          <div class="asks">
+            <div class="ask"><span class="q">Authorize Phase 3 (GO with Conditions)?</span><span class="a">Yes</span></div>
+            <div class="ask"><span class="q">Approve the Oct 21 working forecast and a formal rebaseline?</span><span class="a">Approve</span></div>
+            <div class="ask"><span class="q">Approve the Phase 3 baseline ($3.7M) and contingency plan?</span><span class="a">Approve</span></div>
+            <div class="ask"><span class="q">Ratify the six governance conditions?</span><span class="a">Yes</span></div>
+            <div class="ask"><span class="q">Authorize Jennifer Morales' dual role (Product Owner + Software Lead) to close Conditions #1 &amp; #2?</span><span class="a">Authorized</span></div>
+            <div class="ask"><span class="q">Confirm David Whitmore as CEO executive escalation authority?</span><span class="a">Confirmed</span></div>
+            <div class="ask"><span class="q">Confirm Sep 28 / Oct 5 / Dec 15 as the Phase 3 gates?</span><span class="a">Yes</span></div>
+          </div>
+        </section>
+
+        <section class="slide slide--dark" hidden data-i="17">
+          <p class="eyebrow">Evidence-Based Path Forward · Slide 17</p>
+          <h2 class="slide-title">Conclusion</h2>
+          <div class="slide-grid c3">
+            <div class="panel" style="background:rgba(255,255,255,.1);border-color:#e6c98d;color:#fff"><h4 style="color:#fff">Project viable &amp; strategic</h4><p class="desc" style="color:#e6c98d">Business need proven. Technology viable. Logistics and command at 88–90% CSAT. MVP complete and in pilot. Strategic value intact.</p></div>
+            <div class="panel" style="background:rgba(255,255,255,.1);border-color:#e6c98d;color:#fff"><h4 style="color:#fff">Challenges understood &amp; managed</h4><p class="desc" style="color:#e6c98d">Battery isolated with three costed paths (software-first, 70% feasibility). Oct 21 schedule credible with a 71-day buffer. $150K base gap covered by reserves. Field-ops plan owned by Emily Carter, dated. Jennifer Morales confirmed as Software Lead.</p></div>
+            <div class="panel" style="background:rgba(255,255,255,.1);border-color:#e6c98d;color:#fff"><h4 style="color:#fff">Proceed with conditions</h4><p class="desc" style="color:#e6c98d">Six evidence-based conditions, all due by Sep 15/25 (battery Sep 28). Board governance, formal rebaseline, monthly financial and risk reporting. David Whitmore providing executive escalation authority. Recommendation: GO with Conditions.</p></div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var now = new Date();
+
+  /* ================= SIDEBAR / ROUTER ================= */
+  var pages = ['summary','financial','schedule','raid','governance','product','pilot','stakeholders','decision','qa','glossary','deck'];
+  var pageNames = {
+    summary:'Executive Summary', financial:'Financial Position', schedule:'Schedule & Critical Path',
+    raid:'Risks & RAID', governance:'Governance Conditions & Structure', product:'Product — Hardware & Software',
+    pilot:'Pilot Results & Customer', stakeholders:'Stakeholders & Team', decision:'Decision & Path Forward',
+    qa:'Q&A Preparation', glossary:'Concepts & Glossary', deck:'Governance Deck'
+  };
+  var sidebar = document.getElementById('sidebar');
+  var scrim = document.getElementById('scrim');
+  var navButtons = Array.prototype.slice.call(document.querySelectorAll('#sidebar-nav button'));
+
+  function go(page){
+    pages.forEach(function(p){
+      var el = document.getElementById('page-'+p);
+      if (el) el.hidden = (p !== page);
+    });
+    navButtons.forEach(function(b){ b.classList.toggle('active', b.dataset.page === page); });
+    document.getElementById('page-name').textContent = pageNames[page] || '';
+    closeSidebar();
+    window.scrollTo(0,0);
+  }
+  navButtons.forEach(function(b){ b.addEventListener('click', function(){ go(b.dataset.page); }); });
+
+  function openSidebar(){ sidebar.classList.add('is-open'); scrim.classList.add('is-open'); }
+  function closeSidebar(){ if (window.innerWidth < 1024){ sidebar.classList.remove('is-open'); scrim.classList.remove('is-open'); } }
+  document.getElementById('menu-btn').addEventListener('click', openSidebar);
+  scrim.addEventListener('click', closeSidebar);
+
+  go('summary');
+
+  /* ================= COUNTDOWN ================= */
+  var reviewDate = new Date('2026-09-10T09:00:00');
+  (function(){
+    var diffDays = Math.round((reviewDate - now) / 86400000);
+    var n = document.getElementById('countdown-n');
+    var lbl = document.getElementById('countdown-lbl');
+    if (diffDays > 1){ n.textContent = diffDays; lbl.textContent = 'days to board review'; }
+    else if (diffDays === 1){ n.textContent = '1'; lbl.textContent = 'day to board review'; }
+    else if (diffDays === 0){ n.textContent = 'Today'; lbl.textContent = 'board review'; }
+    else { n.textContent = 'Held'; lbl.textContent = 'review ' + Math.abs(diffDays) + 'd ago'; }
+  })();
+  document.getElementById('asof').textContent =
+    'Viewed ' + new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+
+  function statusFor(dateStr, hourFallback){
+    var d = new Date(dateStr + 'T' + (hourFallback||'17:00:00'));
+    var days = Math.round((d - now) / 86400000);
+    return {d:d, days:days};
+  }
+  function el(html){ var t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; }
+
+  /* ================= SCHEDULE: TIMELINE ================= */
+  var events = [
+    {date:'2026-09-05', label:'Conditions #4, #6 due — CSAT plan, financial reporting'},
+    {date:'2026-09-10', label:'Board authorization gate (this meeting) — GO with Conditions'},
+    {date:'2026-09-15', label:'Conditions #1, #5 due — integration testing 80%, Change Control Board chartered'},
+    {date:'2026-09-25', label:'Condition #2 due — battery feasibility analysis complete'},
+    {date:'2026-09-28', label:'Battery decision gate — board authorizes Path A, B, or fallback C'},
+    {date:'2026-10-05', label:'Manufacturing Readiness Review — Phase 3 production validation'},
+    {date:'2026-10-21', label:'Phase 2 close; Phase 3 production procurement in full swing'},
+    {date:'2026-12-31', label:'Full deployment — 5,000 units operational and customer-accepted'}
+  ];
+  var tlHost = document.getElementById('timeline');
+  events.forEach(function(ev){
+    var s = statusFor(ev.date, '12:00:00'), days = s.days, d = s.d;
+    var tag, cls;
+    if (days < 0){ tag = 'PASSED'; cls='rag--neutral'; }
+    else if (days === 0){ tag = 'TODAY'; cls='rag--red'; }
+    else if (days <= 5){ tag = 'in ' + days + 'd'; cls='rag--amber'; }
+    else { tag = 'in ' + days + 'd'; cls='rag--blue'; }
+    var row = el('<div class="tl-row' + (days>=0 && days<=2 ? ' is-today-window' : '') + '">' +
+      '<span class="d">' + d.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + '</span>' +
+      '<span class="l">' + ev.label + '</span>' +
+      '<span class="rag ' + cls + '">' + tag + '</span></div>');
+    tlHost.appendChild(row);
+  });
+
+  /* ================= GOVERNANCE: SIX CONDITIONS ================= */
+  var conditions = [
+    {n:1, title:'Integration Testing (72% → 80%)', owner:'Jennifer Morales · Software Lead', due:'2026-09-15',
+     crit:'Full system test coverage reaches 80% of defined scenarios.',
+     evidence:'I-03 records coverage at 72% against an 80% plan; full-system scenarios remain constrained. The Oct 5 Manufacturing Readiness Review assumes 80%+.',
+     success:['Automated test suite shows 80%+ coverage by Sep 15.','Every constrained scenario from I-03 is identified and scheduled.','A resource plan completes the work by Sep 20 — a buffer before the Oct 5 MRR.'],
+     impact:'The MRR proceeds with known testing gaps; HW/SW integration faults surface in production and raise deployment risk.'},
+    {n:2, title:'Battery Feasibility (Sep 28 decision)', owner:'Jennifer Morales · Software Lead', due:'2026-09-25',
+     crit:'Path A analysis delivers by Sep 25; board selects a path Sep 28.',
+     evidence:'R-01 flags the battery endurance gap (30% probability, $120K EMV). Three paths are modeled — software optimization, hybrid, hardware redesign — each costed and scheduled.',
+     success:['Path A field-simulation results delivered by Sep 25.','Board briefed with a clear go/no-go recommendation ahead of Sep 28.','Path C pre-authorized as a fallback if Path A underperforms.'],
+     impact:'Phase 3 resource plan stays ambiguous and the Sep 28 gate slips, eating into the 71-day buffer.'},
+    {n:3, title:'Product Owner Allocation', owner:'Sarah Mitchell · Sponsor', due:'2026-09-05', resolved:true,
+     crit:'Resolved — Jennifer Morales confirmed full-time to SENTINEL as Product Owner; the Legacy Logistics Suite is covered elsewhere.',
+     evidence:'R-02 had flagged Product Owner availability as a risk — medium impact, 60% likelihood — with the note that conflicts with the Legacy Logistics Suite remained unresolved. That conflict is now closed.',
+     success:['Full-time allocation documented and confirmed.','Backlog refinement resumes without Legacy Suite conflicts.','Sprint velocity holds at the 27-point baseline.'],
+     impact:'Closed — no further board action needed on this condition.'},
+    {n:4, title:'Field Ops CSAT Improvement Plan', owner:'Emily Carter · Director, Customer Experience', due:'2026-09-05',
+     crit:'Plan documents battery mitigation, offline-first MVP, field training — milestones 72%→80% by Oct 15, 80%→85% by Dec 15.',
+     evidence:'Pilot results show a split pattern: Logistics 90%, Field Ops 72%, aggregate 81% against an 85% gate requirement. The gap is field-mobile workflows.',
+     success:['Mobile-app redesign scoped into Phase 3 — 13 story points, Sprint 29.','Field-operator training and onboarding plan documented.','Re-pilot CSAT check by Oct 30 shows progress toward 85%.'],
+     impact:'Dec 31 deployment acceptance is at risk — the customer may reject the system if Field Ops CSAT is still near 72%.'},
+    {n:5, title:'Change Control Board (Integrated HW/SW)', owner:'Zachary Busse · Project Manager', due:'2026-09-15',
+     crit:'CCB chartered; authority delegated for changes under $25K.',
+     evidence:'R-07 anticipates scope-expansion pressure from customer or growth-stakeholder requests, with a fixed Dec 31 date and an EAC already $150K over authorization.',
+     success:['Board charter documented.','First meeting held by Sep 15 — authority in place before sprints start.','Request evaluation criteria clear: urgency, cost impact, schedule risk.'],
+     impact:'Uncontrolled scope creep is possible, increasing budget and schedule risk in an already-tight Phase 3.'},
+    {n:6, title:'Monthly Financial Reporting', owner:'Karen Holt · Finance Director', due:'2026-09-05',
+     crit:'Monthly variance, EAC, reserve tracking and trend analysis, first report by Sep 5.',
+     evidence:'I-05 records that Phase 2 expenditures need continued monitoring — ad-hoc, not systematic. Contingency is 66% consumed and the big manufacturing costs land in Phase 3.',
+     success:['First report delivered by Sep 5.','Variance analysis included — why over or under.','Contingency burn tracked separately from the baseline.'],
+     impact:'Budget surprises are discovered late, when corrective options are limited.'}
+  ];
+  var condHost = document.getElementById('conditions');
+  conditions.forEach(function(c){
+    var s = statusFor(c.due), days = s.days, d = s.d;
+    var status, ragCls, borderColor, dueLabel;
+    if (c.resolved){ status = 'RESOLVED'; ragCls='rag--green'; borderColor='var(--green)'; dueLabel = 'Closed'; }
+    else if (days < 0){ status = 'OVERDUE'; ragCls='rag--red'; borderColor='var(--red)'; dueLabel = 'Due ' + d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+    else if (days <= 3){ status = 'DUE SOON'; ragCls='rag--amber'; borderColor='var(--amber)'; dueLabel = 'Due ' + d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+    else { status = 'ON TRACK'; ragCls='rag--blue'; borderColor='var(--blue)'; dueLabel = 'Due ' + d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+    var node = el('<div class="condition" style="border-left-color:' + borderColor + '">' +
+      '<span class="idx">' + String(c.n).padStart(2,'0') + '</span>' +
+      '<div>' +
+        '<h4>' + c.title + '</h4>' +
+        '<div class="owner">Owner — ' + c.owner + '</div>' +
+        '<div class="crit"><b>' + (c.resolved ? 'Resolution' : 'Success') + ':</b> ' + c.crit + '</div>' +
+        '<details><summary>Evidence &amp; ' + (c.resolved ? 'background' : 'impact if not met') + '</summary>' +
+          '<div class="evidence">' + c.evidence + '</div>' +
+          '<ul class="success-list">' + c.success.map(function(x){return '<li>'+x+'</li>';}).join('') + '</ul>' +
+          '<div class="impact" style="' + (c.resolved ? 'background:var(--green-tint);color:var(--green)' : '') + '"><b>' + (c.resolved ? 'Status:' : 'If not met:') + '</b> ' + c.impact + '</div>' +
+        '</details>' +
+      '</div>' +
+      '<div class="status-col">' +
+        '<span class="rag ' + ragCls + '">' + status + '</span>' +
+        '<span class="due">' + dueLabel + '</span>' +
+      '</div></div>');
+    condHost.appendChild(node);
+  });
+
+  /* ================= GOVERNANCE: LEVELS ================= */
+  var levels = [
+    {level:'Level 1', name:'Executive Steering Committee', chair:'Sarah Mitchell (Sponsor)',
+     members:'CEO (David Whitmore), Finance Director (Karen Holt), CIO/Security (on escalation)',
+     cadence:'Monthly or as needed',
+     authority:'Strategic scope changes, funding authorization changes, program continuation/termination, commercial variant strategy.'},
+    {level:'Level 2', name:'Project Governance Board', chair:'Sarah Mitchell (Sponsor)',
+     members:'COL Torres (Customer), PM (Secretary), Christian Kallo (Hardware PM), Kenson McFarlane (Software PM), Karen Holt (Advisor), Amanda Reed (PMO), Ethan Brooks (Advisor)',
+     cadence:'Phase-gate reviews — Sep 10, Oct 5, Dec 15',
+     authority:'Go/No-Go phase decisions, conditional approvals, budget & schedule baseline changes, risk escalation.'},
+    {level:'Level 3', name:'Project Leadership Team', chair:'Zachary Busse (PM)',
+     members:'Christian Kallo (Hardware PM), Kenson McFarlane (Software PM), Jennifer Morales (Product Owner / Software Lead — dual role), Falcon PM (Brooks), QA Lead, Finance Advisor (Holt)',
+     cadence:'Weekly — Monday 10:00 AM (1.5 hrs)',
+     authority:'Tactical execution, weekly risk review, sprint planning, change requests < $25K or scope-neutral. Also hosts the integrated HW/SW Change Control Board (Condition #5).'},
+    {level:'Level 4', name:'Agile Daily Standup', chair:'Scrum Master',
+     members:'Software development team, QA, Product Owner',
+     cadence:'Daily — 9:30 AM (15 min)',
+     authority:'None — reporting mechanism only.'}
+  ];
+  var levelHost = document.getElementById('gov-levels');
+  levels.forEach(function(lv){
+    levelHost.appendChild(el('<div class="card"><div class="block-head" style="margin-bottom:8px"><h3 style="font-size:13.5px">' + lv.level + ' — ' + lv.name + '</h3><span class="rag rag--blue">' + lv.cadence + '</span></div>' +
+      '<div class="grid cols-2"><p style="font-size:12.5px;color:var(--ink-soft)"><b style="color:var(--ink)">Chair</b><br>' + lv.chair + '</p>' +
+      '<p style="font-size:12.5px;color:var(--ink-soft)"><b style="color:var(--ink)">Members</b><br>' + lv.members + '</p></div>' +
+      '<p style="font-size:12.5px;color:var(--ink-soft);margin-top:8px"><b style="color:var(--ink)">Authority</b> — ' + lv.authority + '</p></div>'));
+  });
+
+  /* ================= RACI ================= */
+  var raci = {
+    legend:[['R','Responsible — does the work'],['A','Accountable — makes the final decision'],['C','Consulted — provides input'],['I','Informed — kept in the loop']],
+    columns:['PM','Sponsor','CEO','Customer','Finance','PMO'],
+    rows:[
+      {activity:'Phase gate reviews', cells:['R','A','C','C','C','I']},
+      {activity:'Budget baseline approval', cells:['R','C','A','I','C','I']},
+      {activity:'Contingency drawdown', cells:['C','A','I','I','R','I']},
+      {activity:'Scope changes > $50K', cells:['R','C','A','C','R','I']},
+      {activity:'Schedule compression', cells:['R','C','A','C','C','I']},
+      {activity:'Customer escalations', cells:['R','A','C','C','I','I']},
+      {activity:'Risk mitigation (executive)', cells:['C','A','I','I','I','I']}
+    ]
+  };
+  document.getElementById('raci-head').innerHTML = '<th>Activity</th>' + raci.columns.map(function(c){return '<th>'+c+'</th>';}).join('');
+  var raciBody = document.getElementById('raci-body');
+  raci.rows.forEach(function(r){
+    raciBody.appendChild(el('<tr><td class="strong">' + r.activity + '</td>' +
+      r.cells.map(function(c){return '<td><span class="raci-badge raci-'+c+'">'+c+'</span></td>';}).join('') + '</tr>'));
+  });
+
+  /* ================= RAID ================= */
+  var risks = [
+    {id:'R-01', title:'Battery Performance Gap (Hardware)', severity:'critical', owner:'Ethan Brooks, Falcon PM', probability:'30%', impact:'HIGH', emv:'$120K',
+     what:'Prototype battery performance meets spec at 70°C in the lab, but field validation shows degradation under sustained 45°C ambient; environmental testing may reveal further gaps before production.',
+     mit:'Three paths modeled for the Sep 28 decision (Path A recommended, $50K, 70% feasible). $150K contingency allocated to the battery line.'},
+    {id:'R-02', title:'Product Owner Availability', severity:'closed', owner:'Sarah Mitchell, Sponsor', probability:'—', impact:'—', emv:'—',
+     what:'Jennifer Morales was split between SENTINEL and the Legacy Logistics Suite; the conflict is now closed.',
+     mit:'Condition #3 — resolved. Jennifer confirmed full-time to SENTINEL as Product Owner.'},
+    {id:'R-03', title:'Software Integration Effort & Capacity', severity:'critical', owner:'Jennifer Morales, Software Lead', probability:'Active', impact:'MEDIUM', emv:'$40K',
+     what:'Integration across workstreams needs additional effort; three RAID items (R-03, I-03, D-02) sit under the Software Lead role.',
+     mit:'Condition #1 — reach 80% integration coverage by Sep 15; Jennifer leads with confirmed ownership of the role.'},
+    {id:'R-04', title:'Governance — Funding Continuity', severity:'medium', owner:'Sarah Mitchell, Sponsor', probability:'—', impact:'MEDIUM', emv:'—',
+     what:'Continued Phase 3 funding depends on the board\'s confidence in the Phase 2 outcome and resolution of the open conditions.',
+     mit:'Governance conditions and monthly reporting keep Phase 2 performance visible ahead of each gate (Sep 10, Oct 5, Dec 15).'},
+    {id:'R-05', title:'Hardware Redesign — Schedule & Reserve Impact', severity:'medium', owner:'Ethan Brooks, Falcon PM', probability:'20%', impact:'HIGH', emv:'$80K',
+     what:'If the Sep 28 decision selects Path C (hardware redesign), schedule slips 60–90 days and draws into the management reserve beyond the $185K contingency.',
+     mit:'Path C is pre-authorized as a fallback only; the 71-day Phase 3 buffer absorbs it if triggered.'},
+    {id:'R-07', title:'Scope Expansion Pressure', severity:'medium', owner:'Zachary Busse, PM', probability:'40%', impact:'MEDIUM', emv:'—',
+     what:'Customer or growth-stakeholder requests may push scope before Phase 2 exit, against a fixed Dec 31 date and an EAC near the authorization limit.',
+     mit:'Condition #5 — stand up the integrated HW/SW Change Control Board (with a customer representative) by Sep 15.'}
+  ];
+  var sevColor = {critical:'var(--red)', high:'var(--amber)', medium:'var(--blue)', closed:'var(--green)'};
+  var sevRag = {critical:'red', high:'amber', medium:'blue', closed:'green'};
+  var riskHost = document.getElementById('raid-risks');
+  risks.forEach(function(r){
+    var metaBits = ['Owner: ' + r.owner];
+    if (r.probability !== '—') metaBits.push('Probability ' + r.probability);
+    if (r.impact !== '—') metaBits.push('Impact ' + r.impact);
+    if (r.emv !== '—') metaBits.push('EMV ' + r.emv);
+    riskHost.appendChild(el('<div class="raid-card" style="border-left-color:' + sevColor[r.severity] + '">' +
+      '<div class="top"><span class="id">' + r.id + '</span><span class="rag rag--' + sevRag[r.severity] + '">' + (r.severity==='closed'?'resolved':r.severity) + '</span></div>' +
+      '<h4>' + r.title + '</h4>' +
+      '<div class="meta">' + metaBits.join(' · ') + '</div>' +
+      '<p>' + r.what + '</p>' +
+      '<p class="mit"><b>Mitigation —</b> ' + r.mit + '</p></div>'));
+  });
+
+  var issues = [
+    {id:'I-02', text:'Environmental testing incomplete; schedule movement.', owner:'Falcon (Ethan Brooks)'},
+    {id:'I-03', text:'System integration testing at 72% vs. an 80% plan. Target Sep 15 (Condition #1).', owner:'Jennifer Morales, Software Lead'},
+    {id:'I-04', text:'Backlog acceptance criteria / Definition of Done incomplete.', owner:'Jennifer Morales, Product Owner'},
+    {id:'I-05', text:'Phase 2 expenditures need continued monitoring against approved thresholds. Monthly cadence by Sep 5 (Condition #6).', owner:'Karen Holt, Finance'}
+  ];
+  var issueHost = document.getElementById('raid-issues');
+  issues.forEach(function(i){
+    issueHost.appendChild(el('<div class="raid-card" style="border-left-color:var(--amber)">' +
+      '<div class="top"><span class="id">' + i.id + '</span><span class="rag rag--amber">amber</span></div>' +
+      '<p>' + i.text + '</p><div class="meta" style="margin-top:6px">Owner: ' + i.owner + '</div></div>'));
+  });
+
+  var assumptions = [
+    'Battery environmental test results (Aug 14) informed the Sep 28 decision as planned.',
+    'The Sep 28 decision point is a hard gate; all three paths reach Oct 5 MRR and Dec 31 deployment.',
+    'COL Torres provides formal Army approval authority for Phase 3 around the Sep 10 board gate.',
+    'Falcon subcontract hardware-engineering resources are available for rapid prototyping if needed.'
+  ];
+  var aHost = document.getElementById('raid-assumptions');
+  assumptions.forEach(function(a){ aHost.appendChild(el('<li>' + a + '</li>')); });
+
+  var deps = [
+    {id:'D-01', text:'Software Lead role — resolved. Jennifer Morales confirmed, and her Product Owner allocation to SENTINEL is also resolved full-time (Condition #3 closed).', owner:'Sarah Mitchell', due:'Resolved', status:'green'},
+    {id:'D-02', text:'MVP software capability must be available before meaningful full-system integration testing.', owner:'Jennifer Morales, Software Lead', due:'Ongoing', status:'amber'},
+    {id:'D-03', text:'Falcon environmental test results — received Aug 14; inform the Sep 25/28 battery decision.', owner:'Ethan Brooks, Falcon PM', due:'Received', status:'green'},
+    {id:'D-04', text:'Army formal approval authority for Phase 3 initiation, sought at the Sep 10 board gate.', owner:'COL Michael Torres', due:'Sep 10', status:'amber'}
+  ];
+  var depHost = document.getElementById('raid-deps');
+  deps.forEach(function(d){
+    var c = d.status==='green' ? 'var(--green)' : 'var(--amber)';
+    depHost.appendChild(el('<div class="raid-card" style="border-left-color:' + c + '">' +
+      '<div class="top"><span class="id">' + d.id + '</span><span class="rag rag--' + d.status + '">' + (d.status==='green'?'resolved':'open') + '</span></div>' +
+      '<p>' + d.text + '</p><div class="meta" style="margin-top:6px">Owner: ' + d.owner + ' · Due: ' + d.due + '</div></div>'));
+  });
+
+  var paths = [
+    {name:'Path A · Software Optimization', cost:'$50K', feas:'70%', color:'var(--green)', desc:'Adaptive sync intervals, lossy compression of non-critical telemetry, GPS duty-cycling, low-power connectivity fallback. ~4 weeks engineering, no schedule impact.'},
+    {name:'Path B · Hybrid', cost:'$150K', feas:'10%', color:'var(--amber)', desc:'Minor hardware change plus software optimization. +2–3 weeks, absorbed by the 71-day buffer.'},
+    {name:'Path C · Hardware Redesign', cost:'$400K', feas:'20%', color:'var(--red)', desc:'Full battery/power-subsystem redesign. +4–6 weeks; draws into management reserve beyond the $185K contingency.'}
+  ];
+  var pathHost = document.getElementById('battery-paths');
+  paths.forEach(function(p){
+    pathHost.appendChild(el('<div class="panel" style="border-color:' + p.color + '"><h4 style="color:' + p.color + '">' + p.name + '</h4>' +
+      '<p class="meta"><b>Cost:</b> ' + p.cost + ' &nbsp;·&nbsp; <b>Feasibility:</b> ' + p.feas + '</p><p class="desc">' + p.desc + '</p></div>'));
+  });
+
+  /* ================= SCHEDULE: CRITICAL PATH + GATES ================= */
+  var criticalPath = [
+    'Battery environmental testing — Falcon Technologies, results Aug 14, informing the Sep 28 gate.',
+    'Battery feasibility decision — Sep 28, select software / hybrid / hardware path.',
+    'Software power optimization & testing — 4–6 weeks after the decision, led by Jennifer Morales.',
+    'Manufacturing Readiness Review — Oct 5, production authorization for 5,000 units.',
+    'Production ramp & deployment — 8–12 week lead time inside the 71-day Phase 3 buffer.'
+  ];
+  var cpHost = document.getElementById('critical-path');
+  criticalPath.forEach(function(s){ cpHost.appendChild(el('<li>' + s + '</li>')); });
+
+  var gates = [
+    {date:'Sep 28', name:'Battery Feasibility Gate', decision:'Which contingency path? Software (70%), Hybrid (10%), Hardware (20%).', criteria:'Environmental test results; power-consumption analysis; field simulation ≥ 72 hrs.', tone:'amber'},
+    {date:'Oct 5', name:'Manufacturing Readiness Review', decision:'Go / No-Go for 5,000-unit production.', criteria:'Environmental specs passed; battery decision resolved; supply chain confirmed; integration coverage ≥ 80%.', tone:'blue'},
+    {date:'Dec 15', name:'Deployment Readiness Review', decision:'Authorize full operational deployment.', criteria:'All 5,000 units manufactured, tested and shipped; initial training complete.', tone:'blue'}
+  ];
+  var gateHost = document.getElementById('decision-gates');
+  gates.forEach(function(g){
+    gateHost.appendChild(el('<div class="panel" style="border-color:var(--' + g.tone + ')"><div class="meta mono" style="color:var(--muted)">' + g.date + '</div>' +
+      '<h4>' + g.name + '</h4><p class="desc"><b style="color:var(--ink)">Decision:</b> ' + g.decision + '</p><p class="desc"><b style="color:var(--ink)">Criteria:</b> ' + g.criteria + '</p></div>'));
+  });
+
+  /* ================= PRODUCT ================= */
+  function fillRows(hostId, rows){
+    var body = document.querySelector('#' + hostId + ' tbody');
+    rows.forEach(function(r){ body.appendChild(el('<tr><td class="strong">' + r[0] + '</td><td>' + r[1] + '</td></tr>')); });
+  }
+  fillRows('tbl-device', [
+    ['Form factor','6.2" × 3.5" × 1.2" · 18 oz'],['Display','4.8" transflective LCD (sunlight-readable)'],
+    ['Compute','Octa-core · 4 GB RAM · 64 GB storage'],['Battery','4,800 mAh · 72+ hr runtime (target)'],
+    ['Positioning','GPS/GNSS ±3 m'],['Connectivity','LTE + Iridium satellite'],
+    ['Durability','IP67 · 6-ft drop · −20°C to +60°C'],['Reliability','MTBF 2,000+ hours']
+  ]);
+  fillRows('tbl-mfg', [
+    ['Prototype','Complete — field testing underway'],['Environmental tests','Complete Aug 14'],
+    ['MRR','Oct 5 — go/no-go for production'],['Production ramp','Q4 2026 — 5,000 units by Dec 31'],
+    ['Lead time','8–12 weeks (inside Phase 3 buffer)'],['Defect target','< 2%']
+  ]);
+  fillRows('tbl-quality', [
+    ['Uptime SLA','95%+'],['Response time','< 2 seconds'],['Encryption','AES-256 at rest · TLS 1.3 in transit'],
+    ['Test coverage','82% (target 85%)'],['MVP stories','27 / 27 story points'],['Compliance target','FISMA Moderate']
+  ]);
+  var swCaps = ['Live logistics dashboard — map, inventory, requisition tracking','Inventory search — 87% faster than legacy',
+    'Requisition workflow — 75% time reduction','AI-powered supply optimization & demand forecasting',
+    'Offline mode with auto-sync','Role-based access control with Army AD / SSO'];
+  var swHost = document.getElementById('sw-capabilities');
+  swCaps.forEach(function(c){ swHost.appendChild(el('<li>' + c + '</li>')); });
+
+  var epics = [
+    {id:'EPIC 1', name:'Core Asset Tracking', points:8, phase:2, done:true, stories:'US-001 Search & Locate · US-002 Real-time Status · US-003 Condition & Maintenance'},
+    {id:'EPIC 2', name:'Requisition Management', points:8, phase:2, done:true, stories:'US-004 Simplified Requisition · US-005 Inventory Visibility · US-006 Backorder Management'},
+    {id:'EPIC 3', name:'Analytics & Decision Support', points:6, phase:2, done:true, stories:'US-007 Supply Chain Dashboard · US-008 Predictive Forecasting · US-009 Cost Optimization'},
+    {id:'EPIC 4', name:'Notifications & Alerts', points:2, phase:2, done:true, stories:'US-010 Smart Notifications'},
+    {id:'EPIC 5', name:'User Management & Training', points:3, phase:2, done:true, stories:'US-011 Role-Based Access · US-012 Onboarding & Help'},
+    {id:'EPIC 6', name:'Field Operations Optimization', points:21, phase:3, done:false, stories:'US-043 Field Ops Mobile Redesign (13) · US-042 Battery Optimization Spike (8)'},
+    {id:'EPIC 7', name:'Security & Compliance', points:13, phase:3, done:false, stories:'US-045 Security Hardening Sprint (13) — FISMA Moderate'}
+  ];
+  var epicHost = document.getElementById('epics');
+  epics.forEach(function(e){
+    epicHost.appendChild(el('<div class="raid-card" style="border-left-color:' + (e.done?'var(--green)':'var(--blue)') + '">' +
+      '<div class="top"><span class="id">' + e.id + ' · Phase ' + e.phase + '</span><span class="rag ' + (e.done?'rag--green':'rag--blue') + '">' + (e.done?'Done':'Planned') + '</span></div>' +
+      '<h4>' + e.name + '</h4><div class="meta">' + e.points + ' points</div><p>' + e.stories + '</p></div>'));
+  });
+
+  var sprintCols = [
+    {column:'Backlog', count:5, points:47, color:'var(--muted)'},
+    {column:'In Progress', count:2, points:21, color:'var(--blue)'},
+    {column:'Code Review', count:2, points:13, color:'var(--amber)'},
+    {column:'Done (MVP)', count:23, points:27, color:'var(--green)'}
+  ];
+  var sprintHost = document.getElementById('sprint-board');
+  sprintCols.forEach(function(c){
+    sprintHost.appendChild(el('<div class="sprint-col"><h5>' + c.column + '</h5><div class="n" style="color:' + c.color + '">' + c.count + '</div><div class="pts">' + c.points + ' pts</div></div>'));
+  });
+
+  var backlog = [
+    ['US-042 Battery Optimization Spike', 8, 'CRITICAL GATE', 'Sep 28 decision. Field simulation ≥ 72 hrs; ≥ 15% improvement vs. current hardware.'],
+    ['US-043 Field Ops Mobile App Redesign', 13, 'HIGH', 'Offline ≥ 4 hrs, gloved-operation targets, voice search ≥ 85% accuracy, CSAT 72% → 85%.'],
+    ['US-045 Security Hardening Sprint', 13, 'HIGH', '0 critical / ≤ 5 high vulnerabilities, AES-256 at rest, TLS 1.3, MFA, FISMA Moderate.'],
+    ['US-044 Analytics Dashboard Enhancement', 8, 'MEDIUM', 'Custom reporting, drill-down, predictive trending.'],
+    ['US-046 Phase 3 Optimization Roadmap', 5, 'MEDIUM', 'Performance, scalability, deployment automation for 5,000 units.']
+  ];
+  var backlogBody = document.getElementById('tbl-backlog');
+  backlog.forEach(function(b){ backlogBody.appendChild(el('<tr><td class="strong">' + b[0] + '</td><td class="tnum">' + b[1] + '</td><td>' + b[2] + '</td><td>' + b[3] + '</td></tr>')); });
+
+  /* ================= FINANCIAL ================= */
+  var baseline = [
+    ['Phase 1 (complete)', '1.2', '1.4', '0.3', '2.9', '3.92', '+35%'],
+    ['Phase 2 (88%)', '2.1', '2.8', '0.6', '5.5', '5.53', 'Flat'],
+    ['Phase 3 (planned)', '1.5', '1.8', '0.4', '3.7', '—', '—'],
+    ['Total Baseline', '4.8', '6.0', '1.3', '11.8', '—', '—']
+  ];
+  var baseBody = document.getElementById('tbl-baseline');
+  baseline.forEach(function(r){
+    baseBody.appendChild(el('<tr><td class="strong">' + r[0] + '</td><td class="tnum">' + r[1] + '</td><td class="tnum">' + r[2] + '</td><td class="tnum">' + r[3] + '</td><td class="tnum strong">' + r[4] + '</td><td class="tnum">' + r[5] + '</td><td>' + r[6] + '</td></tr>'));
+  });
+
+  var contingency = [
+    ['R-01','Battery performance',150,225,'over'],
+    ['R-05','Software scope',120,55,'under'],
+    ['R-04','Cybersecurity compliance',100,30,'under'],
+    ['R-02','Supply chain',100,35,'under'],
+    ['R-06','Stakeholder alignment',100,20,'under'],
+    ['R-03','Regulatory / approval',80,0,'under']
+  ];
+  var contBody = document.getElementById('tbl-contingency');
+  contingency.forEach(function(r){
+    contBody.appendChild(el('<tr><td class="mono">' + r[0] + '</td><td>' + r[1] + '</td><td class="tnum">$' + r[2] + 'K</td><td class="tnum">$' + r[3] + 'K</td><td><span class="rag ' + (r[4]==='over'?'rag--red':'rag--green') + '">' + r[4] + '</span></td></tr>'));
+  });
+  document.querySelector('#tbl-contingency').closest('.table-wrap').querySelector('thead')?.scrollIntoView; // no-op guard
+
+  var draws = [
+    {label:'Battery decision path (Sep 28)', amount:75},
+    {label:'Field Ops remediation (device design)', amount:30},
+    {label:'Integration testing unknowns', amount:25}
+  ];
+  var drawHost = document.getElementById('phase3-draws');
+  var drawList = el('<div style="display:flex;flex-direction:column;gap:6px"></div>');
+  draws.forEach(function(d){
+    drawList.appendChild(el('<div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-soft);border-bottom:1px solid var(--hair);padding-bottom:6px"><span>' + d.label + '</span><span class="tnum strong" style="color:var(--ink)">$' + d.amount + 'K</span></div>'));
+  });
+  drawList.appendChild(el('<div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;padding-top:4px"><span>Planned total</span><span class="tnum">$130K</span></div>'));
+  drawHost.appendChild(drawList);
+  drawHost.appendChild(el('<p style="font-size:11.5px;color:var(--muted);margin-top:8px">$55K cushion inside the $185K contingency + $150K management reserve.</p>'));
+
+  var drawdown = [
+    ['Contingency draw < $10K', 'PM — immediate (Finance confirmation)'],
+    ['Contingency draw $10K–$50K', 'Sponsor — 2–3 days (Finance approval)'],
+    ['Contingency draw > $50K', 'Governance Board — 5–7 days (CEO if > $100K)'],
+    ['Management reserve < $50K', 'Sponsor — change request + log'],
+    ['Management reserve ≥ $50K', 'Governance Board — change request review']
+  ];
+  var ddBody = document.getElementById('tbl-drawdown');
+  drawdown.forEach(function(r){ ddBody.appendChild(el('<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>')); });
+
+  /* ================= PILOT ================= */
+  var pilotStats = [
+    ['Aggregate CSAT','81%','Target 85%'],['Pilot users','250','12 locations, 6 weeks'],['Device adoption','88%','Target ≥ 80%']
+  ];
+  var pilotHost = document.getElementById('pilot-stats');
+  pilotStats.forEach(function(s){ pilotHost.appendChild(el('<div class="stat"><span class="label">'+s[0]+'</span><span class="figure">'+s[1]+'</span><span class="note">'+s[2]+'</span></div>')); });
+
+  var csat = [
+    ['Logistics Personnel', 90, 85, 'green'], ['Commanders', 88, 85, 'green'],
+    ['Maintenance', 85, 85, 'green'], ['Field Operations', 72, 85, 'red']
+  ];
+  var csatBody = document.getElementById('tbl-csat');
+  csatBody.appendChild(el('<tr><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);text-align:left;padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Segment</th><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Score</th><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Target</th><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Status</th></tr>'));
+  csat.forEach(function(c){
+    csatBody.appendChild(el('<tr><td class="strong">' + c[0] + '</td><td class="tnum">' + c[1] + '%</td><td class="tnum">' + c[2] + '%</td><td><span class="rag rag--' + c[3] + '">' + (c[3]==='green'?'On target':'Below target') + '</span></td></tr>'));
+  });
+
+  var personas = [
+    {name:'CPT Anderson', role:'Supply Chain Commander — decision maker', grade:'O-3 · 14 yrs logistics', csat:92, quote:'"I can answer \'do we have X?\' in 30 seconds instead of 30 minutes."'},
+    {name:'SGT Martinez', role:'Logistics Technician — end user', grade:'E-5 · 9 yrs service', csat:90, quote:'"Give me offline mode and this is essential."'},
+    {name:'LTC Chen', role:'Inventory Manager — data-driven', grade:'O-5 · 18 yrs service', csat:89, quote:'"The predictive analytics are enabling smarter procurement decisions."'},
+    {name:'SPC Johnson', role:'Field Operations Specialist — end user', grade:'E-4 · 4 yrs service', csat:72, quote:'"The app works, but it\'s not designed for field conditions."', flag:true},
+    {name:'MAJ Thompson', role:'Maintenance Officer — secondary user', grade:'O-4 · 15 yrs service', csat:88, quote:'"Predictive maintenance was impossible with our old data."'}
+  ];
+  var personaHost = document.getElementById('personas');
+  personas.forEach(function(p){
+    var color = p.csat>=85 ? 'var(--green)' : 'var(--red)';
+    personaHost.appendChild(el('<div class="persona' + (p.flag?' flag':'') + '"><div class="top"><h4>' + p.name + '</h4><span class="csat" style="color:' + color + '">' + p.csat + '%</span></div>' +
+      '<div class="grade">' + p.grade + '</div><div class="role">' + p.role + '</div><div class="quote">' + p.quote + '</div></div>'));
+  });
+
+  var fieldOpsActions = [
+    'Mobile app redesign (US-043, 13 story points, Sprint 29): field-optimized UI, offline-first (≥ 4 hrs), voice search, expedited requisition workflow.',
+    'Field-operator training and onboarding: field-specific video materials, quick-reference cards, 24/7 support hotline, on-site training.',
+    'Re-pilot CSAT check by Oct 30 to confirm progress toward 85%.'
+  ];
+  var faHost = document.getElementById('fieldops-actions');
+  fieldOpsActions.forEach(function(a){ faHost.appendChild(el('<li>' + a + '</li>')); });
+  var milestones = [['Oct 15','Field Ops CSAT 72% → 80%'],['Dec 15','Field Ops CSAT 80% → 85%']];
+  var msHost = document.getElementById('fieldops-milestones');
+  milestones.forEach(function(m){ msHost.appendChild(el('<div class="stat"><span class="label">' + m[0] + '</span><span class="figure" style="font-size:14px">' + m[1] + '</span></div>')); });
+
+  /* ================= STAKEHOLDERS ================= */
+  var stakeholders = [
+    {name:'Sarah Mitchell', role:'Executive Sponsor (VP Strategic Programs)', org:'Apex', sentiment:'supportive', power:'High', interest:'High', action:'Support the Sep 28 battery decision (Condition #2). PO allocation (Condition #3) is resolved.'},
+    {name:'David Whitmore', role:'CEO', org:'Apex', sentiment:'concerned', power:'High', interest:'Medium', action:'Monthly executive briefing via the Sponsor; approves scope changes over $200K; provides executive escalation authority.'},
+    {name:'David Reynolds', role:'VP Growth', org:'Apex', sentiment:'supportive', power:'Medium', interest:'High', action:'Kept informed of Phase 3 progress and deployment outcomes.'},
+    {name:'COL (Ret.) Michael Torres', role:'Military Advisor / Customer', org:'U.S. Army', sentiment:'concerned', power:'High', interest:'High', action:'Provide formal Army approval authority for Phase 3; bi-weekly working sessions with the PM.'},
+    {name:'Army Pilot Program Office', role:'Customer (Program)', org:'U.S. Army', sentiment:'supportive', power:'High', interest:'High', action:'Bi-weekly demos and feedback, owned by the Sponsor.'},
+    {name:'Army Operational Test Group', role:'Operational Evaluators', org:'U.S. Army', sentiment:'neutral', power:'High', interest:'Medium', action:'Operational validation in progress; kept satisfied through evaluation.'},
+    {name:'Army Logistics Command', role:'End User Community', org:'U.S. Army', sentiment:'supportive', power:'Medium', interest:'High', action:'Positive utility reporting from the pilot; kept informed of the field-ops improvements.'},
+    {name:'Zachary Busse', role:'Project Manager', org:'Apex', sentiment:'supportive', power:'High', interest:'High', action:'Prepare and defend the GO-with-conditions recommendation; charter the Change Control Board (Condition #5).'},
+    {name:'Christian Kallo', role:'Hardware Implementation PM', org:'Apex', sentiment:'supportive', power:'High', interest:'High', action:'Weekly technical sync with Falcon; drive the hardware path to the Oct 5 MRR.'},
+    {name:'Kenson McFarlane', role:'Software Technical PM', org:'Apex', sentiment:'supportive', power:'High', interest:'High', action:'Weekly technical sync with the Product Owner / Software Lead; support integration coverage to 80%.'},
+    {name:'Karen Holt', role:'Finance Director', org:'Apex', sentiment:'supportive', power:'High', interest:'High', action:'Stand up the monthly financial reporting cadence (Condition #6); bi-weekly financial reviews with the PM.'},
+    {name:'Daniel Cho', role:'Senior Financial Analyst', org:'Apex', sentiment:'supportive', power:'Medium', interest:'High', action:'Owns the bottom-up ETC/EAC and the base-vs-EMV-vs-committed methodology.'},
+    {name:'Jennifer Morales', role:'Product Owner (full-time) / Software Lead', org:'Apex', sentiment:'supportive', power:'Medium', interest:'High', action:'Lead integration testing to 80% (Condition #1) and the battery feasibility analysis (Condition #2).'},
+    {name:'Apex Software Team', role:'Development Team', org:'Apex', sentiment:'supportive', power:'Medium', interest:'High', action:'Sustain the 27-point sprint velocity into Phase 3.'},
+    {name:'Apex Integration Team', role:'Integration Team', org:'Apex', sentiment:'concerned', power:'Medium', interest:'High', action:'Close the coverage gap by Sep 15 (Condition #1), now under Jennifer Morales\' confirmed leadership.'},
+    {name:'Ethan Brooks', role:'Falcon PM (Hardware)', org:'Falcon Technologies', sentiment:'supportive', power:'Medium', interest:'High', action:'Deliver environmental test results; support the Sep 25/28 battery decision.'},
+    {name:'Dr. Rachel Kim', role:'Falcon Engineering Lead', org:'Falcon Technologies', sentiment:'concerned', power:'Medium', interest:'High', action:'Own R-01 technical mitigation and the three-path battery analysis for Sep 28.'},
+    {name:'Emily Carter', role:'Director, Customer Experience', org:'Apex', sentiment:'concerned', power:'Medium', interest:'High', action:'Document the Field Ops CSAT improvement plan by Sep 5 (Condition #4).'},
+    {name:'Amanda Reed', role:'PMO Lead', org:'Apex', sentiment:'supportive', power:'Low', interest:'Medium', action:'Maintain the governance cadence and the decision log.'}
+  ];
+  var stakeholderBody = document.getElementById('tbl-stakeholders');
+  var sentColor = {supportive:'green', concerned:'amber', neutral:'neutral'};
+  stakeholders.forEach(function(s){
+    stakeholderBody.appendChild(el('<tr><td class="strong">' + s.name + '</td><td>' + s.role + '</td><td>' + s.org + '</td>' +
+      '<td><span class="rag rag--' + sentColor[s.sentiment] + '">' + s.sentiment + '</span></td><td>' + s.power + ' / ' + s.interest + '</td><td>' + s.action + '</td></tr>'));
+  });
+
+  var comms = [
+    ['Sarah Mitchell (Sponsor)','Weekly','1:1 or email','Zachary Busse'],
+    ['Christian Kallo (Hardware PM)','Weekly','Technical sync','Christian Kallo'],
+    ['Kenson McFarlane (Software PM)','Weekly','Technical sync','Kenson McFarlane'],
+    ['Karen Holt (Finance)','Bi-weekly','Financial reviews','Karen Holt'],
+    ['Daniel Cho (Analyst)','As needed','Financial detail','Karen Holt / PM'],
+    ['David Whitmore (CEO)','Monthly','Executive briefing','Sarah Mitchell'],
+    ['COL Michael Torres','Bi-weekly','Working session','Zachary Busse'],
+    ['Army Pilot Program Office','Bi-weekly','Demos / feedback','Sarah Mitchell'],
+    ['Ethan Brooks (Falcon PM)','Bi-weekly','Technical review','Zachary Busse'],
+    ['Dr. Rachel Kim (Falcon Eng.)','Bi-weekly','Engineering review','Christian Kallo']
+  ];
+  var commsBody = document.getElementById('tbl-comms');
+  comms.forEach(function(c){ commsBody.appendChild(el('<tr><td class="strong">' + c[0] + '</td><td>' + c[1] + '</td><td>' + c[2] + '</td><td>' + c[3] + '</td></tr>')); });
+
+  /* ================= Q&A ================= */
+  var qa = [
+    {q:'Are we over budget?', tag:'Financial', a:'The bottom-up EAC is $12.65M — $150K over the $12.5M authorization and $850K over the $11.8M approved baseline. Finance frames it as a legitimate bottom-up replan, not a failure. The $150K over-authorization is comfortably covered by the $335K of remaining reserves. Adding the ~$240K of validated risk EMV brings the forecast near $12.9M, close to the reserve ceiling — which is why risk exposure is tracked monthly.'},
+    {q:'Why is the forecast $850K over the baseline?', tag:'Financial', a:'Phase 1 ran 35% over its phase budget on battery prototype rework and extra software-integration testing — both mapped to charter risks and absorbed by the contingency reserve. Phase 2 spend is flat to baseline. The $850K is the difference between the $11.8M plan and the $12.65M realistic completion cost.'},
+    {q:'Is the battery redesign in the $12.65M forecast?', tag:'Risk', a:'No. The $12.65M EAC assumes continued testing and normal Falcon engineering support, and does not assume a major hardware redesign. Modeled cost if Path C fires: ~$400K, +4–6 weeks, ~20% probability — Dec 31 still holds inside the buffer, but it would draw the management reserve.'},
+    {q:'Will you hit December 31?', tag:'Schedule', a:'Yes. Phase 2 forecasts to Oct 21; Phase 3 is 10 weeks of work with a 71-day buffer. All three battery paths — including the worst case — still land by Dec 31.'},
+    {q:'What keeps you up at night?', tag:'Risk', a:'The Sep 28 battery decision (30% chance the test fails and forces a costlier path) and the Field Ops CSAT gap (72% vs. 85% target). Both have named owners and dated mitigations — Jennifer Morales on the battery analysis, Emily Carter on the CSAT plan.'},
+    {q:'What are the conditions, and where do they stand?', tag:'Governance', a:'Six evidence-based conditions grounded in the RAID log: (1) integration coverage 72% → 80% by Sep 15, (2) battery feasibility analysis by Sep 25 / decision Sep 28, (3) PO allocation — resolved, Jennifer Morales confirmed full-time to SENTINEL, (4) Field Ops CSAT plan documented by Sep 5, (5) Change Control Board chartered by Sep 15, (6) monthly financial reporting live by Sep 5. None require additional funding or scope cuts.'},
+    {q:'Why the gap between Logistics and Field Ops satisfaction?', tag:'Pilot', a:'Device ergonomics and screen brightness for outdoor use, plus battery drain under heavy field use. Logistics works in a controlled environment (90%); Field Ops is mobile and harsh (72%). The improvement plan — lighter device, transflective display, offline-first mobile app, field training — is documented by Sep 5, targets 80% by Oct 15 and 85% by Dec 15, with a re-pilot check Oct 30.'},
+    {q:'Why has the management reserve not been touched?', tag:'Financial', a:'Every Phase 1–2 variance mapped back to one of the six identified charter risks, so the contingency reserve covered it. No unknown-unknowns have materialized. The $150K stays reserved for genuine Phase 3 surprises.'}
+  ];
+  var qaHost = document.getElementById('qa-list');
+  qa.forEach(function(item){
+    qaHost.appendChild(el('<details class="acc"><summary>' + item.q + '<span class="tag">' + item.tag + '</span></summary><div class="body">' + item.a + '</div></details>'));
+  });
+
+  /* ================= GLOSSARY ================= */
+  var deepdives = [
+    {term:'Story points', short:'A relative size for a piece of work — not a number of hours.', medium:'Teams size each user story on a Fibonacci scale (1, 2, 3, 5, 8, 13). A 5 is "about twice the work of a 3," but the same 5-point story might take one developer a day and another an afternoon. The Phase 2 MVP was 27 points across 12 stories; Phase 3 adds an 8-point battery spike and a 13-point Field Ops mobile redesign.'},
+    {term:'EAC — Estimate at Completion', short:'What the project will really cost.', medium:'ETC (Estimate to Complete) is the cost of the work still remaining; EAC (Estimate at Completion) is ETC plus what has already been spent. SENTINEL: $7.8M actual + $4.85M ETC = a $12.65M bottom-up EAC — $150K over the $12.5M authorization and $850K over the $11.8M baseline.'},
+    {term:'CPI — Cost Performance Index', short:'Whether spending is buying its worth of progress.', medium:'Earned value ($7.2M) ÷ actual cost ($7.8M) = 0.923. At 0.923, SENTINEL has spent about $1.08 for every $1 of completed value — almost entirely Phase 1 prototype rework. Phase 2 ran at exactly 1.0, so the trend is corrected, not worsening.'},
+    {term:'SPI — Schedule Performance Index', short:'Whether work is on pace against the plan.', medium:'Earned value ($7.2M) ÷ planned value ($8.0M) = 0.90. SPI at 0.90 means roughly 90% of the work that should be finished by now is finished — about 2–3 days behind on Phase 2. Phase 3 carries a 71-day buffer, so the Dec 31 deadline is still protected.'},
+    {term:'Contingency reserve', short:'Money pre-assigned to specific known risks.', medium:'The team named six charter risks (battery, software scope, cybersecurity, supply chain, stakeholder alignment, regulatory) and set aside $550K. If a risk fires, that money is spent automatically — no extra approval. SENTINEL has used $365K (66%), mostly on Phase 1 prototype rework.'},
+    {term:'Management reserve', short:'Money for genuine surprises — not planned-for risks.', medium:'Management reserve covers "unknown unknowns" — a supplier going bankrupt, a key person leaving. It cannot be spent without a formal change request (Sponsor under $50K, Board at or above). SENTINEL\'s $150K is 100% intact because every Phase 1–2 surprise mapped back to a named charter risk.'},
+    {term:'EMV — Expected Monetary Value', short:'A risk\'s cost weighted by how likely it is.', medium:'Probability × impact. The battery risk is a ~30% chance of a ~$400K impact, so its EMV is about $120K — used to rank it against other risks and to size the reserve.'},
+    {term:'RAID log', short:'The running list of Risks, Assumptions, Issues and Dependencies.', medium:'RAID is the project\'s worry list, kept in one place so nothing is quietly forgotten. Risks might happen, Issues are happening, Assumptions are being trusted, Dependencies link work together. Each entry has an owner and a review date.'},
+    {term:'RACI', short:'For each decision: who is Responsible, Accountable, Consulted, Informed.', medium:'RACI kills the "I thought you had that" problem. R does the work, A has the final say (only ever one A), C is asked for input, I is told the outcome. Example — the battery decision: PM is Responsible, Sponsor is Accountable, Software Lead and Customer are Consulted, Finance is Informed.'},
+    {term:'Governance levels', short:'Who decides what, at which level, and how often.', medium:'SENTINEL has four levels: the Executive Steering Committee (strategy and funding over $200K), the Governance Board (phase-gate go/no-go), the weekly Leadership Team (execution, changes under $25K), and the daily stand-up (status only).'},
+    {term:'Phase gate (go / no-go)', short:'A formal checkpoint: continue, continue with conditions, or stop.', medium:'"GO with Conditions" means proceed but fix a named list first. SENTINEL has three gates: Sep 10 (Phase 2→3), Oct 5 (manufacturing readiness), Dec 15 (deployment readiness).'},
+    {term:'Governance conditions', short:'The specific things that must be resolved for the board to approve Phase 3.', medium:'Approval is tied to six evidence-based conditions, each grounded in a RAID-log item, with a named owner, a due date, and measurable success criteria — spanning staffing, quality, customer acceptance, and control.'},
+    {term:'Critical path', short:'The task chain that determines the finish date.', medium:'SENTINEL\'s critical path runs Phase 2 → Sep 28 battery decision → Phase 3 optimization → Oct 5 manufacturing review → production → Dec 31 deployment. Work not on this chain (Field Ops redesign, security hardening) can run late without moving the deadline.'},
+    {term:'Buffer', short:'Spare time between the planned finish and the hard deadline.', medium:'Phase 3 has 71 calendar days of buffer: about 10 weeks of planned work sitting inside the Oct 21–Dec 31 window. That slack lets even the worst-case battery path (hardware redesign, +4–6 weeks) still land by Dec 31.'},
+    {term:'CSAT — Customer Satisfaction', short:'Whether the customer will accept deployment.', medium:'SENTINEL\'s pilot split: logistics commanders and staff love it (88–90%), but field operators struggle with the mobile app (72%). The aggregate is 81%, below the 85% target — which is why a Field Ops mobile redesign is a Phase 3 must.'}
+  ];
+  var deepdiveHost = document.getElementById('deepdives');
+  deepdives.forEach(function(d){
+    deepdiveHost.appendChild(el('<details class="acc"><summary>' + d.term + '<span class="tag">' + d.short + '</span></summary><div class="body">' + d.medium + '</div></details>'));
+  });
+
+  var glossary = [
+    {term:'Acceptance criteria', cat:'Agile', def:'The testable checks that make a story "done" — typically 5–8 per story, all must pass.'},
+    {term:'Actual cost (AC)', cat:'Financial', def:'What has really been paid — salaries, contractors, equipment, travel. SENTINEL: $7.8M through Phase 2.'},
+    {term:'Agile', cat:'Delivery', def:'Plan → build → test → deliver in short repeating cycles (sprints), rather than building everything then testing once.'},
+    {term:'Assumption', cat:'RAID', def:'Something taken as true that the plan depends on; tracked because being wrong forces a change.'},
+    {term:'Authorization', cat:'Financial', def:'The approved funding ceiling. SENTINEL: $12.5M. Spending past it needs board approval.'},
+    {term:'Backlog', cat:'Agile', def:'Every story not yet started, kept in priority order by the Product Owner.'},
+    {term:'Baseline (BAC)', cat:'Financial', def:'The detailed plan of what will be spent and when. SENTINEL: $11.8M.'},
+    {term:'Blocker', cat:'Status', def:'Something stopping progress — Critical (all work halts), High (serious drag, workaround exists), Medium (manageable).'},
+    {term:'Buffer', cat:'Schedule', def:'Spare time between the planned finish and the hard deadline. SENTINEL Phase 3: 71 days.'},
+    {term:'Burndown', cat:'Schedule', def:'A chart of work (or budget) remaining over time. A steady downward slope means steady progress.'},
+    {term:'Change control', cat:'Governance', def:'The formal process to approve a scope, schedule or cost change. Tiered by dollar size on SENTINEL.'},
+    {term:'Conditions', cat:'Governance', def:'The specific items that must be resolved for the board to approve the next phase. SENTINEL tracks six for Phase 3.'},
+    {term:'Contingency reserve', cat:'Financial', def:'Money pre-allocated to named risks; spent automatically if a risk fires. SENTINEL: $550K, $185K left.'},
+    {term:'CPI', cat:'Financial', def:'Cost Performance Index — value earned ÷ money spent. 1.0 is break-even; SENTINEL is 0.923.'},
+    {term:'Critical path', cat:'Schedule', def:'The task chain that determines the finish date. If any task on it slips, the project slips.'},
+    {term:'CSAT', cat:'Customer', def:'Customer satisfaction as a percentage. Target 85%+. SENTINEL aggregate: 81%.'},
+    {term:'Dependency', cat:'RAID', def:'One task cannot start (or finish) until another completes.'},
+    {term:'EAC', cat:'Financial', def:'Estimate at Completion — actual cost plus estimate to complete. SENTINEL bottom-up EAC: $12.65M.'},
+    {term:'Earned value (EV)', cat:'Financial', def:'The value of completed work, priced at the original plan. SENTINEL: $7.2M.'},
+    {term:'ETC', cat:'Financial', def:'Estimate to Complete — the cost of the work still remaining. SENTINEL: $4.85M.'},
+    {term:'EMV', cat:'Financial', def:'Expected Monetary Value — a risk\'s impact weighted by its probability.'},
+    {term:'Epic', cat:'Agile', def:'A large theme of work split into stories. SENTINEL has 7 epics.'},
+    {term:'Fibonacci scale', cat:'Agile', def:'The 1-2-3-5-8-13 sizing scale for story points; gaps widen to reflect rising uncertainty on big work.'},
+    {term:'Phase gate', cat:'Governance', def:'A formal review where leadership decides go / go-with-conditions / no-go. SENTINEL: Sep 10, Oct 5, Dec 15.'},
+    {term:'Go / No-Go', cat:'Governance', def:'The gate decision itself. "GO with Conditions" = proceed once a named list of fixes is done.'},
+    {term:'Governance', cat:'Governance', def:'The structure of who decides what, at which level, and how often.'},
+    {term:'Integration', cat:'Delivery', def:'Combining the hardware and software into one working system. SENTINEL test coverage: 72% (target 80%).'},
+    {term:'Issue', cat:'RAID', def:'A problem happening right now that needs an owner and a fix date.'},
+    {term:'Management reserve', cat:'Financial', def:'Money for genuine surprises, not named risks. Needs a formal request. SENTINEL: $150K, untouched.'},
+    {term:'Milestone', cat:'Schedule', def:'A significant date or completion point. SENTINEL: Sep 10, Sep 28, Oct 5, Dec 15, Dec 31.'},
+    {term:'MRR', cat:'Schedule', def:'Manufacturing Readiness Review — the Oct 5 gate that authorizes building 5,000 units.'},
+    {term:'MVP', cat:'Delivery', def:'Minimum Viable Product — the smallest useful build, put in front of real users as a pilot.'},
+    {term:'Planned value (PV)', cat:'Financial', def:'The value of the work that should be done by now, at plan prices. SENTINEL: $8.0M.'},
+    {term:'Product Owner', cat:'People', def:'Owns backlog priority and acceptance criteria — decides what gets built and when. SENTINEL: Jennifer Morales (dual-hatted with Software Lead).'},
+    {term:'RACI', cat:'Governance', def:'Responsible / Accountable / Consulted / Informed — the accountability map for each decision.'},
+    {term:'RAG', cat:'Status', def:'Red / Amber / Green health indicator. SENTINEL is Amber overall.'},
+    {term:'RAID log', cat:'RAID', def:'The combined register of Risks, Assumptions, Issues and Dependencies.'},
+    {term:'Reserve', cat:'Financial', def:'Money set aside — either contingency (named risks) or management reserve (unknowns).'},
+    {term:'Risk', cat:'RAID', def:'An uncertain future event with a probability and an impact.'},
+    {term:'Roadmap', cat:'Delivery', def:'The long-view plan of what ships when. SENTINEL: Phase 1 ✓, Phase 2, Phase 3 (Oct–Dec), Phase 4 (optional).'},
+    {term:'Scope', cat:'Delivery', def:'What is being built. SENTINEL: ruggedized GPS devices + cloud platform + AI logistics software, 5,000 units.'},
+    {term:'SPI', cat:'Schedule', def:'Schedule Performance Index — work done ÷ work planned by now. 1.0 is on time; SENTINEL is 0.90.'},
+    {term:'Sprint', cat:'Agile', def:'A two-week build cycle: plan, build, test, demo.'},
+    {term:'Stakeholder', cat:'People', def:'Anyone with a stake in the outcome — CEO, the Army customer, Falcon, Finance, the delivery team.'},
+    {term:'Story', cat:'Agile', def:'A unit of work told from the user\'s point of view: "As a logistics officer, I want to search assets so I can find inventory fast."'},
+    {term:'Story points', cat:'Agile', def:'A relative size for work on the Fibonacci scale — not hours.'},
+    {term:'Trigger', cat:'RAID', def:'An early sign a risk is materializing. Battery trigger: a test showing under ~70-hour life.'},
+    {term:'Variance', cat:'Financial', def:'The difference between actual and planned — on cost or on schedule.'},
+    {term:'Velocity', cat:'Agile', def:'Story points completed per sprint. Stable velocity makes forecasts trustworthy. SENTINEL: 27.'},
+    {term:'Waterfall', cat:'Delivery', def:'The traditional plan-everything-then-build approach. SENTINEL is a hybrid: Agile software inside Waterfall phase gates.'}
+  ];
+  glossary.sort(function(a,b){ return a.term.localeCompare(b.term); });
+  var glossaryHost = document.getElementById('glossary-list');
+  function renderGlossary(filter){
+    glossaryHost.innerHTML = '';
+    var f = (filter||'').toLowerCase();
+    var shown = glossary.filter(function(g){ return !f || g.term.toLowerCase().indexOf(f)>-1 || g.def.toLowerCase().indexOf(f)>-1; });
+    if (shown.length === 0){ glossaryHost.appendChild(el('<p style="font-size:13px;color:var(--muted)">No terms match "' + filter + '".</p>')); return; }
+    shown.forEach(function(g){
+      glossaryHost.appendChild(el('<div><dt>' + g.term + '<span class="cat">' + g.cat + '</span></dt><dd>' + g.def + '</dd></div>'));
+    });
+  }
+  renderGlossary('');
+  document.getElementById('glossary-search').addEventListener('input', function(e){ renderGlossary(e.target.value); });
+
+  /* ================= SLIDE DECK PAGER ================= */
+  var slides = Array.prototype.slice.call(document.querySelectorAll('#page-deck .slide'));
+  var total = slides.length;
+  var current = 0;
+  var dotsHost = document.getElementById('deck-dots');
+  slides.forEach(function(s, i){
+    var dot = document.createElement('button');
+    dot.setAttribute('aria-label', 'Go to slide ' + (i+1));
+    dot.addEventListener('click', function(){ goSlide(i); });
+    dotsHost.appendChild(dot);
+  });
+  var dots = Array.prototype.slice.call(dotsHost.children);
+  function goSlide(i){
+    current = Math.max(0, Math.min(total-1, i));
+    slides.forEach(function(s, idx){ s.hidden = idx !== current; });
+    dots.forEach(function(d, idx){ d.setAttribute('aria-current', idx === current ? 'true' : 'false'); });
+    document.getElementById('deck-n').textContent = current + 1;
+  }
+  goSlide(0);
+  document.getElementById('deck-prev').addEventListener('click', function(){ goSlide(current-1); });
+  document.getElementById('deck-next').addEventListener('click', function(){ goSlide(current+1); });
+  document.getElementById('deck-print').addEventListener('click', function(){
+    try{ window.print(); }catch(e){}
+    var toast = el('<div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);max-width:90vw;background:var(--navy);color:#fff;padding:10px 16px;border-radius:8px;font-size:12.5px;box-shadow:var(--shadow);z-index:90">Embedded views can\'t print just this page — use "Open in a new tab to print" above, then print from there.</div>');
+    document.body.appendChild(toast);
+    setTimeout(function(){ toast.remove(); }, 7000);
+  });
+  document.addEventListener('keydown', function(e){
+    if (document.getElementById('page-deck').hidden) return;
+    if (e.key === 'ArrowRight') goSlide(current+1);
+    if (e.key === 'ArrowLeft') goSlide(current-1);
+  });
+})();
+</script>
