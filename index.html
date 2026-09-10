@@ -167,6 +167,9 @@
   ul.clean{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
   ul.clean li{position:relative;padding-left:16px;color:var(--ink-soft);font-size:13.5px}
   ul.clean li::before{content:"▪";position:absolute;left:0;color:var(--navy);font-weight:700;font-size:11px;top:2px}
+  ul.clean.on-dark li{color:#c3d2e2}
+  ul.clean.on-dark li::before{color:#e6c98d}
+  ul.clean.on-dark li b{color:#fff}
   ul.clean li b{color:var(--ink)}
 
   ol.steps{margin:0;padding:0 0 0 20px;display:flex;flex-direction:column;gap:9px}
@@ -371,8 +374,8 @@
         </div>
         <ul class="clean" style="margin-top:14px">
           <li><b>Reach</b> 80% integration test coverage by Sep 15 (Marcus Chen, Software Lead)</li>
-          <li><b>Deliver</b> battery feasibility analysis by Sep 25 (Marcus Chen, Software Lead)</li>
-          <li><b>Resolved</b> — Product Owner allocation: Jennifer Morales confirmed full-time to SENTINEL <span class="rag rag--green" style="margin-left:2px">Condition #3 closed</span></li>
+          <li><b>Deliver</b> battery feasibility analysis by Sep 25 (Marcus Chen, Software Lead &amp; Jennifer Morales, Product Owner)</li>
+          <li><b>Confirm</b> Product Owner allocation — Jennifer is full-time to SENTINEL through Phase 3</li>
           <li><b>Document</b> the Field Ops CSAT improvement plan by Sep 5 (Emily Carter)</li>
           <li><b>Charter</b> the integrated HW/SW Change Control Board by Sep 15 (Zachary Busse)</li>
           <li><b>Stand up</b> monthly financial reporting by Sep 5 (Karen Holt)</li>
@@ -461,8 +464,12 @@
           <div class="stat flag"><span class="label">Bottom-Up EAC</span><span class="figure">$12.65M</span><span class="note">$150K gap</span></div>
         </div>
         <div class="grid cols-4" style="margin-top:10px">
+          <div class="stat flag"><span class="label">Risk-Adjusted EAC</span><span class="figure">$12.77M</span><span class="note">Includes battery EMV</span></div>
+          <div class="stat flag"><span class="label">Risk-Adjusted Gap</span><span class="figure">$270K</span><span class="note">Vs. $12.5M authorization</span></div>
           <div class="stat"><span class="label">CPI</span><span class="figure tnum">0.923</span><span class="note">Slightly behind</span></div>
           <div class="stat"><span class="label">SPI</span><span class="figure tnum">0.90</span><span class="note">Schedule slip</span></div>
+        </div>
+        <div class="grid cols-4" style="margin-top:10px">
           <div class="stat"><span class="label">Contingency Burn</span><span class="figure tnum">66%</span><span class="note">$365K of $550K</span></div>
           <div class="stat"><span class="label">Remaining Reserve</span><span class="figure">$335K</span><span class="note">48% available</span></div>
         </div>
@@ -476,8 +483,9 @@
         </div>
         <div class="callout callout--amber" style="margin-top:10px">
           <b>What the $12.65M does not include:</b> a dollar figure for unresolved risk (EMV), and any assumption of
-          a battery hardware redesign. Layering the ~$240K of validated risk EMV brings the risk-adjusted forecast to
-          roughly $12.89M — near the edge of the $335K of remaining reserves.
+          a battery hardware redesign. Layering the battery-risk EMV brings the risk-adjusted forecast to <b>$12.77M</b> —
+          a $270K gap against the $12.5M authorization, still inside the $335K of remaining reserves. The cost-plus
+          contract structure allows a contingency review if the gap needs to close further.
         </div>
       </section>
 
@@ -525,9 +533,10 @@
       </section>
 
       <div class="callout callout--amber">
-        <b>Finance position:</b> maintain the distinction between the base forecast ($12.65M), EMV for risks
-        (~$170K), and risk-triggered costs (a hardware redesign). The $150K gap is covered by remaining contingency
-        and management reserve. Condition #6 establishes monthly variance tracking.
+        <b>Finance position:</b> maintain the distinction between the base forecast ($12.65M), the risk-adjusted
+        forecast ($12.77M, layering in ~$120K of battery-risk EMV), and risk-triggered costs (a hardware redesign).
+        The $270K risk-adjusted gap is covered by remaining contingency and management reserve, and the cost-plus
+        contract structure allows a contingency review if needed. Condition #6 establishes monthly variance tracking.
       </div>
     </main>
 
@@ -766,18 +775,24 @@
 
       <section class="block">
         <div class="block-head"><h3>Decision Options</h3></div>
-        <div class="grid cols-3">
+        <div class="grid cols-2">
           <div class="panel" style="border-color:var(--red);background:var(--red-tint)">
-            <h4 style="color:var(--red)">NO-GO / Redirect</h4>
-            <p class="desc" style="color:var(--ink-soft)">Hold Phase 3 pending further technical clarity; extend Phase 2 into Oct/Nov. Risk: consumes the buffer and puts Dec 31 deployment in question.</p>
-          </div>
-          <div class="panel" style="border-color:var(--amber);background:var(--amber-tint)">
-            <h4 style="color:var(--amber)">Conditional GO — Recommended</h4>
-            <p class="desc" style="color:var(--ink-soft)">Authorize Phase 3 now. Six conditions resolve in parallel, all by Sep 15/25. The Sep 28 battery decision is a hard gate; the board may escalate if Path A fails.</p>
+            <h4 style="color:var(--red)">NO-GO (Risk-Averse Path)</h4>
+            <ul class="clean" style="color:var(--ink-soft)">
+              <li><b>Hold Phase 3.</b> Require 85% integration coverage before proceeding.</li>
+              <li><b>Slip to Nov/Dec.</b> Integration work would extend into December.</li>
+              <li><b>Consequences:</b> 30–45 day slip; impacts device production; customer timeline at risk.</li>
+              <li><b>Upside:</b> higher test coverage; more risk retired.</li>
+            </ul>
           </div>
           <div class="panel" style="border-color:var(--green);background:var(--green-tint)">
-            <h4 style="color:var(--green)">GO / Unconditional</h4>
-            <p class="desc" style="color:var(--ink-soft)">Authorize Phase 3 with no conditions. Not recommended: risks Phase 3 entry with known testing gaps and an unresolved battery path.</p>
+            <h4 style="color:var(--green)">GO with Conditions — Recommended</h4>
+            <ul class="clean" style="color:var(--ink-soft)">
+              <li><b>Authorize Phase 3.</b> Accept 72% coverage + conditions.</li>
+              <li><b>Hit Dec 31.</b> Phase 3 closes as planned with a 71-day buffer.</li>
+              <li><b>Risk mitigation:</b> monthly governance review, Sep 15 integration gate, Sep 28 battery decision.</li>
+              <li><b>Upside:</b> deploy on schedule; manage risk actively.</li>
+            </ul>
           </div>
         </div>
       </section>
@@ -788,7 +803,7 @@
           <ul class="clean">
             <li><b>Technology is proven:</b> the MVP works. Pilot feedback is 90% positive (Logistics) and actionable (Field Ops). No unknown unknowns remain.</li>
             <li><b>Schedule is protected:</b> a 71-day buffer runs from the Oct 21 Phase 2 close to the Dec 31 deployment, at risk only if the battery decision slips beyond Sep 28.</li>
-            <li><b>Money is tight, but covered:</b> $12.65M EAC vs. $12.5M authorization is a $150K gap, within the remaining $185K contingency. Condition #6 keeps it visible.</li>
+            <li><b>Money is tight, but covered:</b> $12.65M EAC vs. $12.5M authorization is a $150K base gap ($270K risk-adjusted), within the remaining $185K contingency and manageable under the cost-plus contract. Condition #6 keeps it visible.</li>
             <li><b>Conditions are management, not engineering:</b> all six are management and governance actions — none require new technology or architectural change.</li>
             <li><b>Timing is right:</b> starting Phase 3 now, rather than waiting on Sep 28, allows parallel resolution while procurement and build prep proceed. Waiting costs three weeks of buffer.</li>
             <li><b>Sep 28 is a hard gate:</b> the battery decision is binary. If Path A fails, the board escalates to Path C with pre-authorization, retaining full authority to redirect.</li>
@@ -805,12 +820,9 @@
         <div class="block-head"><h3>What the Board Approves</h3></div>
         <div class="card">
           <ol class="steps">
-            <li>Authorize a Phase 3 baseline of $3.7M — $1.5M hardware, $1.8M software, $0.4M integration.</li>
-            <li>Accept the $185K remaining contingency as sufficient, and pre-authorize the ~$130K of anticipated draws with monthly tracking (Condition #6).</li>
-            <li>Preserve the $150K management reserve intact; confirm the drawdown rule — Sponsor under $50K, Board at or above $50K.</li>
-            <li>Ratify the six governance conditions, escalating Condition #1 for immediate action (Marcus Chen) — Condition #3 (PO allocation) is already resolved.</li>
-            <li>Confirm Sep 28 as a firm decision gate, and Oct 5 and Dec 15 as the remaining Phase 3 gates.</li>
-            <li>Delegate integrated HW/SW change-control authority to the weekly Leadership Team for changes under $25K; board review at or above.</li>
+            <li><b>Phase 3 Go-Decision.</b> Authorize October–December 2026 manufacturing readiness, full deployment, and completion of the 5,000-unit order. Authorization is conditioned on the six governance conditions.</li>
+            <li><b>Oct 21 Working Forecast &amp; Rebaseline.</b> Approve the Phase 2 slip to Oct 21 as the new baseline. A formal rebaseline for Phase 3 will be submitted before Sep 20.</li>
+            <li><b>Phase 3 Budget &amp; Contingency.</b> Approve the Phase 3 baseline ($3.7M) and authorize the contingency review process. The unallocated management reserve ($150K) remains available.</li>
           </ol>
         </div>
       </section>
@@ -822,26 +834,34 @@
           <div class="ask"><span class="q">Approve the Oct 21 working forecast and a formal rebaseline?</span><span class="a">Approve</span></div>
           <div class="ask"><span class="q">Approve the Phase 3 baseline ($3.7M) and contingency plan?</span><span class="a">Approve</span></div>
           <div class="ask"><span class="q">Ratify the six governance conditions?</span><span class="a">Yes</span></div>
-          <div class="ask"><span class="q">Authorize Marcus Chen as Software Lead to close Conditions #1 &amp; #2?</span><span class="a">Authorized</span></div>
-          <div class="ask"><span class="q">Confirm David Whitmore as CEO executive escalation authority?</span><span class="a">Confirmed</span></div>
+          <div class="ask"><span class="q">Acknowledge David Whitmore, CEO, with executive escalation authority for Phase 3?</span><span class="a">Acknowledged</span></div>
           <div class="ask"><span class="q">Confirm Sep 28 / Oct 5 / Dec 15 as the Phase 3 gates?</span><span class="a">Yes</span></div>
         </div>
       </section>
 
       <section class="block">
-        <div class="block-head"><h3>Conclusion</h3></div>
-        <div class="grid cols-3">
+        <div class="block-head"><h3>The Path Forward</h3></div>
+        <div class="grid cols-2">
           <div class="panel" style="background:var(--navy);border-color:var(--navy);color:#fff">
-            <h4 style="color:#fff">Project viable &amp; strategic</h4>
-            <p class="desc" style="color:#c3d2e2">Business need proven. Technology viable. Logistics and command at 88–90% CSAT. MVP complete and in pilot. Strategic value intact.</p>
+            <h4 style="color:#fff">Six Conditions</h4>
+            <ul class="clean on-dark" style="margin-top:8px">
+              <li>Integration coverage milestone — Sep 15</li>
+              <li>Battery feasibility analysis — Sep 25</li>
+              <li>Product Owner &amp; Software Lead continuity — Sep 30</li>
+              <li>Field Ops improvement plan — Sep 5</li>
+              <li>Change Control Board charter — Sep 15</li>
+              <li>Monthly financial reporting — Sep 5</li>
+            </ul>
           </div>
           <div class="panel" style="background:var(--navy);border-color:var(--navy);color:#fff">
-            <h4 style="color:#fff">Challenges understood &amp; managed</h4>
-            <p class="desc" style="color:#c3d2e2">Battery isolated with three costed paths (software-first, 70% feasibility). Oct 21 schedule credible with a 71-day buffer. $150K base gap covered by reserves. Field Ops plan owned by Emily Carter, dated. Marcus Chen confirmed as Software Lead.</p>
-          </div>
-          <div class="panel" style="background:var(--navy);border-color:var(--navy);color:#fff">
-            <h4 style="color:#fff">Proceed with conditions</h4>
-            <p class="desc" style="color:#c3d2e2">Six evidence-based conditions, all due by Sep 15/25 (battery Sep 28). Board governance, formal rebaseline, monthly financial and risk reporting. David Whitmore providing executive escalation authority. Recommendation: GO with Conditions.</p>
+            <h4 style="color:#fff">Phase 3 Governance</h4>
+            <ul class="clean on-dark" style="margin-top:8px">
+              <li>Board review: Sep 15, Sep 28, Oct 5, Dec 15</li>
+              <li>Sep 28: battery path decision</li>
+              <li>Oct 5: Phase 3 kick-off confirmation</li>
+              <li>Dec 15: final readiness review</li>
+              <li>David Whitmore, CEO, providing escalation authority</li>
+            </ul>
           </div>
         </div>
       </section>
@@ -896,16 +916,17 @@
           <h2>PROJECT SENTINEL</h2>
           <div class="subtitle">Phase 2 to Phase 3 Authority Gate</div>
           <div class="meta">Smart Logistics Tracking System — U.S. Army<br>Apex Defense Solutions</div>
+          <div style="margin-top:18px"><span class="rag rag--amber" style="font-size:11.5px;padding:6px 14px">GO with Conditions</span></div>
         </section>
 
         <section class="slide" hidden data-i="2">
           <p class="eyebrow">Board Decision Point · Slide 02</p>
           <h2 class="slide-title">Executive Recommendation</h2>
-          <div class="callout callout--green"><b>GO — with conditions.</b> Authorize Phase 3 (Oct–Dec 2026) now, subject to six evidence-based governance conditions. The product works, the schedule is protected by a 71-day buffer, and the money is tight but covered. Starting now — rather than waiting for the Sep 28 battery result — preserves the buffer while the open items resolve in parallel.</div>
+          <div class="callout callout--green"><b>GO — with conditions.</b> Authorize Phase 3 (Oct–Dec 2026) now, subject to six evidence-based conditions. The product works, the schedule is protected by a 71-day buffer, and the money is tight but covered.</div>
           <ul class="clean">
             <li><b>Reach</b> 80% integration test coverage by Sep 15 (Marcus Chen, Software Lead)</li>
-            <li><b>Deliver</b> battery feasibility analysis by Sep 25 (Marcus Chen, Software Lead)</li>
-            <li><b>Resolved</b> — Product Owner allocation: Jennifer Morales confirmed full-time to SENTINEL</li>
+            <li><b>Deliver</b> battery feasibility analysis by Sep 25 (Marcus Chen, Software Lead &amp; Jennifer Morales, Product Owner)</li>
+            <li><b>Confirm</b> Product Owner allocation — Jennifer is full-time to SENTINEL through Phase 3</li>
             <li><b>Document</b> the Field Ops CSAT improvement plan by Sep 5 (Emily Carter)</li>
             <li><b>Charter</b> the integrated HW/SW Change Control Board by Sep 15 (Zachary Busse)</li>
             <li><b>Stand up</b> monthly financial reporting by Sep 5 (Karen Holt)</li>
@@ -925,7 +946,7 @@
             <div class="domain-chip"><span>Schedule</span><span class="rag rag--amber">Amber</span></div>
             <div class="domain-chip"><span>Overall Rating</span><span class="rag rag--amber">Amber</span></div>
           </div>
-          <div class="callout"><b>Overall: AMBER — proceed with conditions.</b> Green strategic foundation, amber execution across cost, schedule and the two engineering tracks. No red domain: the Phase 2 slip is bounded and the 71-day Phase 3 buffer protects Dec 31 deployment.</div>
+          <div class="callout"><b>Overall: AMBER — proceed with conditions.</b> Green strategic foundation, amber execution. No red domain: the 71-day Phase 3 buffer protects Dec 31 deployment.</div>
         </section>
 
         <section class="slide" hidden data-i="4">
@@ -933,12 +954,12 @@
           <h2 class="slide-title">Strategic &amp; Business Case</h2>
           <p><span class="rag rag--green">Green</span></p>
           <ul class="clean">
-            <li><b>Business need:</b> Army logistics units cannot see where their assets are, and requisitions stall because of it</li>
-            <li><b>Strategic value:</b> the reference build for a possible commercial variant; proof point for integrated HW/SW delivery at scale</li>
-            <li><b>Customer alignment:</b> U.S. Army — COL Torres remains concerned but engaged on operational-suitability; Army Pilot Program Office is supportive</li>
+            <li><b>Business need:</b> Army logistics units cannot see where assets are; requisitions stall without visibility</li>
+            <li><b>Strategic value:</b> the reference build for a commercial variant; proof point for integrated HW/SW delivery at scale</li>
+            <li><b>Customer:</b> U.S. Army — COL Torres remains concerned but engaged on operational validation; Army Pilot Program Office is supportive</li>
             <li><b>Benefits (pilot-validated):</b> inventory search 87% faster · requisition cycle 75% faster · error rate down 92% · 88% device adoption</li>
           </ul>
-          <div class="callout callout--green"><b>Assessment:</b> strategic value and business need unaffected by execution challenges.</div>
+          <div class="callout callout--green"><b>Assessment:</b> strategic value and business need are unaffected by execution challenges.</div>
         </section>
 
         <section class="slide" hidden data-i="5">
@@ -947,57 +968,54 @@
           <div class="slide-grid c4">
             <div class="stat"><span class="label">Phase 1</span><span class="figure">Complete</span><span class="note">Closed Aug 14</span></div>
             <div class="stat flag"><span class="label">Phase 2</span><span class="figure tnum">88%</span><span class="note">Baseline Sep 30 · forecast Oct 21</span></div>
-            <div class="stat"><span class="label">MVP delivery</span><span class="figure tnum">27 / 27</span><span class="note">Story points complete</span></div>
-            <div class="stat"><span class="label">Authorization</span><span class="figure">$12.5M</span><span class="note">Full project budget</span></div>
+            <div class="stat"><span class="label">MVP Delivery</span><span class="figure tnum">27 / 27</span><span class="note">Story points complete</span></div>
+            <div class="stat"><span class="label">Pilot Adoption</span><span class="figure tnum">88%</span><span class="note">250 users · 12 sites · 6 weeks</span></div>
           </div>
-          <ul class="clean" style="margin-top:6px">
-            <li><b>MVP:</b> 27 story points complete and in pilot deployment</li>
-            <li><b>Velocity:</b> stable 27 points/sprint over four sprints; forecasts reliable</li>
-            <li><b>Quality:</b> defect escape rate 1.8% (target &lt;2%); test coverage 82% toward 85% target</li>
-            <li><b>Integration coverage:</b> 72% against 80% exit criterion (RAID I-03, owned by Marcus Chen); full system scenarios remain constrained</li>
-          </ul>
+          <div class="callout"><b>The pilot validated the core value proposition.</b> Warehouse and command users rate the system 88–90%. Two open questions — battery endurance and field-operations mobile experience — are specific, owned, and scheduled.</div>
         </section>
 
         <section class="slide" hidden data-i="6">
-          <p class="eyebrow">Critical Sep 28 Decision Gate · Slide 06</p>
-          <h2 class="slide-title">Battery Challenge — 3 Paths</h2>
-          <div class="callout callout--amber"><b>Issue:</b> Prototype #2 battery performance meets spec at 70°C lab, but field validation data shows degradation under sustained 45°C ambient. Sep 28 decision required to lock Phase 3 approach.</div>
+          <p class="eyebrow">Sep 28 Decision Gate · Slide 06</p>
+          <h2 class="slide-title">Battery Challenge: Three Modeled Paths</h2>
           <div class="slide-grid c3">
-            <div class="panel"><h4>Path A: Software Optimization</h4><p class="meta"><b>Cost:</b> $50K | <b>Feasibility:</b> 70%</p><p class="desc">Aggressive power-down and battery monitoring SW. Marcus Chen (Software Lead) leading; delivers by Sep 25.</p></div>
-            <div class="panel"><h4>Path B: Hybrid (Optimize + Component)</h4><p class="meta"><b>Cost:</b> $150K | <b>Feasibility:</b> 10%</p><p class="desc">SW optimization + alternative battery component. High risk; limited vendor availability.</p></div>
-            <div class="panel"><h4>Path C: Hardware Redesign</h4><p class="meta"><b>Cost:</b> $400K | <b>Feasibility:</b> 20%</p><p class="desc">Full battery/power subsystem redesign. Schedule impact: 60–90 days, consumes contingency.</p></div>
+            <div class="panel" style="border-color:var(--green)"><h4 style="color:var(--green)">Software Optimization</h4><p class="meta"><b>Cost:</b> $50K | <b>+0 weeks</b></p><p class="desc">Adaptive sync, GPS duty-cycling, low-power fallback. ~4 weeks engineering, parallel with pilot. 48–60 hr battery life. Marcus Chen (Software Lead) leading; Jennifer Morales (Product Owner) approves; delivers by Sep 25.</p></div>
+            <div class="panel"><h4>Hybrid</h4><p class="meta"><b>Cost:</b> $150K | <b>+2–3 weeks</b></p><p class="desc">Minor hardware change plus software optimization. 2 wks HW + 4 wks integration. 72 hr+ — meets target.</p></div>
+            <div class="panel"><h4>Hardware Redesign</h4><p class="meta"><b>Cost:</b> $400K | <b>+4–6 weeks</b></p><p class="desc">Full battery/power-subsystem redesign. Draws management reserve; likely a funding conversation. 96 hr+ — exceeds target.</p></div>
           </div>
-          <div class="callout callout--amber"><b>Board Decision:</b> Recommend Path A (70% feasibility, $50K, Sep 25 result drives Sep 28 gate). Board should pre-authorize Path C as fallback if Path A fails.</div>
+          <div class="callout callout--green"><b>All three paths still hit Dec 31</b> inside the 71-day buffer. Sep 28 is a cost-and-quality choice, not a go/no-go.</div>
         </section>
 
         <section class="slide" hidden data-i="7">
-          <p class="eyebrow">Critical Technical Readiness · Slide 07</p>
-          <h2 class="slide-title">Software &amp; Integration</h2>
+          <p class="eyebrow">MVP Delivered, Integration Constraint · Slide 07</p>
+          <h2 class="slide-title">Software &amp; Integration Status</h2>
           <p><span class="rag rag--amber">Amber</span></p>
           <div class="slide-grid c2">
             <div>
-              <h3 style="font-size:13px;margin-bottom:8px">Software Readiness (Marcus Chen, Software Lead)</h3>
+              <h3 style="font-size:13px;margin-bottom:8px">Software Leadership (Marcus Chen, Software Lead)</h3>
               <ul class="clean">
-                <li><b>MVP:</b> 27 / 27 story points delivered and piloted</li>
-                <li><b>Backlog clarity:</b> Definition of Done requires strengthening (RAID I-04)</li>
-                <li><b>Product Owner allocation:</b> Resolved — Jennifer confirmed full-time to SENTINEL (Condition #3 closed)</li>
+                <li><b>MVP:</b> 27 / 27 story points complete and in pilot</li>
+                <li><b>Velocity:</b> stable 27 points/sprint; forecasts are reliable</li>
+                <li><b>Quality:</b> defect escape rate 1.8% (target &lt;2%); test coverage 82% toward 85% target</li>
+                <li><b>Integration coverage:</b> 72% of scenarios (target 80% by Sep 15) — RAID R-03</li>
+                <li><b>Condition #1:</b> reach 80% by Sep 15; Marcus leads</li>
               </ul>
             </div>
             <div>
-              <h3 style="font-size:13px;margin-bottom:8px">Integration (Marcus Chen, owns RAID I-03, D-02)</h3>
+              <h3 style="font-size:13px;margin-bottom:8px">Product Owner (Jennifer Morales)</h3>
               <ul class="clean">
-                <li><b>Coverage:</b> 72% of integration test scenarios (target: 80% by Sep 15)</li>
-                <li><b>Full system scenarios:</b> constrained by resource availability and SW delivery timing</li>
-                <li><b>Risk:</b> Entering Phase 3 with known testing gaps increases defect risk</li>
-                <li><b>Condition #1:</b> Reach 80% coverage by Sep 15; Jennifer leads</li>
+                <li><b>Status:</b> full-time to SENTINEL through Phase 3</li>
+                <li><b>Backlog management:</b> Definition of Done requires strengthening (RAID I-04)</li>
+                <li><b>Acceptance criteria:</b> responsible for MVP and Phase 3 capability acceptance</li>
+                <li><b>Condition #3:</b> Product Owner &amp; Software Lead continuity, due Sep 30</li>
               </ul>
             </div>
           </div>
         </section>
 
         <section class="slide" hidden data-i="8">
-          <p class="eyebrow">Budget &amp; Cost Analysis · Slide 08</p>
+          <p class="eyebrow">Tight but Covered · Slide 08</p>
           <h2 class="slide-title">Financial Position</h2>
+          <p><span class="rag rag--amber">Amber</span></p>
           <div class="slide-grid c4">
             <div class="stat"><span class="label">Total Authorization</span><span class="figure">$12.50M</span></div>
             <div class="stat"><span class="label">Approved Baseline</span><span class="figure">$11.80M</span></div>
@@ -1005,122 +1023,141 @@
             <div class="stat flag"><span class="label">Bottom-Up EAC</span><span class="figure">$12.65M</span><span class="note">$150K gap</span></div>
           </div>
           <div class="slide-grid c4">
-            <div class="stat"><span class="label">CPI</span><span class="figure tnum">0.923</span><span class="note">Slightly behind</span></div>
-            <div class="stat"><span class="label">SPI</span><span class="figure tnum">0.90</span><span class="note">Schedule slip</span></div>
-            <div class="stat"><span class="label">Contingency Burn</span><span class="figure tnum">66%</span><span class="note">$365K of $550K</span></div>
-            <div class="stat"><span class="label">Remaining Reserve</span><span class="figure">$335K</span><span class="note">48% available</span></div>
+            <div class="stat"><span class="label">Risk-Adjusted EAC</span><span class="figure">$12.77M</span></div>
+            <div class="stat flag"><span class="label">Risk-Adjusted Gap</span><span class="figure">$270K</span></div>
+            <div class="stat"><span class="label">CPI</span><span class="figure tnum">0.923</span></div>
+            <div class="stat"><span class="label">SPI</span><span class="figure tnum">0.90</span></div>
           </div>
-          <div class="callout callout--amber"><b>Finance Position:</b> Maintain distinction between base forecast ($12.65M), EMV for risks (~$170K), and risk-triggered costs (hardware redesign). The $150K gap is covered by remaining contingency and management reserve. Condition #6: establish monthly variance tracking.</div>
+          <div class="callout callout--amber"><b>Funding gap exists but is manageable.</b> Cost-plus contract allows contingency review. Phase 3 baseline is $3.7M. Monthly financial reporting (Condition #6) will surface issues early.</div>
         </section>
 
         <section class="slide" hidden data-i="9">
-          <p class="eyebrow">Timeline &amp; Critical Milestones · Slide 09</p>
+          <p class="eyebrow">Phase 2 Slip is Bounded · Slide 09</p>
           <h2 class="slide-title">Schedule Position</h2>
-          <div class="callout"><b>Phase 2 baseline:</b> Sep 30 · <b>Phase 2 forecast:</b> Oct 21 (+21 days) — all Phase 2 work complete by Oct 21; Phase 3 start unfolds in parallel.</div>
-          <ul class="clean" style="font-size:12.5px">
-            <li><b>Sep 5:</b> Conditions #4, #6 due (CSAT plan, financial reporting)</li>
-            <li><b>Sep 10:</b> Board authorization gate (this meeting) — GO with Conditions</li>
-            <li><b>Sep 15:</b> Conditions #1, #5 due (Integration testing 80%, Change Control Board chartered)</li>
-            <li><b>Sep 25:</b> Condition #2 due (Battery feasibility analysis completed by Marcus Chen)</li>
-            <li><b>Sep 28:</b> Battery decision gate — board authorizes Path A, B, or C fallback</li>
-            <li><b>Oct 5:</b> Manufacturing Readiness Review — Phase 3 production validation</li>
-            <li><b>Oct 21:</b> Phase 2 close; Phase 3 production procurement in full swing</li>
-            <li><b>Dec 31:</b> Full deployment — 5,000 units operational and customer-accepted</li>
-          </ul>
-          <div class="callout"><b>71-day buffer:</b> from Oct 21 Phase 2 close to Dec 31 deployment. This buffer is protected as long as battery decision closes Sep 28.</div>
+          <p><span class="rag rag--amber">Amber</span></p>
+          <div class="slide-grid c3">
+            <div class="stat"><span class="label">Phase 2 Baseline</span><span class="figure">Sep 30</span><span class="note">Original plan</span></div>
+            <div class="stat flag"><span class="label">Phase 2 Forecast</span><span class="figure">Oct 21</span><span class="note">+21 days slip</span></div>
+            <div class="stat"><span class="label">Phase 3 Buffer</span><span class="figure">71 days</span><span class="note">Oct 21 to Dec 31</span></div>
+          </div>
+          <div class="callout"><b>Slip is inside the budget.</b> Oct 21 Phase 2 close fits within Dec 31 with a 71-day Phase 3 buffer. All three battery paths fit the buffer. No cascading risk to the deployment gate.</div>
         </section>
 
         <section class="slide" hidden data-i="10">
-          <p class="eyebrow">RAID Log Summary · Slide 10</p>
+          <p class="eyebrow">RAID Log Review · Slide 10</p>
           <h2 class="slide-title">Top Governance Risks</h2>
+          <p><span class="rag rag--amber">Amber</span></p>
           <div class="slide-grid c2">
-            <div>
-              <h3 style="font-size:12px;margin-bottom:8px">RISKS (High/Medium Impact)</h3>
-              <ul class="clean" style="font-size:12px">
-                <li><b>R-01 (Hardware):</b> Environmental testing may reveal gaps before production (Owner: Ethan Brooks, Falcon)</li>
-                <li><b>R-03 (Integration):</b> Software integration requires additional effort across workstreams (Owner: Marcus Chen, Software Lead)</li>
-                <li><b>R-04 (Governance):</b> Future funding depends on Phase 2 outcome (Owner: Sarah Mitchell, Sponsor)</li>
-                <li><b>R-05 (Hardware):</b> Redesign may affect schedule and reserve (Owner: Ethan Brooks, Falcon)</li>
+            <div class="panel">
+              <h4>Hardware Risk (Ethan Brooks, Falcon PM)</h4>
+              <ul class="clean" style="margin-top:8px">
+                <li><b>R-01:</b> Prototype #2 testing continues; results drive Path B/C feasibility</li>
+                <li><b>R-05:</b> Redesign schedule and cost risk if prototype fails qualification</li>
+                <li>Impact: Sep 28 battery decision depends on this test data</li>
               </ul>
             </div>
-            <div>
-              <h3 style="font-size:12px;margin-bottom:8px">ISSUES (Active, Owned)</h3>
-              <ul class="clean" style="font-size:12px">
-                <li><b>I-02 (Schedule):</b> Environmental testing incomplete, schedule movement (Owner: Falcon)</li>
-                <li><b>I-03 (Quality):</b> Integration testing 72% vs 80% target (Owner: Marcus Chen, Software Lead)</li>
-                <li><b>I-04 (Backlog):</b> Acceptance criteria incomplete (Owner: Jennifer Morales, Product Owner)</li>
-                <li><b>I-05 (Financial):</b> Phase 2 spend requires monitoring (Owner: Karen Holt, Finance)</li>
+            <div class="panel">
+              <h4>Governance &amp; Finance (Sarah Mitchell, Karen Holt)</h4>
+              <ul class="clean" style="margin-top:8px">
+                <li><b>R-04:</b> Governance materials ready for board; six conditions framed</li>
+                <li><b>I-05:</b> Financial review ongoing; variance language being clarified</li>
+                <li>Impact: Monthly reporting (Condition #6) will close the transparency gap</li>
               </ul>
             </div>
           </div>
-          <div class="callout"><b>Governance approach:</b> Each risk/issue translated into a named governance condition with owner and due date. No risks proceed to Phase 3 unaddressed.</div>
         </section>
 
         <section class="slide" hidden data-i="11">
-          <p class="eyebrow">Stakeholder Feedback · Slide 11</p>
+          <p class="eyebrow">Two Segments, Two Stories · Slide 11</p>
           <h2 class="slide-title">Pilot Performance Segmentation</h2>
-          <div class="callout callout--green"><b>Pilot Logistics Unit (HQ logistics, Fort Bragg):</b> <span class="rag rag--green">90% CSAT</span> — training depth, administrative support, clear workflows</div>
-          <div class="callout callout--amber"><b>Field Operations Unit (forward-deployed, brigade level):</b> <span class="rag rag--amber">72% CSAT</span> — battery concerns, intermittent connectivity, user error patterns under operational stress</div>
-          <div>
-            <h3 style="font-size:13px;margin-bottom:8px">Assessment by Domain:</h3>
-            <ul class="clean">
-              <li><b>Usability:</b> Field Ops note device interfaces optimized for garrison; operational environments need mobile-first refinement</li>
-              <li><b>Battery:</b> Field Ops operators report 6-8 hour duty cycles vs. lab 72-hour specs under 45°C ambient (the battery challenge, Condition #2)</li>
-              <li><b>Connectivity:</b> Forward areas have intermittent cellular; offline-first capability incomplete</li>
-              <li><b>Training:</b> Logistics HQ received 3 days intensive; field units received 4 hours. Confidence gap is training-related and addressable.</li>
-            </ul>
+          <div class="slide-grid c2">
+            <div class="callout callout--green">
+              <b>Warehouse Logistics (Core Use Case)</b><br>
+              <span class="rag rag--green" style="margin-top:6px">90% CSAT</span>
+              <ul class="clean" style="margin-top:8px;font-size:12px">
+                <li><b>Users:</b> 80 (primarily warehouse coordinators)</li>
+                <li><b>Sites:</b> 6 (FOBs and distribution centers)</li>
+                <li><b>Adoption:</b> 90% active (exceeds 85% target)</li>
+              </ul>
+            </div>
+            <div class="callout callout--amber">
+              <b>Field Operations (Extended Use Case)</b><br>
+              <span class="rag rag--amber" style="margin-top:6px">72% CSAT</span>
+              <ul class="clean" style="margin-top:8px;font-size:12px">
+                <li><b>Users:</b> 170 (field command, logistics officers)</li>
+                <li><b>Sites:</b> 12 (small bases, forward sites)</li>
+                <li><b>Satisfaction:</b> 72% CSAT (target 85%); mobile UX bottleneck</li>
+              </ul>
+            </div>
           </div>
-          <div class="callout callout--amber"><b>Condition #4 (Emily Carter, Director of Customer Experience):</b> Document Field Ops CSAT improvement plan by Sep 5. Target: 85% CSAT by pilot close. Focus: battery mitigation (Path A leads here), offline-first MVP, and field-focused training.</div>
+          <div class="callout callout--amber" style="margin-top:12px"><b>Condition #4 focuses on Field Ops.</b> Emily Carter (Customer Experience) will document the improvement plan by Sep 5. Mobile redesign is budgeted in Phase 3.</div>
         </section>
 
         <section class="slide" hidden data-i="12">
-          <p class="eyebrow">Conditional Authority Paths · Slide 12</p>
+          <p class="eyebrow">The Board Has Two Choices · Slide 12</p>
           <h2 class="slide-title">Decision Options</h2>
-          <div class="slide-grid c3">
-            <div class="panel" style="border-color:var(--red);background:var(--red-tint)"><h4 style="color:var(--red)">NO-GO / Redirect</h4><p class="desc" style="color:var(--ink-soft)">Hold Phase 3 pending further technical clarity. Extend Phase 2 into Oct/Nov. Risk: consumes buffer and pushes Dec 31 deployment into question.</p></div>
-            <div class="panel" style="border-color:var(--amber);background:var(--amber-tint)"><h4 style="color:var(--amber)">CONDITIONAL GO (Recommended)</h4><p class="desc" style="color:var(--ink-soft)">Authorize Phase 3 now. Six conditions resolve in parallel (all by Sep 15/25). Sep 28 battery decision is a hard gate; board may escalate if Path A fails.</p></div>
-            <div class="panel" style="border-color:var(--green);background:var(--green-tint)"><h4 style="color:var(--green)">GO / Unconditional</h4><p class="desc" style="color:var(--ink-soft)">Authorize Phase 3 with no conditions. Not recommended: risks Phase 3 entry with known testing gaps and unresolved battery path.</p></div>
+          <div class="slide-grid c2">
+            <div class="panel" style="border-color:var(--red);background:var(--red-tint)">
+              <h4 style="color:var(--red)">NO-GO (Risk-Averse Path)</h4>
+              <ul class="clean">
+                <li><b>Hold Phase 3.</b> Require 85% integration coverage before proceeding</li>
+                <li><b>Slip to Nov/Dec.</b> Integration work would extend into December</li>
+                <li><b>Consequences:</b> 30–45 day slip; impacts device production; customer timeline at risk</li>
+                <li><b>Upside:</b> higher test coverage; more risk retired</li>
+              </ul>
+            </div>
+            <div class="panel" style="border-color:var(--green);background:var(--green-tint)">
+              <h4 style="color:var(--green)">GO with Conditions (Recommended)</h4>
+              <ul class="clean">
+                <li><b>Authorize Phase 3.</b> Accept 72% coverage + conditions</li>
+                <li><b>Hit Dec 31.</b> Phase 3 closes as planned with a 71-day buffer</li>
+                <li><b>Risk mitigation:</b> monthly governance review, Sep 15 integration gate, Sep 28 battery decision</li>
+                <li><b>Upside:</b> deploy on schedule; manage risk actively</li>
+              </ul>
+            </div>
           </div>
-          <div class="callout"><b>Recommendation:</b> Conditional GO. Conditions are management actions, not engineering unknowns. All six conditions due by Sep 15/25; battery Sep 28 decision is a firm gate for Phase 3 resource commitment.</div>
         </section>
 
         <section class="slide" hidden data-i="13">
-          <p class="eyebrow">Phase 3 Authorization Conditions · Slide 13</p>
-          <h2 class="slide-title">The Six Conditions</h2>
-          <ol class="steps" style="font-size:12px">
-            <li><b>Integration Testing (72% → 80%):</b> Owned by Marcus Chen (Software Lead). Due Sep 15. Success: full system test coverage reaches 80% of defined scenarios. Impact if not met: Phase 3 enters with known gaps; defect risk increases.</li>
-            <li><b>Battery Feasibility (Sep 28 decision):</b> Owned by Marcus Chen (Software Lead). Due Sep 25 (analysis), Sep 28 (board decision). Success: Path A delivers by Sep 25, board selects path. Impact if not met: Phase 3 resource plan ambiguous; schedule risk.</li>
-            <li><b>Product Owner Allocation (Jennifer Morales):</b> Owned by Sarah Mitchell (Sponsor). <b>Resolved</b> — Jennifer confirmed full-time to SENTINEL.</li>
-            <li><b>Field Ops CSAT Improvement Plan:</b> Owned by Emily Carter (Director of Customer Experience). Due Sep 5. Success: plan documents battery mitigation, offline-first MVP, and field training approach. Impact if not met: Field Ops CSAT remains at 72%; customer acceptance risk at Dec 31.</li>
-            <li><b>Change Control Board (Integrated HW/SW):</b> Owned by Zachary Busse (Project Manager). Due Sep 15. Success: CCB chartered, authority delegated to Leadership Team for changes under $25K. Impact if not met: uncontrolled scope creep; budget risk.</li>
-            <li><b>Monthly Financial Reporting:</b> Owned by Karen Holt (Finance Director). Due Sep 5. Success: monthly variance, EAC, reserve tracking, and trend analysis. Impact if not met: late discovery of budget overruns; limited governance visibility.</li>
-          </ol>
+          <p class="eyebrow">Evidence-Based Governance · Slide 13</p>
+          <h2 class="slide-title">The Six Governance Conditions</h2>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Condition</th><th>Owner</th><th>Due</th><th>If Not Met</th></tr></thead>
+              <tbody>
+                <tr><td class="strong">1. Integration 72% → 80%</td><td>Marcus Chen</td><td class="mono">Sep 15</td><td>Enter Phase 3 with gaps</td></tr>
+                <tr><td class="strong">2. Battery Analysis (Path A)</td><td>Marcus Chen / Jennifer Morales</td><td class="mono">Sep 25</td><td>Battery decision delayed</td></tr>
+                <tr><td class="strong">3. PO + Software Lead Continuity</td><td>Sarah Mitchell</td><td class="mono">Sep 30</td><td>Backlog refinement delayed</td></tr>
+                <tr><td class="strong">4. Field Ops CSAT Plan 72% → 85%</td><td>Emily Carter</td><td class="mono">Sep 5</td><td>Customer acceptance risk</td></tr>
+                <tr><td class="strong">5. Change Control Board</td><td>Zachary Busse</td><td class="mono">Sep 15</td><td>Uncontrolled scope creep</td></tr>
+                <tr><td class="strong">6. Monthly Financial Reporting</td><td>Karen Holt</td><td class="mono">Sep 5</td><td>Late discovery of overruns</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout callout--amber" style="margin-top:12px"><b>All conditions are management/execution actions.</b> No additional funding required. Sep 28 is the hard battery decision gate.</div>
         </section>
 
         <section class="slide" hidden data-i="14">
-          <p class="eyebrow">Risk-Balanced Recommendation · Slide 14</p>
-          <h2 class="slide-title">Why GO with Conditions</h2>
+          <p class="eyebrow">The Logic Behind the Recommendation · Slide 14</p>
+          <h2 class="slide-title">Why GO with Conditions Makes Sense</h2>
           <ul class="clean" style="font-size:12px">
-            <li><b>Technology is proven:</b> MVP works. Pilot feedback is 90% positive (Logistics) and actionable (Field Ops). No unknown unknowns remain.</li>
-            <li><b>Schedule is protected:</b> 71-day buffer from Oct 21 Phase 2 close to Dec 31 deployment. This buffer is only at risk if battery decision slips beyond Sep 28.</li>
-            <li><b>Money is tight, but covered:</b> $12.65M EAC vs $12.5M authorization = $150K gap. Gap is within remaining contingency ($185K). Contingency pre-authorization (Condition #6) ensures governance visibility.</li>
-            <li><b>Conditions are management, not engineering:</b> All six conditions are management and governance actions. None require new technology or architectural changes.</li>
-            <li><b>Timing is right:</b> Starting Phase 3 now — rather than waiting for Sep 28 battery result — allows parallel resolution of conditions while Phase 3 procurement and build prep proceeds. Waiting costs 3 weeks of buffer.</li>
-            <li><b>Sep 28 is a hard gate:</b> Battery decision is binary. If Path A fails, board escalates to Path C with pre-authorization. Board retains full authority to redirect if conditions close below standard.</li>
+            <li><b>Product works.</b> Pilot CSAT is 88–90% in the core logistics use case. MVP is feature-complete and deployed.</li>
+            <li><b>Schedule is protected.</b> 71-day Phase 3 buffer absorbs delays. All three battery paths fit within Dec 31.</li>
+            <li><b>Financial risk is bounded.</b> $150K base gap is tight but manageable under the cost-plus contract.</li>
+            <li><b>Six conditions are specific and owned.</b> RAID log traceability; clear success criteria; named owners.</li>
+            <li><b>Sep 28 battery decision is a choice, not a crisis.</b> All three paths work; the decision is cost-and-quality, not go/no-go.</li>
+            <li><b>Monthly governance closes the transparency gap.</b> Real-time financial and risk reporting prevents surprises.</li>
           </ul>
-          <div class="callout callout--green"><b>Assessment:</b> Risk is elevated but not unmanageable. Proceeding with conditions, paired with Sep 28 battery gate and monthly governance reporting, provides board visibility and decision authority throughout Phase 3.</div>
+          <div class="callout callout--green"><b>Recommendation:</b> proceed with six conditions. Authorize Phase 3. Establish monthly board governance review.</div>
         </section>
 
         <section class="slide" hidden data-i="15">
-          <p class="eyebrow">Specific Board Authorizations · Slide 15</p>
+          <p class="eyebrow">Three Specific Authorizations · Slide 15</p>
           <h2 class="slide-title">What the Board Approves</h2>
           <ol class="steps">
-            <li>Authorize Phase 3 baseline of $3.7M — $1.5M hardware, $1.8M software, $0.4M integration.</li>
-            <li>Accept the $185K remaining contingency as sufficient, and pre-authorize the ~$130K of anticipated draws with monthly tracking (Condition #6).</li>
-            <li>Preserve the $150K management reserve intact; confirm the drawdown rule — Sponsor under $50K, Board at or above $50K.</li>
-            <li>Ratify the six governance conditions, with Condition #1 escalated for immediate action (Marcus Chen) — Condition #3 (PO allocation) is already resolved.</li>
-            <li>Confirm Sep 28 as a firm decision gate, and Oct 5 and Dec 15 as the Phase 3 gates.</li>
-            <li>Delegate integrated HW/SW change-control authority to the weekly Leadership Team for changes under $25K; board review at or above.</li>
+            <li><b>Phase 3 Go-Decision.</b> Authorize October–December 2026 manufacturing readiness, full deployment, and completion of the 5,000-unit order. Authorization is conditioned on the six governance conditions.</li>
+            <li><b>Oct 21 Working Forecast &amp; Rebaseline.</b> Approve the Phase 2 slip to Oct 21 as the new baseline. A formal rebaseline for Phase 3 will be submitted before Sep 20.</li>
+            <li><b>Phase 3 Budget &amp; Contingency.</b> Approve the Phase 3 baseline ($3.7M) and authorize the contingency review process. The unallocated management reserve ($150K) remains available.</li>
           </ol>
         </section>
 
@@ -1132,20 +1169,38 @@
             <div class="ask"><span class="q">Approve the Oct 21 working forecast and a formal rebaseline?</span><span class="a">Approve</span></div>
             <div class="ask"><span class="q">Approve the Phase 3 baseline ($3.7M) and contingency plan?</span><span class="a">Approve</span></div>
             <div class="ask"><span class="q">Ratify the six governance conditions?</span><span class="a">Yes</span></div>
-            <div class="ask"><span class="q">Authorize Marcus Chen as Software Lead to close Conditions #1 &amp; #2?</span><span class="a">Authorized</span></div>
-            <div class="ask"><span class="q">Confirm David Whitmore as CEO executive escalation authority?</span><span class="a">Confirmed</span></div>
+            <div class="ask"><span class="q">Acknowledge David Whitmore, CEO, with executive escalation authority for Phase 3?</span><span class="a">Acknowledged</span></div>
             <div class="ask"><span class="q">Confirm Sep 28 / Oct 5 / Dec 15 as the Phase 3 gates?</span><span class="a">Yes</span></div>
           </div>
         </section>
 
         <section class="slide slide--dark" hidden data-i="17">
-          <p class="eyebrow">Evidence-Based Path Forward · Slide 17</p>
-          <h2 class="slide-title">Conclusion</h2>
-          <div class="slide-grid c3">
-            <div class="panel" style="background:rgba(255,255,255,.1);border-color:#e6c98d;color:#fff"><h4 style="color:#fff">Project viable &amp; strategic</h4><p class="desc" style="color:#e6c98d">Business need proven. Technology viable. Logistics and command at 88–90% CSAT. MVP complete and in pilot. Strategic value intact.</p></div>
-            <div class="panel" style="background:rgba(255,255,255,.1);border-color:#e6c98d;color:#fff"><h4 style="color:#fff">Challenges understood &amp; managed</h4><p class="desc" style="color:#e6c98d">Battery isolated with three costed paths (software-first, 70% feasibility). Oct 21 schedule credible with a 71-day buffer. $150K base gap covered by reserves. Field-ops plan owned by Emily Carter, dated. Marcus Chen confirmed as Software Lead.</p></div>
-            <div class="panel" style="background:rgba(255,255,255,.1);border-color:#e6c98d;color:#fff"><h4 style="color:#fff">Proceed with conditions</h4><p class="desc" style="color:#e6c98d">Six evidence-based conditions, all due by Sep 15/25 (battery Sep 28). Board governance, formal rebaseline, monthly financial and risk reporting. David Whitmore providing executive escalation authority. Recommendation: GO with Conditions.</p></div>
+          <p class="eyebrow">Proceed with Conditions</p>
+          <h2 class="slide-title">The Path Forward</h2>
+          <div class="slide-grid c2">
+            <div class="panel" style="background:rgba(255,255,255,.1);border-color:#e6c98d;color:#fff">
+              <h4 style="color:#fff">Six Conditions</h4>
+              <ul class="clean on-dark" style="margin-top:8px">
+                <li>Integration coverage milestone — Sep 15</li>
+                <li>Battery feasibility analysis — Sep 25</li>
+                <li>Product Owner &amp; Software Lead continuity — Sep 30</li>
+                <li>Field Ops improvement plan — Sep 5</li>
+                <li>Change Control Board charter — Sep 15</li>
+                <li>Monthly financial reporting — Sep 5</li>
+              </ul>
+            </div>
+            <div class="panel" style="background:rgba(255,255,255,.1);border-color:#e6c98d;color:#fff">
+              <h4 style="color:#fff">Phase 3 Governance</h4>
+              <ul class="clean on-dark" style="margin-top:8px">
+                <li>Board review: Sep 15, Sep 28, Oct 5, Dec 15</li>
+                <li>Sep 28: battery path decision</li>
+                <li>Oct 5: Phase 3 kick-off confirmation</li>
+                <li>Dec 15: final readiness review</li>
+                <li>David Whitmore, CEO, providing escalation authority</li>
+              </ul>
+            </div>
           </div>
+          <p style="margin-top:20px;text-align:center;font-size:15px;color:#e6c98d">GO with Conditions. Schedule is protected. Product works. Governance is tight.</p>
         </section>
       </div>
     </main>
@@ -1216,6 +1271,7 @@
     {date:'2026-09-15', label:'Conditions #1, #5 due — integration testing 80%, Change Control Board chartered'},
     {date:'2026-09-25', label:'Condition #2 due — battery feasibility analysis complete'},
     {date:'2026-09-28', label:'Battery decision gate — board authorizes Path A, B, or fallback C'},
+    {date:'2026-09-30', label:'Condition #3 due — Product Owner & Software Lead continuity confirmed'},
     {date:'2026-10-05', label:'Manufacturing Readiness Review — Phase 3 production validation'},
     {date:'2026-10-21', label:'Phase 2 close; Phase 3 production procurement in full swing'},
     {date:'2026-12-31', label:'Full deployment — 5,000 units operational and customer-accepted'}
@@ -1242,16 +1298,16 @@
      evidence:'I-03 records coverage at 72% against an 80% plan; full-system scenarios remain constrained. The Oct 5 Manufacturing Readiness Review assumes 80%+.',
      success:['Automated test suite shows 80%+ coverage by Sep 15.','Every constrained scenario from I-03 is identified and scheduled.','A resource plan completes the work by Sep 20 — a buffer before the Oct 5 MRR.'],
      impact:'The MRR proceeds with known testing gaps; HW/SW integration faults surface in production and raise deployment risk.'},
-    {n:2, title:'Battery Feasibility (Sep 28 decision)', owner:'Marcus Chen · Software Lead', due:'2026-09-25',
+    {n:2, title:'Battery Feasibility (Sep 28 decision)', owner:'Marcus Chen · Software Lead & Jennifer Morales · Product Owner', due:'2026-09-25',
      crit:'Path A analysis delivers by Sep 25; board selects a path Sep 28.',
-     evidence:'R-01 flags the battery endurance gap (30% probability, $120K EMV). Three paths are modeled — software optimization, hybrid, hardware redesign — each costed and scheduled.',
+     evidence:'R-01 flags the battery endurance gap. Three paths are modeled — software optimization, hybrid, hardware redesign — each costed and scheduled. Marcus leads the technical analysis; Jennifer approves the path from a product standpoint.',
      success:['Path A field-simulation results delivered by Sep 25.','Board briefed with a clear go/no-go recommendation ahead of Sep 28.','Path C pre-authorized as a fallback if Path A underperforms.'],
      impact:'Phase 3 resource plan stays ambiguous and the Sep 28 gate slips, eating into the 71-day buffer.'},
-    {n:3, title:'Product Owner Allocation', owner:'Sarah Mitchell · Sponsor', due:'2026-09-05', resolved:true,
-     crit:'Resolved — Jennifer Morales confirmed full-time to SENTINEL as Product Owner; the Legacy Logistics Suite is covered elsewhere.',
-     evidence:'R-02 had flagged Product Owner availability as a risk — medium impact, 60% likelihood — with the note that conflicts with the Legacy Logistics Suite remained unresolved. That conflict is now closed.',
-     success:['Full-time allocation documented and confirmed.','Backlog refinement resumes without Legacy Suite conflicts.','Sprint velocity holds at the 27-point baseline.'],
-     impact:'Closed — no further board action needed on this condition.'},
+    {n:3, title:'Product Owner & Software Lead Continuity', owner:'Sarah Mitchell · Sponsor', due:'2026-09-30',
+     crit:'Formal confirmation that Jennifer Morales (Product Owner) and Marcus Chen (Software Lead) both remain full-time and stable through Phase 3 close.',
+     evidence:'Jennifer is already operating full-time on SENTINEL and Marcus has taken up the Software Lead seat; this condition is the Sponsor\'s formal sign-off that both roles stay staffed and stable through Phase 3, rather than a one-time hire decision.',
+     success:['Jennifer\'s full-time allocation documented and confirmed through Phase 3 close.','Marcus Chen\'s Software Lead continuity confirmed through Phase 3 close.','Sprint velocity holds at the 27-point baseline.'],
+     impact:'Backlog refinement is delayed if either role\'s continuity is not formally confirmed by Sep 30.'},
     {n:4, title:'Field Ops CSAT Improvement Plan', owner:'Emily Carter · Director, Customer Experience', due:'2026-09-05',
      crit:'Plan documents battery mitigation, offline-first MVP, field training — milestones 72%→80% by Oct 15, 80%→85% by Dec 15.',
      evidence:'Pilot results show a split pattern: Logistics 90%, Field Ops 72%, aggregate 81% against an 85% gate requirement. The gap is field-mobile workflows.',
@@ -1353,10 +1409,10 @@
      mit:'Condition #3 — resolved. Jennifer confirmed full-time to SENTINEL as Product Owner.'},
     {id:'R-03', title:'Software Integration Effort & Capacity', severity:'critical', owner:'Marcus Chen, Software Lead', probability:'Active', impact:'MEDIUM', emv:'$40K',
      what:'Integration across workstreams needs additional effort; three RAID items (R-03, I-03, D-02) sit under the Software Lead role.',
-     mit:'Condition #1 — reach 80% integration coverage by Sep 15; Jennifer leads with confirmed ownership of the role.'},
-    {id:'R-04', title:'Governance — Funding Continuity', severity:'medium', owner:'Sarah Mitchell, Sponsor', probability:'—', impact:'MEDIUM', emv:'—',
-     what:'Continued Phase 3 funding depends on the board\'s confidence in the Phase 2 outcome and resolution of the open conditions.',
-     mit:'Governance conditions and monthly reporting keep Phase 2 performance visible ahead of each gate (Sep 10, Oct 5, Dec 15).'},
+     mit:'Condition #1 — reach 80% integration coverage by Sep 15; Marcus leads with confirmed ownership of the role.'},
+    {id:'R-04', title:'Governance Readiness', severity:'medium', owner:'Sarah Mitchell, Sponsor', probability:'—', impact:'MEDIUM', emv:'—',
+     what:'Board confidence in Phase 3 authorization depends on governance materials being complete and the six conditions clearly framed.',
+     mit:'Governance materials are ready for the board; the six conditions are framed with named owners, due dates and success criteria. Monthly reporting keeps Phase 2 performance visible ahead of each gate (Sep 10, Oct 5, Dec 15).'},
     {id:'R-05', title:'Hardware Redesign — Schedule & Reserve Impact', severity:'medium', owner:'Ethan Brooks, Falcon PM', probability:'20%', impact:'HIGH', emv:'$80K',
      what:'If the Sep 28 decision selects Path C (hardware redesign), schedule slips 60–90 days and draws into the management reserve beyond the $185K contingency.',
      mit:'Path C is pre-authorized as a fallback only; the 71-day Phase 3 buffer absorbs it if triggered.'},
@@ -1384,7 +1440,7 @@
     {id:'I-02', text:'Environmental testing incomplete; schedule movement.', owner:'Falcon (Ethan Brooks)'},
     {id:'I-03', text:'System integration testing at 72% vs. an 80% plan. Target Sep 15 (Condition #1).', owner:'Marcus Chen, Software Lead'},
     {id:'I-04', text:'Backlog acceptance criteria / Definition of Done incomplete.', owner:'Jennifer Morales, Product Owner'},
-    {id:'I-05', text:'Phase 2 expenditures need continued monitoring against approved thresholds. Monthly cadence by Sep 5 (Condition #6).', owner:'Karen Holt, Finance'}
+    {id:'I-05', text:'Financial review is ongoing; variance-reporting language is being clarified. Monthly cadence by Sep 5 (Condition #6).', owner:'Karen Holt, Finance'}
   ];
   var issueHost = document.getElementById('raid-issues');
   issues.forEach(function(i){
@@ -1403,7 +1459,7 @@
   assumptions.forEach(function(a){ aHost.appendChild(el('<li>' + a + '</li>')); });
 
   var deps = [
-    {id:'D-01', text:'Software Lead role — resolved. Marcus Chen confirmed as Software Lead; Jennifer Morales\'s Product Owner allocation to SENTINEL is also resolved full-time (Condition #3 closed).', owner:'Sarah Mitchell', due:'Resolved', status:'green'},
+    {id:'D-01', text:'Software Lead role — filled. Marcus Chen confirmed as Software Lead; Jennifer Morales is operating full-time as Product Owner. Formal continuity sign-off for both roles is Condition #3, due Sep 30.', owner:'Sarah Mitchell', due:'Sep 30', status:'amber'},
     {id:'D-02', text:'MVP software capability must be available before meaningful full-system integration testing.', owner:'Marcus Chen, Software Lead', due:'Ongoing', status:'amber'},
     {id:'D-03', text:'Falcon environmental test results — received Aug 14; inform the Sep 25/28 battery decision.', owner:'Ethan Brooks, Falcon PM', due:'Received', status:'green'},
     {id:'D-04', text:'Army formal approval authority for Phase 3 initiation, sought at the Sep 10 board gate.', owner:'COL Michael Torres', due:'Sep 10', status:'amber'}
@@ -1570,13 +1626,13 @@
   pilotStats.forEach(function(s){ pilotHost.appendChild(el('<div class="stat"><span class="label">'+s[0]+'</span><span class="figure">'+s[1]+'</span><span class="note">'+s[2]+'</span></div>')); });
 
   var csat = [
-    ['Logistics Personnel', 90, 85, 'green'], ['Commanders', 88, 85, 'green'],
-    ['Maintenance', 85, 85, 'green'], ['Field Operations', 72, 85, 'red']
+    ['Warehouse Logistics (Core Use Case)', '80 (warehouse coordinators)', '6 (FOBs & distribution centers)', 90, 85, 'green'],
+    ['Field Operations (Extended Use Case)', '170 (field command, logistics officers)', '12 (small bases, forward sites)', 72, 85, 'red']
   ];
   var csatBody = document.getElementById('tbl-csat');
-  csatBody.appendChild(el('<tr><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);text-align:left;padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Segment</th><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Score</th><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Target</th><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Status</th></tr>'));
+  csatBody.appendChild(el('<tr><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);text-align:left;padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Segment</th><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);text-align:left;padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Users</th><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);text-align:left;padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Sites</th><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">CSAT</th><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Target</th><th style="font-family:IBM Plex Mono,monospace;font-size:10px;text-transform:uppercase;color:var(--muted);padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair)">Status</th></tr>'));
   csat.forEach(function(c){
-    csatBody.appendChild(el('<tr><td class="strong">' + c[0] + '</td><td class="tnum">' + c[1] + '%</td><td class="tnum">' + c[2] + '%</td><td><span class="rag rag--' + c[3] + '">' + (c[3]==='green'?'On target':'Below target') + '</span></td></tr>'));
+    csatBody.appendChild(el('<tr><td class="strong">' + c[0] + '</td><td>' + c[1] + '</td><td>' + c[2] + '</td><td class="tnum">' + c[3] + '%</td><td class="tnum">' + c[4] + '%</td><td><span class="rag rag--' + c[5] + '">' + (c[5]==='green'?'On target':'Below target') + '</span></td></tr>'));
   });
 
   var personas = [
@@ -1606,7 +1662,7 @@
 
   /* ================= STAKEHOLDERS ================= */
   var stakeholders = [
-    {name:'Sarah Mitchell', role:'Executive Sponsor (VP Strategic Programs)', org:'Apex', sentiment:'supportive', power:'High', interest:'High', action:'Support the Sep 28 battery decision (Condition #2). PO allocation (Condition #3) is resolved.'},
+    {name:'Sarah Mitchell', role:'Executive Sponsor (VP Strategic Programs)', org:'Apex', sentiment:'supportive', power:'High', interest:'High', action:'Support the Sep 28 battery decision (Condition #2); confirm Product Owner & Software Lead continuity by Sep 30 (Condition #3).'},
     {name:'David Whitmore', role:'CEO', org:'Apex', sentiment:'concerned', power:'High', interest:'Medium', action:'Monthly executive briefing via the Sponsor; approves scope changes over $200K; provides executive escalation authority.'},
     {name:'David Reynolds', role:'VP Growth', org:'Apex', sentiment:'supportive', power:'Medium', interest:'High', action:'Kept informed of Phase 3 progress and deployment outcomes.'},
     {name:'COL (Ret.) Michael Torres', role:'Military Advisor / Customer', org:'U.S. Army', sentiment:'concerned', power:'High', interest:'High', action:'Provide formal Army approval authority for Phase 3; bi-weekly working sessions with the PM.'},
@@ -1652,12 +1708,12 @@
 
   /* ================= Q&A ================= */
   var qa = [
-    {q:'Are we over budget?', tag:'Financial', a:'The bottom-up EAC is $12.65M — $150K over the $12.5M authorization and $850K over the $11.8M approved baseline. Finance frames it as a legitimate bottom-up replan, not a failure. The $150K over-authorization is comfortably covered by the $335K of remaining reserves. Adding the ~$240K of validated risk EMV brings the forecast near $12.9M, close to the reserve ceiling — which is why risk exposure is tracked monthly.'},
+    {q:'Are we over budget?', tag:'Financial', a:'The bottom-up EAC is $12.65M — $150K over the $12.5M authorization and $850K over the $11.8M approved baseline. Finance frames it as a legitimate bottom-up replan, not a failure. The $150K base gap is comfortably covered by the $335K of remaining reserves. Adding the battery-risk EMV brings the risk-adjusted EAC to $12.77M — a $270K gap, still inside reserves but closer to the ceiling, which is why risk exposure is tracked monthly and the cost-plus contract keeps a contingency review available.'},
     {q:'Why is the forecast $850K over the baseline?', tag:'Financial', a:'Phase 1 ran 35% over its phase budget on battery prototype rework and extra software-integration testing — both mapped to charter risks and absorbed by the contingency reserve. Phase 2 spend is flat to baseline. The $850K is the difference between the $11.8M plan and the $12.65M realistic completion cost.'},
     {q:'Is the battery redesign in the $12.65M forecast?', tag:'Risk', a:'No. The $12.65M EAC assumes continued testing and normal Falcon engineering support, and does not assume a major hardware redesign. Modeled cost if Path C fires: ~$400K, +4–6 weeks, ~20% probability — Dec 31 still holds inside the buffer, but it would draw the management reserve.'},
     {q:'Will you hit December 31?', tag:'Schedule', a:'Yes. Phase 2 forecasts to Oct 21; Phase 3 is 10 weeks of work with a 71-day buffer. All three battery paths — including the worst case — still land by Dec 31.'},
     {q:'What keeps you up at night?', tag:'Risk', a:'The Sep 28 battery decision (30% chance the test fails and forces a costlier path) and the Field Ops CSAT gap (72% vs. 85% target). Both have named owners and dated mitigations — Marcus Chen on the battery analysis, Emily Carter on the CSAT plan.'},
-    {q:'What are the conditions, and where do they stand?', tag:'Governance', a:'Six evidence-based conditions grounded in the RAID log: (1) integration coverage 72% → 80% by Sep 15, (2) battery feasibility analysis by Sep 25 / decision Sep 28, (3) PO allocation — resolved, Jennifer Morales confirmed full-time to SENTINEL, (4) Field Ops CSAT plan documented by Sep 5, (5) Change Control Board chartered by Sep 15, (6) monthly financial reporting live by Sep 5. None require additional funding or scope cuts.'},
+    {q:'What are the conditions, and where do they stand?', tag:'Governance', a:'Six evidence-based conditions grounded in the RAID log: (1) integration coverage 72% → 80% by Sep 15 (Marcus Chen), (2) battery feasibility analysis by Sep 25 / decision Sep 28 (Marcus Chen & Jennifer Morales), (3) Product Owner &amp; Software Lead continuity confirmed by Sep 30 (Sarah Mitchell) — Jennifer and Marcus are already full-time, this is the formal sign-off, (4) Field Ops CSAT plan documented by Sep 5, (5) Change Control Board chartered by Sep 15, (6) monthly financial reporting live by Sep 5. None require additional funding or scope cuts.'},
     {q:'Why the gap between Logistics and Field Ops satisfaction?', tag:'Pilot', a:'Device ergonomics and screen brightness for outdoor use, plus battery drain under heavy field use. Logistics works in a controlled environment (90%); Field Ops is mobile and harsh (72%). The improvement plan — lighter device, transflective display, offline-first mobile app, field training — is documented by Sep 5, targets 80% by Oct 15 and 85% by Dec 15, with a re-pilot check Oct 30.'},
     {q:'Why has the management reserve not been touched?', tag:'Financial', a:'Every Phase 1–2 variance mapped back to one of the six identified charter risks, so the contingency reserve covered it. No unknown-unknowns have materialized. The $150K stays reserved for genuine Phase 3 surprises.'}
   ];
